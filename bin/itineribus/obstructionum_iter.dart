@@ -42,14 +42,15 @@ Future<Response> prior(Request req) async {
 
 Future<Response> probationemGenerare(Request req) async {
   final probationem = req.params['probationem'];
-  Obstructionum obs = await Utils.accipereObstructionumProbationem(
-      probationem!, Directory(argumentis!.obstructionumDirectorium));
+  Obstructionum obs = await Utils.accipereObstructionumProbationem(probationem!,
+      Directory('vincula/${argumentis!.obstructionumDirectorium}'));
   return Response.ok(json.encode(
       {"generare": obs.interioreObstructionum.generare.name.toString()}));
 }
 
 Future<Response> furcaUnumRetro(Request req) async {
-  Directory directory = Directory(argumentis!.obstructionumDirectorium);
+  Directory directory =
+      Directory('vincula/${argumentis!.obstructionumDirectorium}');
   Obstructionum obs = await Utils.priorObstructionum(directory);
   if (obs.interioreObstructionum.generare == Generare.INCIPIO) {
     return Response.badRequest(
@@ -63,6 +64,7 @@ Future<Response> furcaUnumRetro(Request req) async {
   ptp!.liberTxs = [];
   ptp!.fixumTxs = [];
   ptp!.propters = [];
+  stamina.efectusThreads = [];
   return Response.ok(json.encode({
     "nuntius": "remotus",
     "message": "removed",

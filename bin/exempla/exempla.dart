@@ -37,20 +37,20 @@ class SubmittereRationem {
 }
 
 class SubmittereTransaction {
-  String? from;
-  String? to;
-  BigInt? app;
+  String? privatus;
+  String? publica;
+  BigInt? pod;
 
   Map<String, dynamic> asMap() => {
-        'from': from,
-        'to': to,
-        'app': app,
+        'privatus': privatus,
+        'publica': publica,
+        'pod': pod,
       };
   // SubmittereTransaction(this.from, this.to, this.gla, this.unit);
   SubmittereTransaction.fromJson(Map<String, dynamic> map) {
-    to = map['to'].toString();
-    from = map['from'].toString();
-    app = BigInt.from(num.parse(map['app'].toStringAsExponential() as String));
+    publica = map['publica'].toString();
+    privatus = map['privatus'].toString();
+    pod = BigInt.from(num.parse(map['pod'].toStringAsExponential() as String));
   }
 
   // APISchemaObject documentSchema(APIDocumentContext context) {

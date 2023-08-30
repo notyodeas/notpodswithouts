@@ -16,7 +16,7 @@ Future<Response> submittereLiberTransactio(Request req) async {
   Directory directory =
       Directory('vincula/${argumentis!.obstructionumDirectorium}');
   try {
-    if (st.app == BigInt.zero) {
+    if (st.pod == BigInt.zero) {
       return Response.badRequest(
           body: json.encode(BadRequest(
                   code: 0,
@@ -24,8 +24,8 @@ Future<Response> submittereLiberTransactio(Request req) async {
                   message: "can not send 0")
               .toJson()));
     }
-    PrivateKey pk = PrivateKey.fromHex(Pera.curve(), st.from!);
-    if (pk.publicKey.toHex() == st.to) {
+    PrivateKey pk = PrivateKey.fromHex(Pera.curve(), st.privatus!);
+    if (pk.publicKey.toHex() == st.publica) {
       return Response.badRequest(
           body: json.encode(BadRequest(
                   code: 0,
@@ -33,8 +33,8 @@ Future<Response> submittereLiberTransactio(Request req) async {
                   nuntius: "can not send money to the same public key")
               .toJson()));
     }
-    if (!await Pera.isPublicaClavisDefended(st.to!, directory) &&
-        !await Pera.isProbationum(st.to!, directory)) {
+    if (!await Pera.isPublicaClavisDefended(st.publica!, directory) &&
+        !await Pera.isProbationum(st.publica!, directory)) {
       return Response.badRequest(
           body: json.encode(BadRequest(
                   code: 1,
@@ -42,11 +42,11 @@ Future<Response> submittereLiberTransactio(Request req) async {
                   message: 'public key is not defended')
               .toJson()));
     }
-    final InterioreTransaction tx = await Pera.novamRem(
-        true, true, st.from!, st.app!, st.to!, ptp!.liberTxs, directory, null);
+    final InterioreTransaction tx = await Pera.novamRem(true, true,
+        st.privatus!, st.pod!, st.publica!, ptp!.liberTxs, directory, null);
     ptp!.liberTxs.add(Transaction.expressi(tx));
     ptp!.expressieTxs.add(Transaction.expressi(await Pera.novamRem(true, false,
-        st.from!, st.app!, st.to!, ptp!.liberTxs, directory, tx.id)));
+        st.privatus!, st.pod!, st.publica!, ptp!.liberTxs, directory, tx.id)));
     ReceivePort acciperePortus = ReceivePort();
     isolates.liberTxIsolates[tx.id] = await Isolate.spawn(Transaction.quaestum,
         List<dynamic>.from([tx, acciperePortus.sendPort]));
@@ -60,5 +60,14 @@ Future<Response> submittereLiberTransactio(Request req) async {
 }
 
 Future<Response> liberTransactioStagnum(Request req) async {
-  return Response.ok(ptp!.liberTxs.map((e) => e.toJson()).toList());
+  return Response.ok(
+      json.encode(ptp!.liberTxs.map((e) => e.toJson()).toList()));
+}
+
+Future<Response> removereLiberTransactioStagnum(Request req) async {
+  ptp!.liberTxs = [];
+  return Response.ok(json.encode({
+    "nuntius": "Liber transactios remota sunt a stagnum",
+    "message": "Liber transactions are removed from the pool"
+  }));
 }

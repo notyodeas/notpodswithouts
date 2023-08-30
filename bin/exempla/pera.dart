@@ -391,7 +391,7 @@ class Pera {
       Directory directory,
       String? expressiId) async {
     if (value < BigInt.zero) {
-      throw BadRequest(code: 0, nuntius: '', message: "Can't steal money.");
+      // throw BadRequest(code: 0, nuntius: '', message: "Can't steal money.");
     }
     PrivateKey privatusClavis = PrivateKey.fromHex(Pera.curve(), ex);
     List<Tuple3<int, String, TransactionOutput>> inOuts =
@@ -425,9 +425,6 @@ class Pera {
     for (Tuple3<int, String, TransactionOutput> inOut in outs) {
       balance += inOut.item3.app;
     }
-    print(balance);
-    print(value);
-    print(tx);
     if (tx ? (balance < (value * BigInt.two)) : (balance < value)) {
       throw BadRequest(
           code: 1, nuntius: "Satis pecunia", message: "Insufficient funds");

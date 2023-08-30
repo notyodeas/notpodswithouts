@@ -15,9 +15,8 @@ import 'auxiliatores/accipere_portum.dart';
 import 'itineribus/rationem_iter.dart';
 import 'itineribus/transactio_iter.dart';
 import 'itineribus/transactio_liber_iter.dart';
-import 'package:path/path.dart' as path;
-import "package:path/path.dart" show dirname;
-import 'dart:io';
+import 'itineribus/statera_iter.dart';
+import 'auxiliatores/print.dart';
 
 class PoschosTesches {
   String? vaschal;
@@ -41,9 +40,12 @@ final _router = Router()
   ..post('/rationem-submittere', submittere)
   ..get('/rationem/<identitatis>', rationemIdentitatis)
   ..get('/rationem-novus', novus)
+  ..get('/statera/<liber>/<publica>', statera)
   ..post('/transactio-liber-submittere', submittereLiberTransactio)
   ..get('/transactio-stagnum', liberTransactioStagnum)
-  ..get('/transaction/<identitatis>', transactioIdentitatis);
+  ..get('/transactio/<identitatis>', transactioIdentitatis)
+  ..delete(
+      '/removere-liber-transactio-stagnum', removereLiberTransactioStagnum);
 
 Response _rootHandler(Request req) {
   return Response.ok('Hello, World!\n');
@@ -91,7 +93,6 @@ class Isolates {
 }
 
 Isolates isolates = Isolates();
-
 void main(List<String> args) async {
   // Use any available host or container IP (usually `0.0.0.0`).
   final ip = InternetAddress.anyIPv4;
@@ -99,7 +100,10 @@ void main(List<String> args) async {
   total.addOption('obstructionum-directorium');
   total.addOption('max-pervideas', defaultsTo: '51');
   total.addOption('internum-ip', defaultsTo: '127.0.0.1');
+  total.addOption('externum-ip');
   total.addOption('pervideas-port', defaultsTo: '8008');
+  total.addOption('rpc-port', defaultsTo: '8080');
+  total.addOption('tabernus-nodi');
   total.addOption('publica-clavis');
   total.addFlag('partum-key-par');
   total.addFlag('novus');
@@ -132,21 +136,41 @@ void main(List<String> args) async {
     Obstructionum obs = Obstructionum.incipio(
         InterioreObstructionum.incipio(producentis: producentis));
     await obs.salvareIncipio(directory);
-    print('Incipiens creatus obstructionum');
-    print('Created incipio block');
+    Print.nota(
+        nuntius: 'Incipiens creatus obstructionum',
+        message: 'Created Incipio block');
   }
+
+  String internumIp = eventus['internum-ip'];
+  int pervideasPort = int.parse(eventus['pervideas-port']);
   ptp = PervideasToPervideas(
       int.parse(eventus['max-pervideas']),
       Utils.randomHex(64),
-      '${eventus['internum-ip']}:${eventus['pervideas-port']}',
+      '$internumIp:$pervideasPort',
       Directory('vincula/${eventus['obstructionum-directorium']}'),
       [0]);
+  ptp!.listen(internumIp, pervideasPort);
+
+  String? tabernusNodi = eventus['tabernus-nodi'];
+  if (tabernusNodi != null) {
+    String? externumIp = eventus['externum-ip'];
+    if (externumIp == null) {
+      Print.nota(
+          nuntius: 'Non opus est valorem pro ip externo si data bootnode',
+          message:
+              'We need a value for the external ip if a bootnode is given');
+      exit(0);
+    }
+    ptp!.connect(tabernusNodi, '$externumIp:$pervideasPort');
+  }
+
   argumentis = Argumentis(
       eventus['obstructionum-directorium'],
       eventus['publica-clavis'],
       eventus['internum-ip'],
       eventus['pervideas-port'],
       int.parse(eventus['max-pervideas']));
+
   ptp!.efectusRp.listen((message) {
     AcciperePortum.efectus(
         isSalutaris,
@@ -162,7 +186,9 @@ void main(List<String> args) async {
   final handler = Pipeline().addMiddleware(logRequests()).addHandler(_router);
 
   // For running in containers, we respect the PORT environment variable.
-  final port = int.parse(Platform.environment['PORT'] ?? '8080');
+  final port = int.parse(eventus['rpc-port']);
   final server = await serve(handler, ip, port);
-  print('Server listening on port ${server.port}');
+  Print.nota(
+      message: 'Server listening on port ${server.port}',
+      nuntius: 'Servo audire in portum ${server.port}');
 }

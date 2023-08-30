@@ -14,6 +14,7 @@ import '../exempla/utils.dart';
 import '../exempla/transaction.dart';
 import 'package:ecdsa/ecdsa.dart';
 import 'package:elliptic/elliptic.dart';
+import '../auxiliatores/print.dart';
 
 class P2PMessage {
   String type;
@@ -259,7 +260,7 @@ class PrepareObstructionumSyncP2PMessage extends P2PMessage {
   PrepareObstructionumSyncP2PMessage.fromJson(Map<String, dynamic> jsoschon)
       : super.fromJson(jsoschon);
   @override
-  Map<String, dynamic> toJson() => {'type': type, 'recieved': 'recieved'};
+  Map<String, dynamic> toJson() => {'type': type, 'recieved': recieved};
 }
 
 class PrepareObstructionumAnswerP2PMessage extends P2PMessage {
@@ -272,7 +273,7 @@ class PrepareObstructionumAnswerP2PMessage extends P2PMessage {
         super.fromJson(jsoschon);
   @override
   Map<String, dynamic> toJson() =>
-      {'sockets': sockets, 'type': type, 'recieved': 'recieved'};
+      {'sockets': sockets, 'type': type, 'recieved': recieved};5555555555nj9 
 }
 
 class RequestObstructionumP2PMessage extends P2PMessage {
@@ -339,14 +340,17 @@ class PervideasToPervideas {
   PervideasToPervideas(
       this.maxPervideas, this.secret, this.from, this.dir, this.summaNumerus);
 
-  listen(String internalIp, int port) async {
-    ServerSocket serverSocket = await ServerSocket.bind(internalIp, port);
-    print(serverSocket.address);
-    print(serverSocket.port);
+  listen(String internumIp, int port) async {
+    ServerSocket serverSocket = await ServerSocket.bind(internumIp, port);
+    Print.nota(
+        nuntius: 'pervideas parem servo coepi audire in $internumIp:$port',
+        message: "peer to peer server started listening on $internumIp:$port");
     serverSocket.listen((client) {
       utf8.decoder.bind(client).listen((data) async {
         print(client.address.address);
         print(client.port);
+        print('tempprint');
+        print(data);
         P2PMessage msg =
             P2PMessage.fromJson(json.decode(data) as Map<String, dynamic>);
         print(msg.toJson());
@@ -374,14 +378,14 @@ class PervideasToPervideas {
           }
           if (sockets.length < maxPervideas &&
               !sockets.contains(cbp2pm.socket) &&
-              cbp2pm.socket != '$internalIp:$port') {
+              cbp2pm.socket != '$internumIp:$port') {
             sockets.add(cbp2pm.socket);
           }
         } else if (msg.type == 'single-socket') {
           SingleSocketP2PMessage ssp2pm = SingleSocketP2PMessage.fromJson(
               json.decode(data) as Map<String, dynamic>);
           if (sockets.length < maxPervideas &&
-              ssp2pm.socket != '$internalIp:$port') {
+              ssp2pm.socket != '$internumIp:$port') {
             sockets.add(ssp2pm.socket);
           }
           client.destroy();
@@ -634,8 +638,8 @@ class PervideasToPervideas {
                   json.decode(data) as Map<String, dynamic>);
           List<String> to_send = this.sockets;
           to_send.removeWhere((element) => msg.recieved.contains(element));
-          client.write(PrepareObstructionumAnswerP2PMessage(
-              to_send, 'prepare-obstructionum-answer', []));
+          client.write(json.encode(PrepareObstructionumAnswerP2PMessage(
+              to_send, 'prepare-obstructionum-answer', []).toJson()));
           client.destroy();
         } else if (msg.type == 'obstructionum') {
           ObstructionumP2PMessage op2pm = ObstructionumP2PMessage.fromJson(
@@ -676,9 +680,6 @@ class PervideasToPervideas {
                     obs.interioreObstructionum.summaObstructionumDifficultas ||
                 op2pm.secret == secret) {
               List<Obstructionum> obss = await Obstructionum.getBlocks(dir);
-              print(obs.probationem);
-              print(
-                  op2pm.obstructionum.interioreObstructionum.priorProbationem);
               if (obs.probationem ==
                   op2pm.obstructionum.interioreObstructionum.priorProbationem) {
                 secret = Utils.randomHex(32);
@@ -705,6 +706,15 @@ class PervideasToPervideas {
                 }
                 for (Transaction tx in op2pm
                     .obstructionum.interioreObstructionum.liberTransactions) {
+                  if (tx.isFurantur()) {
+                    Print.nota(
+                        nuntius:
+                            'hoc obstructionum producentis quaerit pecuniam furantur',
+                        message:
+                            'this block producer is trying to steal money');
+                    return;
+                  }
+                  ;
                   for (TransactionOutput output
                       in tx.interioreTransaction.outputs) {
                     if (!await Pera.isPublicaClavisDefended(
@@ -731,6 +741,14 @@ class PervideasToPervideas {
                 List<Transaction> transformOutputs = [];
                 for (Transaction tx in op2pm
                     .obstructionum.interioreObstructionum.fixumTransactions) {
+                  if (tx.isFurantur()) {
+                    Print.nota(
+                        nuntius:
+                            'hoc obstructionum producentis quaerit pecuniam furantur',
+                        message:
+                            'this block producer is trying to steal money');
+                    return;
+                  }
                   if (tx.probationem == 'transform') {
                     transformOutputs.add(tx);
                   } else {
@@ -1140,9 +1158,6 @@ class PervideasToPervideas {
                 print('requested block $summaNumerus');
                 // await syncBlock(obs);
               } else {
-                print('secrets');
-                print(op2pm.secret);
-                print(secret);
                 if (op2pm.obstructionum.interioreObstructionum.divisa >
                         obs.interioreObstructionum.divisa &&
                     op2pm.secret != secret) {
@@ -1150,7 +1165,6 @@ class PervideasToPervideas {
                   print('divisa est maior quam obstructionum reponere');
                   return;
                 }
-                print('had lover divisa');
                 // we remove our highest probationem
                 // here it could remove block one or the latest block
                 // it works with one blocks difference
@@ -1160,8 +1174,6 @@ class PervideasToPervideas {
                 // we send back the highest probationem but stays the difficulty greater than
                 // yes it does but if the probationem doesnt match any
                 //but than we remove the block that is new
-                print(
-                    'remota summum obstructionum cum probationem ${obs.probationem}');
                 await Utils.removeObstructionumsUntilProbationem(dir);
                 client.write(json.encode(ProbationemP2PMessage(
                         obs.probationem,
@@ -1498,15 +1510,20 @@ class PervideasToPervideas {
       Socket soschock = await Socket.connect(
           socket.split(':')[0], int.parse(socket.split(':')[1]));
       List<List<String>> hashes = [];
+      print('tempppppppp');
+      print(sockets);
       soschock.write(json.encode(PrepareObstructionumSyncP2PMessage(
               'prepare-obstructionum-sync', sockets)
           .toJson()));
       soschock.listen((data) async {
+        print('pmet');
+        print(data);
         PrepareObstructionumAnswerP2PMessage poap2pm =
             PrepareObstructionumAnswerP2PMessage.fromJson(
                 json.decode(String.fromCharCodes(data).trim())
                     as Map<String, dynamic>);
         allSockets.addAll(poap2pm.sockets);
+        print('wentwell');
       });
     }
     for (String socket in allSockets) {
@@ -1524,9 +1541,14 @@ class PervideasToPervideas {
       //   }
       //   idx++;
       // }
+      print('temppprint');
+      print(obs);
+      print(sockets);
       soschock.write(json.encode(
           ObstructionumP2PMessage('', obs, 'obstructionum', sockets).toJson()));
-      print('sended ${obs.interioreObstructionum.obstructionumNumerus}');
+      Print.nota(
+          message: 'sended ${obs.interioreObstructionum.obstructionumNumerus}',
+          nuntius: 'misit ${obs.interioreObstructionum.obstructionumNumerus}');
       soschock.listen((data) async {
         // List<List<String>> lines = [];
         // for (int i = dir.listSync().length-1; i > -1 ; i--) {
@@ -1620,11 +1642,16 @@ class PervideasToPervideas {
           // maby we dont need a proof like that because when it syncs it keeps on checking for a greater difficulty
           // once we sync the greater difficulty we can create a secret and resude that secret when we send a block with a lower difficulty
           // a different approach would be to delete so that total difficulty decreases too too messy
+          print('tempprint');
+          print(priorObstructionumProbationem.toJson());
           soschock.write(json.encode(ObstructionumP2PMessage(ropp2pm.secret,
                   priorObstructionumProbationem, 'obstructionum', sockets)
               .toJson()));
-          print(
-              'sended ${priorObstructionumProbationem.interioreObstructionum.obstructionumNumerus}');
+          Print.nota(
+              message:
+                  'sended ${priorObstructionumProbationem.interioreObstructionum.obstructionumNumerus}',
+              nuntius:
+                  'misit ${priorObstructionumProbationem.interioreObstructionum.obstructionumNumerus}');
           // if (ropp2pm.probationem != priorObstructionum.interioreObstructionum.probationem) {
           //   soschock.write(json.encode(RequestProbationemP2PMessage(ropp2pm.index, 'request-probationem').toJson()));
           //   print('couldnt find block with probationem request previous probationem');
