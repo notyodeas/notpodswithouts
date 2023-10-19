@@ -1,16 +1,12 @@
 import 'dart:io';
-import 'dart:isolate';
-import 'package:elliptic/elliptic.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
+import '../exempla/connexa_liber_expressi.dart';
 import '../exempla/constantes.dart';
-import '../exempla/exempla.dart';
 import '../exempla/obstructionum.dart';
-import '../exempla/pera.dart';
-import '../exempla/transaction.dart';
+import '../exempla/responsio/transactio_notitia.dart';
+import '../exempla/transactio.dart';
 import '../exempla/utils.dart';
-import '../connect/pervideas_to_pervideas.dart';
-import '../exempla/errors.dart';
 import 'dart:convert';
 import '../server.dart';
 
@@ -26,52 +22,60 @@ Future<Response> transactioIdentitatis(Request req) async {
           json.decode(obstructionum) as Map<String, dynamic>));
     }
   }
-  Obstructionum prior = await Utils.priorObstructionum(directory);
+  Obstructionum prior = await Obstructionum.acciperePrior(directory);
   for (InterioreObstructionum interiore
       in obs.map((o) => o.interioreObstructionum)) {
-    for (Transaction tx in interiore.liberTransactions) {
-      if (tx.interioreTransaction.id == identitatis) {
-        TransactionInfo txInfo = TransactionInfo(
+    for (Transactio tx in interiore.liberTransactions) {
+      if (tx.interioreTransactio.identitatis == identitatis) {
+        TransactioNotitia txInfo = TransactioNotitia(
             true,
-            tx.interioreTransaction.inputs.map((x) => x.transactionId).toList(),
+            tx.interioreTransactio.inputs
+                .map((x) => x.transactioIdentitatis)
+                .toList(),
             interiore.indicatione,
             interiore.obstructionumNumerus,
-            Utils.confirmationes(interiore.obstructionumNumerus,
+            Obstructionum.confirmationes(interiore.obstructionumNumerus,
                 prior.interioreObstructionum.obstructionumNumerus));
         return Response.ok(
             json.encode({"data": txInfo.toJson(), "scriptum": tx.toJson()}));
       }
     }
-    for (Transaction tx in interiore.fixumTransactions) {
-      if (tx.interioreTransaction.id == identitatis) {
-        TransactionInfo txInfo = TransactionInfo(
+    for (Transactio tx in interiore.fixumTransactions) {
+      if (tx.interioreTransactio.identitatis == identitatis) {
+        TransactioNotitia txInfo = TransactioNotitia(
             true,
-            tx.interioreTransaction.inputs.map((x) => x.transactionId).toList(),
+            tx.interioreTransactio.inputs
+                .map((x) => x.transactioIdentitatis)
+                .toList(),
             interiore.indicatione,
             interiore.obstructionumNumerus,
-            Utils.confirmationes(interiore.obstructionumNumerus,
+            Obstructionum.confirmationes(interiore.obstructionumNumerus,
                 prior.interioreObstructionum.obstructionumNumerus));
         return Response.ok(
             json.encode({"data": txInfo.toJson(), "scriptum": tx.toJson()}));
       }
     }
   }
-  for (Transaction tx in ptp!.liberTxs) {
-    if (tx.interioreTransaction.id == identitatis) {
-      TransactionInfo txInfo = TransactionInfo(
+  for (Transactio tx in par!.liberTransactions) {
+    if (tx.interioreTransactio.identitatis == identitatis) {
+      TransactioNotitia txInfo = TransactioNotitia(
           false,
-          tx.interioreTransaction.inputs.map((x) => x.transactionId).toList(),
+          tx.interioreTransactio.inputs
+              .map((x) => x.transactioIdentitatis)
+              .toList(),
           null,
           null,
           null);
       return Response.ok({"data": txInfo.toJson(), "scriptum": tx.toJson()});
     }
   }
-  for (Transaction tx in ptp!.fixumTxs) {
-    if (tx.interioreTransaction.id == identitatis) {
-      TransactionInfo txInfo = TransactionInfo(
+  for (Transactio tx in par!.fixumTransactions) {
+    if (tx.interioreTransactio.identitatis == identitatis) {
+      TransactioNotitia txInfo = TransactioNotitia(
           false,
-          tx.interioreTransaction.inputs.map((x) => x.transactionId).toList(),
+          tx.interioreTransactio.inputs
+              .map((x) => x.transactioIdentitatis)
+              .toList(),
           null,
           null,
           null);
@@ -84,4 +88,26 @@ Future<Response> transactioIdentitatis(Request req) async {
     "nuntius": "Re non inveni",
     "message": "Transaction not found"
   }));
+}
+
+Response transactioConnexaLiberExpressi(Request req) {
+  String liberIdentitatis = req.params['liber-identitatis']!;
+  ConnexaLiberExpressi cle = par!.connexiaLiberExpressis.singleWhere((cle) =>
+      cle.interioreConnexaLiberExpressi.liberIdentitatis == liberIdentitatis);
+  return Response.ok(json.encode(cle.toJson()));
+}
+
+Response transactioStagnumLiber(Request req) {
+  return Response.ok(
+      json.encode(par!.liberTransactions.map((lt) => lt.toJson()).toList()));
+}
+
+Response transactioStagnumFixum(Request req) {
+  return Response.ok(
+      json.encode(par!.fixumTransactions.map((ft) => ft.toJson())));
+}
+
+Response transactioStagnumExpressi(Request req) {
+  return Response.ok(
+      json.encode(par!.expressiTransactions.map((et) => et.toJson())));
 }

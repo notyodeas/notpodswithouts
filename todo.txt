@@ -8,3 +8,279 @@ dus na blockchain is eerst mamap na cryptorates updaten na presalediscount is he
 
 
 maby we should require a hash of this program in the incipio block so you can not adjust this program
+
+
+the seceret is nessesary in bootnode
+
+if you try to hack my blockchain we could make all money of the public key vanish
+even though you got be alarmed so no because even if you can before you try to hack becaus eyou know send all your money to public key and then we would have to make vanish all money you have ever sended
+what we can do instead is we can put you on the blacklist which means you have to sync from block 0 again as punishment for trying to hack our blockchain
+
+
+for now just remove one block the one that is invalid because of validation upon syncing
+
+
+validation the max blocknumber for the array should be defined in the incipio block
+
+threads still increase to two eventhough the loop is off also something todo
+
+
+so the expressitransactions array reserves the transaction for being reproduced but it should only count if the next block is an expressi block
+
+
+you dont buy defensio or attack with sending money to blockhash because otherwise you would own both defensioinde and attack with sending money to blockchash
+which maby should stay because it is more attractive to own both with one bid because of inflation i mean deflation
+ 
+
+so i need to build app if make sense to overbid who overbid your defense and attack because ja sometimes you can not win
+
+
+it is easier to attack as fdifferent hexa decimal you know 1 which are 2 letters than to keep defensio also attack i mean if defensio would be attack to at sametime
+
+
+find out wtf happens if you lose or get defeaten while you are fucking rich which means you own the defensio because you bid with your public key 
+on this defensio so the answer actually is i already know you submit the same public key to be accepeted for liber money
+but your whole team will benefit of this defensio or in the future ofcourse attack too
+
+
+did i already write that the threads you know should go back to zero if the loop is not on and you mined a block otherwise the thread calculator goes to 2 which i do not want grrr
+
+
+check if confussus or expressi let enter new keypairs
+
+
+
+private public keys so you dont know which publlic key is strong
+
+and in gladiator route i would like to find strongest gladiator or weakest an d the defences they own eemight me all sepereate route now while we can combine thjis time
+
+
+chgeck if index of invicos is correct in side of gladiatoras block
+
+
+if is still in pool or block you should not be able to submit in pool and block the same public key to accept liber money
+
+
+
+why in the fuck sakew name or kk we huse liber inside of the defensiones function to find all defensionens oh i know maby you can also buy defensiones with fixum money
+
+
+in this new gladiatir roure to get gthe base dl
+efense and the bought defenses i would  also ike to tell the highest bid on this defensio
+
+have a endpoint to know is your gladiator isprimis or not
+ 
+
+so we have found out all team gladiator loses but to they all lose their money i mean burn
+
+
+
+als o validate if the probationem contains the defences or defences minus attacks for the two blocks
+
+
+als node niet connect trough socket proabably with try catch we have to remove this node of this list of nodesor in otherwords bases
+and ofcourse find more nodes
+
+
+
+after reached highest block if reaches highest block thisstrategy i want to go to another random socket in your list to see if oyu can sync more
+
+and aftetr 3 times maby send a message done syncing
+
+
+ilts more important for when a new block is mined to sync to the nodes that ar 5 or 10 or whatever blocks behind
+
+
+to do you know the sync function wich will be a flag ypou dont nessesary have to use if you reached the highest block of the random node
+i would like to send you a message in a different peer to peer message that you have synced as far as you could and you now
+have to wait on a new obstructionum
+
+
+salvare inside of issalvarepervideasmesssage was important but i can not remember now
+
+
+transactions in the pool should only be able to be removed out of the pool is they are included in a block
+somehow we can read the tx hash and see if any of the blocks contains  this tx
+
+naast de transaction isperobationem we alspo have to implement the gladiator is probationem and maby even for them both i dont think a previous probationem
+which sounds unnsessary because of the priorprobationem to the prior block
+
+
+the owner of a transaction aka the new output created has a boolean for ever being arrived
+somehow wen you send money to a public key
+we have to do something so that the reciever can do something press the button if he did not recieve this transaction with this transaction id
+but what if the sender of this tx does not have enough pod maby we should have some insurance pod that comes out of nothing which would make our blockchain
+hackable but you can invest in this insurance pot of pod
+
+
+
+wait is all bullcrap you can not remove transaction from pool unless transaction is included in a block yes the other nodes validate this
+so the above is just stupid but i like for proof off scotch some kind a insurance you can invest in instead of this gladiator battle to have some other
+validation of the real chain
+
+one problem if they somehow remove a tx from the pool will it still mine to enough leading zeros to ever be included
+can we somehow mine tx on other nodes too? no that would be weird
+but somehow we can notice that the zeros arent increasing so a solution
+is somehow sometimes a block on adding to the pool untill the pool is empty 
+i mean included in blocks and then you can submit your transaction again
+
+
+echt belangewrijk defensios en attacks bewijzen in zowel confussus als expressi in par ad rimnor
+
+
+voor het door minen van transactions and accounts juist have the nonce as an array and each node will keep on mining
+
+
+
+we have to do more validation inside of conva for expressi only but lets start with the block maby we already have
+
+all we need to do for expressi and confussus maby is check if the defensios minus the attacks are in the probationem
+
+
+uhmmm a signature can not sign a signature a signature has to reference some thing else than something containing this signature
+
+in case of transform the function to validate the signature will throw an error because the gladiator that defeats you has the right on this signature
+
+
+
+wil ik wel weten deze public key ik wil weten de defences van de verliezer en de attacks van de winner
+
+naast het valideren van de transforme moeten wij misschien eerst valideren dat het hele 
+team dat verslagen is al ze money burnt naar de blockchash van het vorige block
+
+
+alleen de producentis zijn geld wordt fixum de rest blijft gewoon liber team 
+
+
+
+some how the remover of this block can prevent all transactions being in the priority tx pool
+so how about a storage of hashes for incase a block gets removed and all transactions as so
+or leave it all because could he prevent this hash to no not if these are in the pool forever or written in the previous block
+how can i store a hash of a new block in a previous block nee dat kan niet
+wat als ik in het volgende blok de hash bewaar van de vorige transacties daar heb je niks again
+als ze voor altijd inde poolzwemmen wordt de pooloverbelast of dit is een 2e chain met alleen hashes van fixum en liber txs
+
+a way to proof that you removed the block but indeed gave the transactions of that pool to the prioritypool
+you could first ask the network which you can avoid
+still you would need more mining power than the whole network to remove a block and replace it 
+shall i keep the risk of never being certain the money is yours or somehow certain still but in the beginning
+with to less nodes this is tricky
+aha i have an idea
+if you submit a tx a hash of it is stored and for each block we validate of all these hashes are in the chain not quite yet
+
+also important is ,,aby for every tx that you spend more then you have payed on defences to prevent something 
+ofcourse if you lost a block wait its hard ithink to remove and win if you are alone depends on your mining rig
+
+
+maby a certain passphrase is given after you request to remove a block so that all nodes have the txs of this block
+
+or back to plan b
+
+just like the blockreward is infinite like the length of the chain
+as soon as you submit a tx you get a certain proof that if it dissapears out of the chain you only have to give this proof
+still someone is winning
+nee ik kan niet klaar zijn numbersaboteurs and clever will use this imagine ethereum squad making is go backk to incipio with their mining power
+nja hmmm weet niet misschien toch wel klaar nee na een tijdje kan je echt niet meer deze divisa division beaten echt niet
+maar ja ik zou pas hmmmmm na 20 blockken ofzo zeker zijn or they both continue nee this is ilovet blockchain sorry yes they are working too
+
+okey they both continue for while and then you must have a winner they win too  quick hmmmm or is perfect like this im tired
+or your ahah this jaaa
+
+your tx stays in pool untill 20 blocks yes every tx gets in priority pool from the point of submit
+and when do they leave welll after a certain amount of blocks depends with all these hmm what i have to think of my habbo game take your opponent
+yeasha ists me iscool77 but ya oke en nu no ilovet i dont wnat to build your blockchain oke but
+
+the chains keep on groing both and you as a chain can get stuck and no longer grow
+
+
+okey thats your chain
+
+
+my chain is just proof ja but their was a winner and loser with this proof you get from the transaction once tyou submit
+alright who is the loser and who is the winner
+the winner is maby the shop but thentheir must be certain rules to be shop certain rules to be able to accept money
+so that you can not be a winner
+yes you need to have an amount of money to ever be able to accept money otherwise you cant because you could empty yourr public key
+or we leave the amount and we track down all money that the shop send his money to and than i have head ic wait
+who is the winner?
+who is the loser?
+ohhhhh the loser is the shop yes he recieved money and the block got removed by a customer
+(another reason to leave this as it is because shops wont but oke)
+then the shop needs to have proof
+yes the reciever of money needs to have some kind a proof
+and the sender of money can win somehow with a brand new public key only deposit on this key when he wants to buy something and then removes the blcok and starts mining
+this could be an entire squad working together with all their mining power
+so somehow the rule of having more money on your tx must be more money than you have spend on attacks and blockhashes
+otherwise you can not send money
+i got it i got it lets dance
+still confused more or less money huh that wont take a long time to figure out noah
+more right or less
+oke so you can buy attacks and you can buy defences the heighest bid on a defence wins and owns untill gets overbidden then he does not get his money back
+so once you spend money on defence you are addicted to spending money on this particular defence
+okey 
+so we count all the money you have spend on blockhashes /defences/attacks yes as a sender of money only
+and then you already now this answer while i am stupid if you see this
+
+oke imagine more
+
+inbetween the point is you dont want to throw this public key away because of all your defences and attacks you have bought to this public key
+even if your team gets defeaten they all burn their money to the previous block their hash or defences and attacks
+so your public key yes i know is more but why i dont get yet no the answer is less yess oh so stupid
+ofcourse why quick
+because of 0 amount of money on your publickey
+
+oke imageine alice wants to buy a bread for 5 pod 
+
+
+you can only pay or send less money than your total amount of burned money to defences and attacks this is the answer
+because if a block removed still the reviever has some proof but you must always still pay instead of infinity pod for reciever
+its about you not wanting a new public key you always would need to stick to your public key yes for your own benefit
+so thats why if it is less money you spend then you have bought you would not like to throw this public key away
+son that this proof of the reciever can never recieve his or hers money
+
+what i do wann right own is that the shop must have the entire transaction as a proof so as a reciever of money you always
+store this specific transaction on your local db how about priority in the priority pool you just continue mining on the 
+nonce that everr was included
+
+nooo 
+you need to obtain a way of signing money that you owe of the different public key that had sended tyou
+
+
+somehow the reciever of pod has to be able to sign with his private key the same amount of money when he can proof his transaction is not in one of the blocks
+
+oke imagine less 
+
+how do we give shops this proof i could do some blockreading but the sender of the money recieves the identitatis
+which could be used as proof
+if it is a distance transaction how do we prooof the shop owner has recieved the proof
+
+the shop owner has to submit this proof with signing what to sign
+
+
+transactions can only be grabbed if this proof is submitted by the shop owner
+so that means the public key
+
+the tx should only start mining after the 4 scan
+
+or how does the shop find the tx if it aint in the pool
+
+should we have a seperate array to keep it easier
+or should we sign inside of the transaction 4 times
+
+can i have seperate array for these signs or does the tx have to contain these signatures
+
+
+or i have to avoid starting to mine but still in the pool or a seperate class i think both can work
+
+no a seperate class can not work because these will be removed too if the block gets removed
+
+
+
+the sirationem the assurance of a tx needs tpo hacve inputs and outputs
+first the whole sirationem should be included in a block as output ofcourse
+and then whenever this sirationem in a block can take the money of the one in debth we have to create an input to disable this output 
+
+
+what if the block with the assurance tx gets removed than he just has toppo resubmit his identitatis which aint found
+
+

@@ -1,0 +1,4 @@
+enum TelumExemplar {
+  defensio,
+  impetum,
+}

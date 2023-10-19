@@ -10,14 +10,16 @@ import 'dart:io';
 
 import 'package:shelf/shelf.dart';
 import 'dart:convert';
-import '../exempla/exempla.dart';
 import '../exempla/obstructionum.dart';
+import '../exempla/petitio/obstructionum_numerus.dart';
+import '../exempla/petitio/probationem_range.dart';
 import '../exempla/utils.dart';
 import '../server.dart';
 import '../exempla/constantes.dart';
 import 'package:shelf_router/shelf_router.dart';
+import 'package:collection/collection.dart';
 
-Future<Response> obstructionum(Request req) async {
+Future<Response> obstructionumPerNumerus(Request req) async {
   final ObstructionumNumerus on =
       ObstructionumNumerus.fromJson(json.decode(await req.readAsString()));
   try {
@@ -34,25 +36,18 @@ Future<Response> obstructionum(Request req) async {
   }
 }
 
-Future<Response> prior(Request req) async {
-  Obstructionum obs = await Utils.priorObstructionum(
-      Directory('vincula/${argumentis!.obstructionumDirectorium}'));
-  return Response.ok(json.encode(obs.toJson()));
+Future<Response> obstructionumPrior(Request req) async {
+  Directory directorium = Directory(
+      '${Constantes.vincula}/${argumentis!.obstructionumDirectorium}');
+  Obstructionum o = await Obstructionum.acciperePrior(directorium);
+  return Response.ok(json.encode(o.toJson()));
 }
 
-Future<Response> probationemGenerare(Request req) async {
-  final probationem = req.params['probationem'];
-  Obstructionum obs = await Utils.accipereObstructionumProbationem(probationem!,
-      Directory('vincula/${argumentis!.obstructionumDirectorium}'));
-  return Response.ok(json.encode(
-      {"generare": obs.interioreObstructionum.generare.name.toString()}));
-}
-
-Future<Response> furcaUnumRetro(Request req) async {
-  Directory directory =
+Future<Response> obstructionumRemovereUltimum(Request req) async {
+  Directory directorium =
       Directory('vincula/${argumentis!.obstructionumDirectorium}');
-  Obstructionum obs = await Utils.priorObstructionum(directory);
-  if (obs.interioreObstructionum.generare == Generare.INCIPIO) {
+  Obstructionum obs = await Obstructionum.acciperePrior(directorium);
+  if (obs.interioreObstructionum.generare == Generare.incipio) {
     return Response.badRequest(
         body: json.encode({
       "code": 0,
@@ -60,14 +55,46 @@ Future<Response> furcaUnumRetro(Request req) async {
       "message": "You can't remove the Incipio block"
     }));
   }
-  await Utils.removeObstructionumsUntilProbationem(directory);
-  ptp!.liberTxs = [];
-  ptp!.fixumTxs = [];
-  ptp!.propters = [];
+  await Obstructionum.removereUltimumObstructionum(directorium);
+  par!.liberTransactions = [];
+  par!.fixumTransactions = [];
+  par!.rationibus = [];
   stamina.efectusThreads = [];
   return Response.ok(json.encode({
     "nuntius": "remotus",
     "message": "removed",
     "obstructionum": obs.toJson()
   }));
+}
+
+Future<Response> obstructionumNumerus(Request req) async {
+  Directory directorium = Directory(
+      '${Constantes.vincula}/${argumentis!.obstructionumDirectorium}');
+  Obstructionum obs = await Obstructionum.acciperePrior(directorium);
+  return Response.ok(json
+      .encode({"numerus": obs.interioreObstructionum.obstructionumNumerus}));
+}
+
+Future<Response> obstructionumProbationemJugum(Request req) async {
+  ProbationemJugum pj =
+      ProbationemJugum.fromJson(json.decode(await req.readAsString()));
+  Directory directorium = Directory(
+      '${Constantes.vincula}/${argumentis!.obstructionumDirectorium}');
+  List<Obstructionum> obs = await Obstructionum.getBlocks(directorium);
+  if (obs.length == 1) return Response.ok([obs.first.probationem]);
+  int start = 0;
+  int end = 0;
+  for (int i = 0; i < obs.length; i++) {
+    if (ListEquality().equals(
+        obs[i].interioreObstructionum.obstructionumNumerus, pj.indexPrimis)) {
+      start = i;
+    }
+    if (ListEquality().equals(
+        obs[i].interioreObstructionum.obstructionumNumerus,
+        pj.indexNovissime)) {
+      end = i;
+    }
+  }
+  return Response.ok(
+      obs.map((o) => o.probationem).toList().getRange(start, end).toList());
 }
