@@ -77,10 +77,6 @@ Future<Response> fossorEfectus(Request req) async {
       List<dynamic>.from([interiore, acciperePortus.sendPort])));
   acciperePortus.listen((nuntius) async {
     Obstructionum obstructionum = nuntius as Obstructionum;
-    print(
-        'onedoneeminignnumber ${obstructionum.interioreObstructionum.obstructionumNumerus}');
-    print(
-        'priorprobiataskdmkasdm ${obstructionum.interioreObstructionum.priorProbationem}');
     InFieriObstructionum ifo = obstructionum.inFieriObstructionum();
     ifo.gladiatorIdentitatum.forEach((gi) =>
         isolates.propterIsolates[gi]?.kill(priority: Isolate.immediate));
@@ -99,15 +95,7 @@ Future<Response> fossorEfectus(Request req) async {
     par!.removeFixumTransactions(ifo.fixumTransactions);
     par!.removeExpressiTransactions(ifo.liberTransactions);
     par!.removeConnexaLiberExpressis(ifo.connexaLiberExpressis);
-    par!.syncBlocks.forEach((e) => e.kill(priority: Isolate.immediate));
-    par!.syncBlocks.add(await Isolate.spawn(
-        ParAdRimor.syncBlock,
-        List<dynamic>.from([
-          par!.ip,
-          obstructionum,
-          par!.bases,
-          directory,
-        ])));
+    par!.syncBlock(obstructionum);
   });
   return Response.ok(json.encode({
     "nuntius": "coepi efectus fossores",

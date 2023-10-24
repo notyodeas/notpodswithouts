@@ -198,7 +198,7 @@ class Gladiator {
             .bytes);
   Map<String, dynamic> toJson() => {
         JSON.probationem: probationem,
-        JSON.interioreGladiator: interioreGladiator
+        JSON.interioreGladiator: interioreGladiator.toJson()
       };
   Gladiator.fromJson(Map<String, dynamic> jsoschon)
       : probationem = jsoschon[JSON.probationem],

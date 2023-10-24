@@ -156,19 +156,7 @@ Future<Response> fossorExpressi(Request req) async {
     par!.removeExpressiTransactions(ifo.expressiTransactions);
     par!.removePropters(ifo.fixumTransactions);
     par!.removeConnexaLiberExpressis(ifo.connexaLiberExpressis);
-    syncExpressiBlocks
-        .forEach((element) => element.kill(priority: Isolate.immediate));
-    syncExpressiBlocks.add(await Isolate.spawn(
-        ParAdRimor.syncBlock,
-        List<dynamic>.from([
-          obstructionum,
-          par!.bases,
-          directory,
-          '${argumentis!.internumIp}:${argumentis!.pervideasPort}'
-        ])));
-    stamina.expressiThreads.forEach((et) {
-      et.kill(priority: Isolate.immediate);
-    });
+    par!.syncBlock(obstructionum);
   });
   return Response.ok(json.encode({
     "nuntius": "coepi expressi miner",

@@ -84,12 +84,13 @@ Future<Response> fossorConfussus(Request req) async {
         await Pera.transformFixum(
             ip.privatusClavis!, par!.liberTransactions, lo);
     if (transform.item1 != null) {
+      print(transform.item1!.toJson());
       liberTxs.add(Transactio.nullam(transform.item1!));
     }
     if (transform.item2 != null) {
+      print(transform.item2!.toJson());
       fixumTxs.add(Transactio.nullam(transform.item2!));
     }
-    fixumTxs = Transactio.grab(par!.fixumTransactions);
     List<String> ltum = [];
     liberTxs.map((lt) => lt.interioreTransactio.identitatis).forEach(ltum.add);
     liberTxs.addAll(Transactio.grab(par!.liberTransactions
@@ -150,7 +151,7 @@ Future<Response> fossorConfussus(Request req) async {
     stamina.confussusThreads.add(await Isolate.spawn(
         Obstructionum.confussus,
         List<dynamic>.from(
-            [interiore, gladii, scuta, acciperePortus.sendPort])));
+            [interiore, scuta, acciperePortus.sendPort])));
     acciperePortus.listen((nuntius) async {
       Obstructionum obstructionum = nuntius as Obstructionum;
       InFieriObstructionum ifo = obstructionum.inFieriObstructionum();
@@ -164,17 +165,7 @@ Future<Response> fossorConfussus(Request req) async {
       par!.removeLiberTransactions(ifo.liberTransactions);
       par!.removeFixumTransactions(ifo.fixumTransactions);
       par!.removeConnexaLiberExpressis(ifo.connexaLiberExpressis);
-      par!.syncBlocks.forEach((e) => e.kill(priority: Isolate.immediate));
-      par!.syncBlocks.add(await Isolate.spawn(
-          ParAdRimor.syncBlock,
-          List<dynamic>.from([
-            obstructionum,
-            par!.bases,
-            directory,
-            '${argumentis!.internumIp}:${argumentis!.pervideasPort}'
-          ])));
-      // stamina.confussusThreads
-      //     .forEach((iso) => iso.kill(priority: Isolate.immediate));
+      par!.syncBlock(obstructionum);
     });
     return Response.ok(json.encode({
       "nuntius": "coepi confussus miner",

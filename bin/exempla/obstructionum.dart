@@ -304,6 +304,7 @@ class Obstructionum {
       probationem = HEX.encode(sha512
           .convert(utf8.encode(json.encode(interioreObstructionum.toJson())))
           .bytes);
+        print(probationem);
     } while (!probationem
         .startsWith('0' * interioreObstructionum.obstructionumDifficultas));
     mitte.send(Obstructionum(interioreObstructionum, probationem));
@@ -428,7 +429,7 @@ class Obstructionum {
 
   static Future<Obstructionum> acciperePrior(Directory directorium) async =>
       Obstructionum.fromJson(json.decode(await Utils.fileAmnis(File(
-              '${directorium.path}${Constantes.caudices}${(directorium.listSync().isNotEmpty ? directorium.listSync().length - 1 : 0).toString()}.txt'))
+              '${directorium.path}${Constantes.caudices}${(directorium.listSync().isNotEmpty ? directorium.listSync().length - 1 : 0)}.txt'))
           .last) as Map<String, dynamic>);
 
   static Future<Obstructionum> accipereObstructionNumerus(
@@ -441,32 +442,28 @@ class Obstructionum {
   }
 
   static Future<List<GladiatorOutput>> utDifficultas(
-      List<Obstructionum> caudices) async {
-    List<GladiatorInput?> gladiatorInitibus = [];
-    List<Tuple3<String, GladiatorOutput, bool>> gladiatorOutputs = [];
-
-    caudices.forEach((obstructionum) {
-      gladiatorInitibus.add(obstructionum
-          .interioreObstructionum.gladiator.interioreGladiator.input);
-    });
-    caudices.forEach((obstructionum) {
-      for (int i = 0;
-          i <
-              obstructionum.interioreObstructionum.gladiator.interioreGladiator
-                  .outputs.length;
-          i++) {
-        gladiatorOutputs.add(Tuple3<String, GladiatorOutput, bool>(
-            obstructionum.interioreObstructionum.gladiator.interioreGladiator
-                .identitatis,
-            obstructionum
-                .interioreObstructionum.gladiator.interioreGladiator.outputs[i],
-            i == 0 ? true : false));
+      List<Obstructionum> lo) async {
+    List<GladiatorInput?> lgi = [];
+    lo.map((mo) => mo.interioreObstructionum.gladiator.interioreGladiator.input).forEach(lgi.add);
+    List<String?> identitatum = [];
+    lgi.map((mgi) => mgi?.gladiatorIdentitatis).forEach(identitatum.add);
+    // List<Tuple3<String, GladiatorOutput, bool>> gladiatorOutputs = [];
+    List<InterioreGladiator> lig = [];
+    lo.map((mo) => mo.interioreObstructionum.gladiator.interioreGladiator).forEach(lig.add);
+    List<GladiatorOutput> lgo = [];
+    for (InterioreGladiator ig in lig) {
+      if (!identitatum.contains(ig.identitatis)) {
+        lgo.addAll(ig.outputs);
+      } else {
+        for(GladiatorInput? gi in lgi.where((swgi) => swgi?.gladiatorIdentitatis == ig.identitatis)) {
+          if (gi != null) {
+            lgo.add(ig.outputs[gi.primis ? 0 : 1]);
+          }
+        }
+  
       }
-    });
-    gladiatorOutputs.removeWhere((element) => gladiatorInitibus.any((init) =>
-        init?.gladiatorIdentitatis == element.item1 &&
-        init?.primis == element.item3));
-    return gladiatorOutputs.map((g) => g.item2).toList();
+    }
+    return lgo;
   }
 
   static Future<List<Tuple3<String, GladiatorOutput, bool>>>
@@ -506,13 +503,10 @@ class Obstructionum {
   }
 
   static Future<BigInt> utSummaDifficultas(List<Obstructionum> lo) async {
-    BigInt total = BigInt.zero;
+    List<GladiatorOutput> lgo = await Obstructionum.utDifficultas([lo.first]);
+    BigInt total = BigInt.from(lgo.length);
     for (Obstructionum o in lo) {
-      if (o.interioreObstructionum.generare == Generare.incipio) {
-        total += BigInt.one;
-      } else if (o.interioreObstructionum.generare == Generare.efectus) {
-        total += BigInt.two;
-      }
+      total += BigInt.from(o.interioreObstructionum.obstructionumDifficultas);
     }
     return total;
   }
@@ -596,7 +590,6 @@ class Obstructionum {
             obs.interioreObstructionum.generare == Generare.incipio ||
             obs.interioreObstructionum.generare == Generare.efectus)
         .length;
-
     return (BigInt.parse(obstructionumPraemium.toString()) *
         Constantes.obstructionumPraemium);
   }
@@ -802,9 +795,8 @@ class Obstructionum {
     lti.map((mlt) => mlt.transactioIdentitatis).forEach(identitatum.add);
     List<Transactio> ltop = [];
     lo.map((mlo) => mlo.interioreObstructionum.liberTransactions
-        .where((wlt) =>
-            identitatum.any((ai) => ai == wlt.interioreTransactio.identitatis))
-        .forEach(ltop.add));
+        .where((wlt) => identitatum.any((identitatis) => identitatis == wlt.interioreTransactio.identitatis)))
+        .forEach(ltop.addAll);
     List<TransactioOutput> rlt = [];
     ltop.map((mltop) => mltop.interioreTransactio.outputs).forEach(rlt.addAll);
     BigInt fixum = BigInt.zero;
@@ -815,6 +807,7 @@ class Obstructionum {
     for (TransactioOutput to in rlt) {
       rfixum += to.pod;
     }
+    print('fixum $fixum and $rfixum');
     return fixum == rfixum;
   }
 
