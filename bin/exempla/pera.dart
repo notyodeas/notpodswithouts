@@ -350,6 +350,7 @@ class Pera {
         await inconsumptusOutputs(liber, publicKey, lo);
     BigInt balance = BigInt.zero;
     for (Tuple3<int, String, TransactioOutput> inOut in outputs) {
+      print(inOut.item3.pod);
       balance += inOut.item3.pod;
     }
     return balance;
@@ -360,6 +361,7 @@ class Pera {
     List<Tuple3<int, String, TransactioOutput>> outs =
         await inconsumptusOutputs(true, publica, lo);
     return calculateTransaction(
+        necessitudo: false,
         liber: true,
         twice: true,
         ts: TransactioSignificatio.ardeat,
@@ -370,7 +372,8 @@ class Pera {
   }
 
   static Future<InterioreTransactio> novamRem(
-      {required bool liber,
+      {required bool necessitudo,
+      required bool liber,
       required bool twice,
       required TransactioSignificatio ts,
       required String ex,
@@ -396,6 +399,7 @@ class Pera {
       }
     }
     return calculateTransaction(
+        necessitudo: necessitudo,
         liber: liber,
         twice: twice,
         ts: ts,
@@ -406,7 +410,8 @@ class Pera {
   }
 
   static InterioreTransactio calculateTransaction(
-      {required bool liber,
+      {required bool necessitudo,
+      required bool liber,
       required bool twice,
       required TransactioSignificatio ts,
       required PrivateKey privatus,
@@ -440,16 +445,21 @@ class Pera {
         break;
       }
     }
-
+    String identitatis = Utils.randomHex(64);
+    String ex = privatus.toHex();
     return InterioreTransactio(
-        ex: privatus.toHex(),
+        ex: ex,
         liber: liber,
-        identitatis: Utils.randomHex(64),
+        identitatis: identitatis,
         transactioSignificatio: ts,
         inputs: inputs,
         outputs: outputs,
-        sro: SiRemotionemOutput(
-            to, privatus.publicKey.toHex(), Utils.randomHex(64), value));
+        sr: necessitudo
+            ? SiRemotionem.summitto(InterioreSiRemotionem.output(
+                ex,
+                SiRemotionemOutput(
+                    liber, to, privatus.publicKey.toHex(), identitatis, value)))
+            : null);
   }
 
   static Future<bool> isPrimis(

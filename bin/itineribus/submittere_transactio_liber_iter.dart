@@ -49,6 +49,7 @@ Future<Response> submittereTransactioLiber(Request req) async {
     List<Transactio> stagnum = par!.liberTransactions;
     if (isp) {
       final Transactio liber = Transactio.nullam(await Pera.novamRem(
+          necessitudo: false,
           liber: true,
           twice: true,
           ts: TransactioSignificatio.ardeat,
@@ -63,6 +64,7 @@ Future<Response> submittereTransactioLiber(Request req) async {
           .toJson()));
     } else {
       final Transactio liber = Transactio.nullam(await Pera.novamRem(
+          necessitudo: true,
           liber: true,
           twice: true,
           ts: TransactioSignificatio.regularis,
@@ -93,6 +95,7 @@ Future loschog(String ex, String to, BigInt pod, Transactio liber,
     List<Transactio> stagnum, List<Obstructionum> lo) async {
   stagnum.remove(liber);
   final Transactio expressi = Transactio.nullam(await Pera.novamRem(
+      necessitudo: false,
       liber: true,
       twice: false,
       ts: TransactioSignificatio.expressi,
@@ -108,22 +111,36 @@ Future loschog(String ex, String to, BigInt pod, Transactio liber,
   final ConnexaLiberExpressi cle = ConnexaLiberExpressi(
       PrivateKey.fromHex(Pera.curve(), ex).publicKey.toHex(), icle, ex);
   par!.syncConnexaLiberExpressi(cle);
-  ReceivePort acciperePortusLiber = ReceivePort();
-  ReceivePort acciperePortusExpressi = ReceivePort();
-  isolates.liberTxIsolates[liber.interioreTransactio.identitatis] =
-      await Isolate.spawn(
-          Transactio.quaestum,
-          List<dynamic>.from(
-              [liber.interioreTransactio, acciperePortusLiber.sendPort]));
-  isolates.expressiTxIsolates[expressi.interioreTransactio.identitatis] =
-      await Isolate.spawn(
-          Transactio.quaestum,
-          List<dynamic>.from(
-              [expressi.interioreTransactio, acciperePortusExpressi.sendPort]));
-  acciperePortusLiber.listen((transactio) {
-    par!.syncLiberTransaction(transactio as Transactio);
-  });
-  acciperePortusExpressi.listen((transactio) {
-    par!.syncExpressiTransaction(transactio as Transactio);
-  });
+  if (liber.interioreTransactio.transactioSignificatio ==
+      TransactioSignificatio.ardeat) {
+    ReceivePort rp = ReceivePort();
+    isolates.liberTxIsolates[liber.interioreTransactio.identitatis] =
+        await Isolate.spawn(Transactio.quaestum,
+            List<dynamic>.from([liber.interioreTransactio, rp.sendPort]));
+    rp.listen((transactio) {
+      par!.syncLiberTransaction(transactio as Transactio);
+    });
+  } else {
+    par!.syncLiberTransaction(liber);
+    par!.syncLiberTransaction(liber);
+  }
+  par!.syncExpressiTransaction(expressi);
+  // ReceivePort acciperePortusLiber = ReceivePort();
+  // ReceivePort acciperePortusExpressi = ReceivePort();
+  // isolates.liberTxIsolates[liber.interioreTransactio.identitatis] =
+  //     await Isolate.spawn(
+  //         Transactio.quaestum,
+  //         List<dynamic>.from(
+  //             [liber.interioreTransactio, acciperePortusLiber.sendPort]));
+  // isolates.expressiTxIsolates[expressi.interioreTransactio.identitatis] =
+  //     await Isolate.spawn(
+  //         Transactio.quaestum,
+  //         List<dynamic>.from(
+  //             [expressi.interioreTransactio, acciperePortusExpressi.sendPort]));
+  // acciperePortusLiber.listen((transactio) {
+  //   par!.syncLiberTransaction(transactio as Transactio);
+  // });
+  // acciperePortusExpressi.listen((transactio) {
+  //   par!.syncExpressiTransaction(transactio as Transactio);
+  // });
 }

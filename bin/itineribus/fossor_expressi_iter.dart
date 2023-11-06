@@ -52,7 +52,7 @@ Future<Response> fossorExpressi(Request req) async {
   // liberTxs
   //     .addAll(priorObstructionum.interioreObstructionum.expressiTransactions);
   Gladiator? gladiatorOppugnare =
-      await Obstructionum.grabGladiator(ip.gladiatorIdentitatis!, lo);
+      await Obstructionum.grabGladiator(ip.victima!.gladiatorIdentitatis!, lo);
   if (gladiatorOppugnare == null) {
     return Response.badRequest(
         body: json.encode({
@@ -63,7 +63,7 @@ Future<Response> fossorExpressi(Request req) async {
   }
   PrivateKey pk = PrivateKey.fromHex(Pera.curve(), ip.privatusClavis!);
   if (await Obstructionum.gladiatorConfodiantur(
-      ip.gladiatorIdentitatis!, pk.publicKey.toHex(), lo)) {
+      ip.victima!.gladiatorIdentitatis!, pk.publicKey.toHex(), lo)) {
     return Response.badRequest(
         body: json.encode({
       "code": 2,
@@ -73,7 +73,7 @@ Future<Response> fossorExpressi(Request req) async {
   }
   String gladiatorExpressiPrivateKey = ip.privatusClavis!;
   for (String acc in gladiatorOppugnare
-      .interioreGladiator.outputs[(ip.primis! ? 0 : 1)].rationibus
+      .interioreGladiator.outputs[(ip.victima!.primis! ? 0 : 1)].rationibus
       .map((e) => e.interiorePropter.publicaClavis)) {
     final balance = await Pera.statera(true, acc, lo);
     if (balance > BigInt.zero) {
@@ -105,21 +105,21 @@ Future<Response> fossorExpressi(Request req) async {
           cle.interioreConnexaLiberExpressi.expressiIdentitatis))
       .toList();
   List<Telum> impetus = [];
-  impetus.addAll(await Pera.maximeArma(true, ip.primis!, true,
-      gladiatorOppugnare.interioreGladiator.identitatis, lo));
-  impetus.addAll(await Pera.maximeArma(false, ip.primis!, true,
+  impetus.addAll(await Pera.maximeArma(true, ip.inimicus!.primis!, true,
+      ip.inimicus!.gladiatorIdentitatis!, lo));
+  impetus.addAll(await Pera.maximeArma(false, ip.inimicus!.primis!, true,
       gladiatorOppugnare.interioreGladiator.identitatis, lo));
   List<Telum> defensiones = [];
-  defensiones.addAll(await Pera.maximeArma(true, ip.primis!, false,
-      gladiatorOppugnare.interioreGladiator.identitatis, lo));
-  defensiones.addAll(await Pera.maximeArma(false, ip.primis!, false,
-      gladiatorOppugnare.interioreGladiator.identitatis, lo));
+  defensiones.addAll(await Pera.maximeArma(
+      true, ip.victima!.primis!, false, ip.victima!.gladiatorIdentitatis!, lo));
+  defensiones.addAll(await Pera.maximeArma(false, ip.victima!.primis!, false,
+      ip.victima!.gladiatorIdentitatis!, lo));
   List<String> gladii = impetus.map((e) => e.telum).toList();
   List<String> scuta = defensiones.map((e) => e.telum).toList();
   final baseDefensio = await Pera.turpiaGladiatoriaTelum(
-      ip.primis!, false, gladiatorOppugnare.interioreGladiator.identitatis, lo);
+      ip.victima!.primis!, false, ip.victima!.gladiatorIdentitatis!, lo);
   final baseImpetus = await Pera.turpiaGladiatoriaTelum(
-      ip.primis!, true, gladiatorOppugnare.interioreGladiator.identitatis, lo);
+      ip.inimicus!.primis!, true, ip.inimicus!.gladiatorIdentitatis!, lo);
   gladii.add(baseDefensio);
   scuta.add(baseImpetus);
   scuta.removeWhere((defensio) => gladii.contains(defensio));
@@ -138,8 +138,8 @@ Future<Response> fossorExpressi(Request req) async {
       producentis: argumentis!.publicaClavis,
       priorProbationem: priorObstructionum.probationem,
       gladiator: Gladiator.nullam(InterioreGladiator.ce(
-          input: await InterioreGladiator.cegi(ip.primis!, ip.privatusClavis!,
-              gladiatorOppugnare.interioreGladiator.identitatis, lo))),
+          input: await InterioreGladiator.cegi(ip.victima!.primis!,
+              ip.privatusClavis!, ip.victima!.gladiatorIdentitatis!, lo))),
       liberTransactions: liberTxs,
       fixumTransactions: fixumTxs,
       expressiTransactions: [],
@@ -151,11 +151,26 @@ Future<Response> fossorExpressi(Request req) async {
   acciperePortus.listen((nuntius) async {
     Obstructionum obstructionum = nuntius as Obstructionum;
     InFieriObstructionum ifo = obstructionum.inFieriObstructionum();
+    ifo.gladiatorIdentitatum.forEach((gi) =>
+        isolates.propterIsolates[gi]?.kill(priority: Isolate.immediate));
+    ifo.liberTransactions.forEach((lt) =>
+        isolates.liberTxIsolates[lt]?.kill(priority: Isolate.immediate));
+    ifo.fixumTransactions.forEach((ft) =>
+        isolates.fixumTxIsolates[ft]?.kill(priority: Isolate.immediate));
+    ifo.expressiTransactions.forEach((et) =>
+        isolates.expressiTxIsolates[et]?.kill(priority: Isolate.immediate));
+    ifo.connexaLiberExpressis.forEach((cle) {
+      isolates.connexaLiberExpressiIsolates[cle]
+          ?.kill(priority: Isolate.immediate);
+    });
+    ifo.siRemotionems.forEach((sr) =>
+        isolates.siRemotionemIsolates[sr]?.kill(priority: Isolate.immediate));
     par!.removeLiberTransactions(ifo.liberTransactions);
     par!.removeFixumTransactions(ifo.fixumTransactions);
     par!.removeExpressiTransactions(ifo.expressiTransactions);
     par!.removePropters(ifo.fixumTransactions);
     par!.removeConnexaLiberExpressis(ifo.connexaLiberExpressis);
+    par!.removeSiRemotionems(ifo.siRemotionems);
     par!.syncBlock(obstructionum);
   });
   return Response.ok(json.encode({

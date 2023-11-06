@@ -28,9 +28,16 @@ Future<Response> siRemotionessubmittereProof(Request req) async {
       : par!.fixumTransactions.singleWhere(
           (swft) => swft.interioreTransactio.identitatis == ssr.identitatis);
   lt.interioreTransactio.probatur = true;
-  print(lt.interioreTransactio.siRemotionem!.toJson());
-  return Response.ok(json.encode(
-      lt.interioreTransactio.siRemotionem!.interioreSiRemotionem.toJson()));
+  SiRemotionem reschet = lt.interioreTransactio.siRemotionem!;
+  lt.interioreTransactio.siRemotionem = null;
+  ReceivePort rp = ReceivePort();
+  isolates.liberTxIsolates[lt.interioreTransactio.identitatis] =
+      await Isolate.spawn(Transactio.quaestum,
+          List<dynamic>.from([lt.interioreTransactio, rp.sendPort]));
+  rp.listen((transactio) {
+    par!.syncLiberTransaction(transactio as Transactio);
+  });
+  return Response.ok(json.encode(reschet.toJson()));
 }
 
 Future<Response> siRemotionesreprehendoSiExistat(Request req) async {
@@ -68,17 +75,19 @@ Future<Response> siRemotionesdenuoProponendam(Request req) async {
   List<Obstructionum> lo = await Obstructionum.getBlocks(directorium);
   List<Transactio> lt = [];
   lo
-      .map((mo) => sr.liber
+      .map((mo) => sr.siRemotionemOutput!.liber
           ? mo.interioreObstructionum.liberTransactions
           : mo.interioreObstructionum.fixumTransactions)
       .forEach(lt.addAll);
   if (lt.any((alt) =>
       alt.interioreTransactio.identitatis ==
-      sr.siRemotionemOutput!.identitatisOutput)) {
+      sr.siRemotionemOutput!.transactioIdentitatis)) {
     return Response.badRequest(
-        body: json.encode(
-            BadRequest(code: 0, nuntius: 'nuntius', message: 'message')
-                .toJson()));
+        body: json.encode(BadRequest(
+                code: 0,
+                nuntius: 'transactio quae numquam remotus est',
+                message: 'transaction has never been removed')
+            .toJson()));
   }
   ReceivePort rp = ReceivePort();
   isolates.siRemotionemIsolates[sr.identitatisInterioreSiRemotionem] =

@@ -127,6 +127,9 @@ class JSON {
   static String signatureInterioreSiRemotionem =
       'siganture-interiore-si-remotionem';
   static String estFurca = 'est-furca';
+  static String siRemotionemIdentitatis = 'si-remotionem-identitatis';
+  static String inimicus = 'inimicus';
+  static String victima = 'victima';
 }
 
 class PervideasNuntiusCasibus {
@@ -193,10 +196,12 @@ class PervideasNuntiusCasibus {
   static String siRemotionemSync = 'si-remotionem-sync';
   static String summaPetitioScandalum = 'summa-petit';
   static String summaCaudices = 'summa-caudices';
+  static String privatus = 'privatus';
 }
 
 class PervideasNuntiusTitulus {
   static String addereForamenFurca = 'addere-foramen-furca';
   static String addereTridentes = 'addere-tridentes';
   static String accipreObstructionum = 'accipre-obstructionum';
+  static String removeSiRemotionems = 'remove-si-remotionems';
 }

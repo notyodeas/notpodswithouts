@@ -16,12 +16,11 @@ import 'dart:io';
 import '../server.dart';
 
 Future<Response> propterSubmittere(Request req) async {
-  SubmittereRationem sr =
-      SubmittereRationem.fromJson(json.decode(await req.readAsString()));
+  String publica = req.params['publica-clavis']!;
   Directory directorium =
       Directory('vincula/${argumentis!.obstructionumDirectorium}');
   List<Obstructionum> lo = await Obstructionum.getBlocks(directorium);
-  if (await Pera.isPublicaClavisDefended(sr.publicaClavis!, lo)) {
+  if (await Pera.isPublicaClavisDefended(publica, lo)) {
     return Response.badRequest(
         body: json.encode({
       "code": 0,
@@ -30,7 +29,7 @@ Future<Response> propterSubmittere(Request req) async {
     }));
   }
   for (Propter prop in par!.rationibus) {
-    if (prop.interiorePropter.publicaClavis == sr.publicaClavis) {
+    if (prop.interiorePropter.publicaClavis == publica) {
       return Response.badRequest(
           body: json.encode({
         "code": 1,
@@ -40,8 +39,7 @@ Future<Response> propterSubmittere(Request req) async {
     }
   }
   ReceivePort acciperePortus = ReceivePort();
-  InteriorePropter interioreRationem =
-      InteriorePropter(sr.publicaClavis!, BigInt.zero);
+  InteriorePropter interioreRationem = InteriorePropter(publica, BigInt.zero);
   isolates.propterIsolates[interioreRationem.identitatis] = await Isolate.spawn(
       Propter.quaestum,
       List<dynamic>.from([interioreRationem, acciperePortus.sendPort]));

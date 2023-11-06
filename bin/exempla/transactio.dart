@@ -13,7 +13,14 @@ import 'package:ecdsa/ecdsa.dart';
 import './pera.dart';
 import './constantes.dart';
 
-enum TransactioSignificatio { regularis, ardeat, transform, praemium, expressi }
+enum TransactioSignificatio {
+  regularis,
+  ardeat,
+  transform,
+  praemium,
+  expressi,
+  refugium
+}
 
 extension TransactioSignificatioFromJson on TransactioSignificatio {
   static fromJson(String name) {
@@ -28,6 +35,8 @@ extension TransactioSignificatioFromJson on TransactioSignificatio {
         return TransactioSignificatio.praemium;
       case 'expressi':
         return TransactioSignificatio.expressi;
+      case 'refugium':
+        return TransactioSignificatio.refugium;
     }
   }
 }
@@ -68,59 +77,69 @@ class TransactioOutput {
 
 class SiRemotionemInput {
   String signatureInput;
-  String identiatisInput;
-  SiRemotionemInput(this.signatureInput, this.identiatisInput);
+  String siRemotionemIdentiatis;
+  InterioreTransactio interioreTransactio;
+  SiRemotionemInput(this.signatureInput, this.siRemotionemIdentiatis,
+      this.interioreTransactio);
   Map<String, dynamic> toJson() => {
         JSON.signatureInput: signatureInput,
-        JSON.identitatisInput: identiatisInput
+        JSON.siRemotionemIdentitatis: siRemotionemIdentiatis,
+        JSON.interioreTransactio: interioreTransactio.toJson(),
       };
   SiRemotionemInput.fromJson(Map<String, dynamic> map)
       : signatureInput = map[JSON.signatureInput],
-        identiatisInput = map[JSON.identitatisInput];
+        siRemotionemIdentiatis = map[JSON.siRemotionemIdentitatis],
+        interioreTransactio = InterioreTransactio.fromJson(
+            map[JSON.interioreTransactio] as Map<String, dynamic>);
 }
 
 class SiRemotionemOutput {
+  bool liber;
   String habereIus;
   String debetur;
-  String identitatisOutput;
+  String transactioIdentitatis;
   BigInt pod;
-  SiRemotionemOutput(
-      this.habereIus, this.debetur, this.identitatisOutput, this.pod);
+  SiRemotionemOutput(this.liber, this.habereIus, this.debetur,
+      this.transactioIdentitatis, this.pod);
 
   SiRemotionemOutput.fromJson(Map<String, dynamic> map)
-      : habereIus = map[JSON.habereIus],
+      : liber = bool.parse(map[JSON.liber].toString()),
+        habereIus = map[JSON.habereIus],
         debetur = map[JSON.debetur],
-        identitatisOutput = map[JSON.identitatisOutput],
+        transactioIdentitatis = map[JSON.transactioIdentitatis],
         pod = BigInt.parse(map[JSON.pod].toString());
 
   Map<String, dynamic> toJson() => {
+        JSON.liber: liber,
         JSON.habereIus: habereIus,
         JSON.debetur: debetur,
-        JSON.identitatisOutput: identitatisOutput,
+        JSON.transactioIdentitatis: transactioIdentitatis,
         JSON.pod: pod.toString()
       };
 }
 
 class InterioreSiRemotionem {
-  bool liber;
   SiRemotionemOutput? siRemotionemOutput;
   SiRemotionemInput? siRemotionemInput;
   String identitatisInterioreSiRemotionem;
-  String signatureInterioreSiRemotionem;
+  String? signatureInterioreSiRemotionem;
   BigInt nonce;
   mine() {
     nonce += BigInt.one;
   }
 
-  InterioreSiRemotionem(this.liber, String ex, this.siRemotionemOutput)
+  InterioreSiRemotionem.output(String ex, this.siRemotionemOutput)
       : identitatisInterioreSiRemotionem = Utils.randomHex(64),
         nonce = BigInt.zero,
         signatureInterioreSiRemotionem = Utils.signum(
             PrivateKey.fromHex(Pera.curve(), ex), siRemotionemOutput);
 
+  InterioreSiRemotionem.input(this.siRemotionemInput)
+      : identitatisInterioreSiRemotionem = Utils.randomHex(64),
+        nonce = BigInt.zero;
+
   InterioreSiRemotionem.fromJson(Map<String, dynamic> map)
-      : liber = map[JSON.liber],
-        siRemotionemInput = map[JSON.siRemotionemInput] != null
+      : siRemotionemInput = map[JSON.siRemotionemInput] != null
             ? SiRemotionemInput.fromJson(
                 map[JSON.siRemotionemInput] as Map<String, dynamic>)
             : null,
@@ -134,7 +153,6 @@ class InterioreSiRemotionem {
         signatureInterioreSiRemotionem =
             map[JSON.signatureInterioreSiRemotionem];
   Map<String, dynamic> toJson() => {
-        JSON.liber: liber,
         JSON.siRemotionemInput: siRemotionemInput?.toJson(),
         JSON.siRemotionemOutput: siRemotionemOutput?.toJson(),
         JSON.identitatisInterioreSiRemotionem: identitatisInterioreSiRemotionem,
@@ -145,7 +163,7 @@ class InterioreSiRemotionem {
   bool cognoscere() {
     return Utils.cognoscereSiRemotionem(
         PublicKey.fromHex(Pera.curve(), siRemotionemOutput!.debetur),
-        Signature.fromASN1Hex(signatureInterioreSiRemotionem),
+        Signature.fromASN1Hex(signatureInterioreSiRemotionem!),
         siRemotionemOutput!);
   }
 }
@@ -183,7 +201,7 @@ class SiRemotionem {
         PublicKey.fromHex(
             Pera.curve(), interioreSiRemotionem.siRemotionemOutput!.debetur),
         Signature.fromASN1Hex(
-            interioreSiRemotionem.signatureInterioreSiRemotionem),
+            interioreSiRemotionem.signatureInterioreSiRemotionem!),
         interioreSiRemotionem.siRemotionemOutput!);
   }
 
@@ -195,9 +213,10 @@ class SiRemotionem {
     lo
         .map((mo) => mo.interioreObstructionum.liberTransactions)
         .forEach(ltlt.addAll);
-    if (ltlt.any((alt) =>
+    if (!ltlt.any((alt) =>
         alt.interioreTransactio.identitatis ==
-        interioreSiRemotionem.siRemotionemOutput!.identitatisOutput)) {
+        interioreSiRemotionem.siRemotionemOutput?.transactioIdentitatis)) {
+      print('f');
       return false;
     }
     List<Transactio> ltft = [];
@@ -206,7 +225,8 @@ class SiRemotionem {
         .forEach(ltft.addAll);
     if (ltft.any((alt) =>
         alt.interioreTransactio.identitatis ==
-        interioreSiRemotionem.siRemotionemOutput!.identitatisOutput)) {
+        interioreSiRemotionem.siRemotionemOutput?.transactioIdentitatis)) {
+      print('ff');
       return false;
     }
     List<SiRemotionem> lsr = [];
@@ -214,6 +234,7 @@ class SiRemotionem {
     if (lsr.any((asr) =>
         asr.interioreSiRemotionem.identitatisInterioreSiRemotionem ==
         interioreSiRemotionem.identitatisInterioreSiRemotionem)) {
+      print('fff');
       return false;
     }
     return true;
@@ -224,12 +245,15 @@ class SiRemotionem {
         '${Constantes.vincula}/${argumentis!.obstructionumDirectorium}');
     List<Obstructionum> lo = await Obstructionum.getBlocks(directorium);
     List<SiRemotionem> lsr = [];
-    lo.map((mo) => mo.interioreObstructionum.siRemotiones).forEach(lsr.addAll);
+    lo
+        .map((mo) => mo.interioreObstructionum.siRemotiones.where(
+            (wsr) => wsr.interioreSiRemotionem.siRemotionemInput != null))
+        .forEach(lsr.addAll);
     List<SiRemotionemInput> lsri =
         lsr.map((msr) => msr.interioreSiRemotionem.siRemotionemInput!).toList();
 
     List<String> inputIdentitatum = [];
-    lsri.map((sri) => sri.identiatisInput).forEach(inputIdentitatum.add);
+    lsri.map((sri) => sri.siRemotionemIdentiatis).forEach(inputIdentitatum.add);
     return !lsri.any((asri) => inputIdentitatum
         .contains(interioreSiRemotionem.identitatisInterioreSiRemotionem));
   }
@@ -289,11 +313,10 @@ class InterioreTransactio {
       required this.transactioSignificatio,
       required this.inputs,
       required this.outputs,
-      required SiRemotionemOutput sro})
+      SiRemotionem? sr})
       : probatur = false,
         nonce = BigInt.zero,
-        siRemotionem =
-            SiRemotionem.summitto(InterioreSiRemotionem(liber, ex, sro));
+        siRemotionem = sr;
 
   // siRemotionem = SiRemotionem.exTransactio(ex.toHex(),
   //     InterioreSiRemotionem(to, ex.toHex(), identitatis, BigInt.zero));
@@ -483,6 +506,21 @@ class Transactio {
     return interioreTransactio.outputs
         .any((element) => element.pod < BigInt.zero);
   }
+  // bool habetProfundum(List<Obstructionum> lo) {
+  //   List<TransactioInput> lti = interioreTransactio.inputs;
+  //   List<String> tiidentitatum = [];
+  //   lti.map((mti) => mti.transactioIdentitatis).forEach(tiidentitatum.add);
+  //   List<Transactio> lt = [];
+  //   lo.map((mo) => interioreTransactio.liber ? mo.interioreObstructionum.liberTransactions.where((wlt) => tiidentitatum.any((ai) => ai == wlt.interioreTransactio.identitatis)) : mo.interioreObstructionum.fixumTransactions.where((wft) => tiidentitatum.any((ai) => ai == wft.interioreTransactio.identitatis))).forEach(lt.addAll);
+  //   List<TransactioOutput> lto = [];
+  //   lt.map((mt) => mt.interioreTransactio.outputs).forEach(lto.addAll);
+  //   List<SiRemotionem> lsr = [];
+  //   lo.map((mo) => mo.interioreObstructionum.siRemotiones).forEach(lsr.addAll);
+  //   List<SiRemotionemInput?> lsri = [];
+  //   lsr.map((msr) => msr.interioreSiRemotionem.siRemotionemInput).forEach(lsri.add);
+  //   List<String?> sriidentitatum = [];
+  //   lsri.map((msri) => msri?.siRemotionemIdentiatis).forEach(sriidentitatum.add);
+  // }
 
   Future<bool> convalidandumTransaction(
       String? victor, TransactioGenus tg, List<Obstructionum> lo) async {

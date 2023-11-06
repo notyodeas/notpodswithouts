@@ -104,7 +104,9 @@ class GladiatorOutput {
       : impetum = Utils.randomHex(1),
         defensio = Utils.randomHex(1);
   GladiatorOutput.incipio(String producentis)
-      : rationibus = [Propter.incipio(InteriorePropter.incipio(producentis))],
+      : rationibus = [
+          Propter.incipio(InteriorePropter.incipio(producentis)),
+        ],
         defensio = Utils.randomHex(1),
         impetum = Utils.randomHex(1);
   Map<String, dynamic> toJson() => {

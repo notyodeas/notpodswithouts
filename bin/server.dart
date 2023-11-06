@@ -8,10 +8,12 @@ import 'package:args/args.dart';
 import 'connect/par_ad_rimor.dart';
 import 'exempla/constantes.dart';
 import 'exempla/petitio/clavis_par.dart';
+import 'itineribus/furca_iter.dart';
 import 'itineribus/obstructionum_iter.dart';
 import 'itineribus/fossor_efectus_iter.dart';
 import 'itineribus/fossor_confussus_iter.dart';
 import 'exempla/obstructionum.dart';
+import 'itineribus/profundum_iter.dart';
 import 'itineribus/propter_iter.dart';
 import 'itineribus/si_remotiones_iter.dart';
 import 'itineribus/submittere_transactio_liber_iter.dart';
@@ -46,27 +48,30 @@ final _router = Router()
   ..delete('/prohibere-confussus-fossores', prohibereConfussus)
   ..post('/fossor-expressi/<furca>', fossorExpressi)
   ..get('/fossor-expressi-threads', expressiThreads)
-  ..delete('/prohibere-confussus-fossores', prohibereExpressi)
-  ..post('/propter-submittere', propterSubmittere)
+  ..delete('/prohibere-expressi-fossores', prohibereExpressi)
+  ..post('/propter-submittere/<publica-clavis>', propterSubmittere)
   ..get('/propter-status/<propter-identitatis>', propterStatus)
   ..get('/propter/novus', propterNovus)
   ..get('/gladiator-invictos', gladiatorInvictos)
   ..get('/gladiator-defenditur/<publica-clavis>', gladiatorDefenditur)
   ..get('/gladiator-arma/<propter-identitatis>', gladiatorArma)
   ..get('/gladiator-summa-bid-arma/<probationem>', gladiatorSummaBidArma)
-  ..get('/statera/<liber>/<publica>', statera)
   ..post('/transactio-liber-submittere', submittereTransactioLiber)
   ..get('/transactio-stagnum-liber', transactioStagnumLiber)
   ..get('/transactio-stagnum-fixum', transactioStagnumFixum)
   ..get('/transactio-stagnum-expressi', transactioStagnumExpressi)
   ..get('/transactio/<identitatis>', transactioIdentitatis)
-  ..get('/connexa-liber-expressi/<liber-identitatis>',transactioConnexaLiberExpressi)
+  ..get('/connexa-liber-expressi/<liber-identitatis>',
+      transactioConnexaLiberExpressi)
   ..delete('/removere-liber-transactio-stagnum', removereTransactioStagnumLiber)
   ..get('/statera/<publica-clavis>', statera)
   ..post('/si-remotiones-submittere-proof', siRemotionessubmittereProof)
   ..get('/si-remotiones-reprehendo-si-existat', siRemotionesreprehendoSiExistat)
   ..post('/si-remotiones-denuo-proponendam', siRemotionesdenuoProponendam)
-  ..get('/si-remotiones-stagnum', siRemotionesStagnum);
+  ..get('/si-remotiones-stagnum', siRemotionesStagnum)
+  ..post('/profundum-retribuere', profundumRetribuere)
+  ..get('/furca-foramen', furcaForamen)
+  ..get('/furca-tridentes', furcaTridentes);
 
 Response _rootHandler(Request req) {
   return Response.ok('Hello, World!\n');

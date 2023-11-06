@@ -275,6 +275,7 @@ or i have to avoid starting to mine but still in the pool or a seperate class i 
 no a seperate class can not work because these will be removed too if the block gets removed
 
 
+it is important that after the divisa was smaller and the tot difficclty was higher we somehow stop est-furca or change it to false again or throw error upon still furca set to true after defeating
 
 the sirationem the assurance of a tx needs tpo hacve inputs and outputs
 first the whole sirationem should be included in a block as output ofcourse
@@ -284,3 +285,56 @@ and then whenever this sirationem in a block can take the money of the one in de
 what if the block with the assurance tx gets removed than he just has toppo resubmit his identitatis which aint found
 
 
+
+
+so your impetums are being used against you whilethey should not
+
+
+
+
+
+lof was only block number 5 
+blcok 3 and 4 are missingin lou it jumps from 2 to five but lof is reversed will lof be a list instead of just one 
+
+its weird that foramenfurca grabs number 5 too 
+eventhough it searching for a probationem of the previous block number 5 ort somethign
+
+somehow i believe block number 5 has a probationem as its priorprobationem now is this correct
+
+how can it grab 5 if we use the priorprobationem of 5
+
+the prior aint the pro so how
+
+or how did block number 5 got in the foramenfurca and 4 did not while 4 was the efectus and 5 the confussus
+
+we can restart and quit at the first fork
+
+or hmm
+
+
+
+
+
+
+okey estvurum changed the last block to numerus 5 instead of 4
+
+
+ik fork tot en met 6 moet 1 fton hebben maar 7 moet 2 fton hebben 
+
+check removereusquad if the highest number pof the array is reached
+
+
+probatur probably goes to false if it finds another leadingzero
+
+and liber of siremotiones should be part of the output
+
+
+
+we could not proof that probatur went to false because of another leading zero but now we have found evidence
+
+
+again txs should mine on the other node too instead only on the node you submit to
+
+
+heel raar maar al onze remove functies voor het weghalen van txs of propter of siremotionem kunnen de should be deleted value bewaren als 
+miss een extra nul wordt gevonden op dezelfde tijd van het block

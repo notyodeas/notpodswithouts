@@ -54,8 +54,8 @@ Future<Response> fossorConfussus(Request req) async {
     Obstructionum priorObstructionum =
         await Obstructionum.acciperePrior(directory);
     ReceivePort acciperePortus = ReceivePort();
-    Gladiator? gladiatorOppugnare =
-        await Obstructionum.grabGladiator(ip.gladiatorIdentitatis!, lo);
+    Gladiator? gladiatorOppugnare = await Obstructionum.grabGladiator(
+        ip.victima!.gladiatorIdentitatis!, lo);
     if (gladiatorOppugnare == null) {
       return Response.badRequest(
           body: json.encode({
@@ -66,9 +66,8 @@ Future<Response> fossorConfussus(Request req) async {
     }
     List<Transactio> fixumTxs = [];
     List<Transactio> liberTxs = [];
-    liberTxs = Transactio.grab(par!.liberTransactions);
     for (String acc in gladiatorOppugnare
-        .interioreGladiator.outputs[ip.primis! ? 0 : 1].rationibus
+        .interioreGladiator.outputs[ip.victima!.primis! ? 0 : 1].rationibus
         .map((e) => e.interiorePropter.publicaClavis)) {
       final balance = await Pera.statera(true, acc, lo);
       if (balance > BigInt.zero) {
@@ -104,21 +103,21 @@ Future<Response> fossorConfussus(Request req) async {
             cle.interioreConnexaLiberExpressi.expressiIdentitatis))
         .toList();
     List<Telum> impetus = [];
-    impetus.addAll(await Pera.maximeArma(true, ip.primis!, true,
-        gladiatorOppugnare.interioreGladiator.identitatis, lo));
-    impetus.addAll(await Pera.maximeArma(false, ip.primis!, false,
-        gladiatorOppugnare.interioreGladiator.identitatis, lo));
+    impetus.addAll(await Pera.maximeArma(true, ip.inimicus!.primis!, true,
+        ip.inimicus!.gladiatorIdentitatis!, lo));
+    impetus.addAll(await Pera.maximeArma(false, ip.inimicus!.primis!, false,
+        ip.inimicus!.gladiatorIdentitatis!, lo));
     List<Telum> defensiones = [];
-    defensiones.addAll(await Pera.maximeArma(true, ip.primis!, false,
+    defensiones.addAll(await Pera.maximeArma(true, ip.inimicus!.primis!, false,
         gladiatorOppugnare.interioreGladiator.identitatis, lo));
-    defensiones.addAll(await Pera.maximeArma(false, ip.primis!, false,
+    defensiones.addAll(await Pera.maximeArma(false, ip.inimicus!.primis!, false,
         gladiatorOppugnare.interioreGladiator.identitatis, lo));
     List<String> gladii = impetus.map((e) => e.telum).toList();
     List<String> scuta = defensiones.map((e) => e.telum).toList();
-    final String baseDefensio = await Pera.turpiaGladiatoriaTelum(ip.primis!,
-        false, gladiatorOppugnare.interioreGladiator.identitatis, lo);
-    final String baseImpetum = await Pera.turpiaGladiatoriaTelum(ip.primis!,
-        true, gladiatorOppugnare.interioreGladiator.identitatis, lo);
+    final String baseDefensio = await Pera.turpiaGladiatoriaTelum(
+        ip.victima!.primis!, false, ip.victima!.gladiatorIdentitatis!, lo);
+    final String baseImpetum = await Pera.turpiaGladiatoriaTelum(
+        ip.inimicus!.primis!, true, ip.inimicus!.gladiatorIdentitatis!, lo);
     scuta.add(baseDefensio);
     gladii.add(baseImpetum);
     scuta.removeWhere((defensio) => gladii.any((ag) => ag == defensio));
@@ -140,18 +139,16 @@ Future<Response> fossorConfussus(Request req) async {
         producentis: argumentis!.publicaClavis,
         priorProbationem: priorObstructionum.probationem,
         gladiator: Gladiator.nullam(InterioreGladiator.ce(
-            input: await InterioreGladiator.cegi(
-                ip.primis!, ip.privatusClavis!, ip.gladiatorIdentitatis!, lo))),
+            input: await InterioreGladiator.cegi(ip.victima!.primis!,
+                ip.privatusClavis!, ip.victima!.gladiatorIdentitatis!, lo))),
         liberTransactions: liberTxs,
         fixumTransactions: fixumTxs,
         expressiTransactions: [],
         connexaLiberExpressis: cles,
         siRemotiones: lsr,
         prior: priorObstructionum);
-    stamina.confussusThreads.add(await Isolate.spawn(
-        Obstructionum.confussus,
-        List<dynamic>.from(
-            [interiore, scuta, acciperePortus.sendPort])));
+    stamina.confussusThreads.add(await Isolate.spawn(Obstructionum.confussus,
+        List<dynamic>.from([interiore, scuta, acciperePortus.sendPort])));
     acciperePortus.listen((nuntius) async {
       Obstructionum obstructionum = nuntius as Obstructionum;
       InFieriObstructionum ifo = obstructionum.inFieriObstructionum();
@@ -161,10 +158,13 @@ Future<Response> fossorConfussus(Request req) async {
           isolates.liberTxIsolates[lt]?.kill(priority: Isolate.immediate));
       ifo.fixumTransactions.forEach((ft) =>
           isolates.fixumTxIsolates[ft]?.kill(priority: Isolate.immediate));
+      ifo.siRemotionems.forEach((sr) =>
+          isolates.siRemotionemIsolates[sr]?.kill(priority: Isolate.immediate));
       par!.removePropters(ifo.gladiatorIdentitatum);
       par!.removeLiberTransactions(ifo.liberTransactions);
       par!.removeFixumTransactions(ifo.fixumTransactions);
       par!.removeConnexaLiberExpressis(ifo.connexaLiberExpressis);
+      par!.removeSiRemotionems(ifo.siRemotionems);
       par!.syncBlock(obstructionum);
     });
     return Response.ok(json.encode({
