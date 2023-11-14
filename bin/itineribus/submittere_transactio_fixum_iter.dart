@@ -32,6 +32,7 @@ Future<Response> submittereFixumTransaction(Request req) async {
     });
   }
   final Transactio transactio = Transactio.nullam(await Pera.novamRem(
+      necessitudo: false,
       liber: false,
       twice: false,
       ts: TransactioSignificatio.regularis,

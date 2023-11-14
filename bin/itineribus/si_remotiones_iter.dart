@@ -37,7 +37,7 @@ Future<Response> siRemotionessubmittereProof(Request req) async {
   rp.listen((transactio) {
     par!.syncLiberTransaction(transactio as Transactio);
   });
-  return Response.ok(json.encode(reschet.toJson()));
+  return Response.ok(json.encode(reschet.interioreSiRemotionem.toJson()));
 }
 
 Future<Response> siRemotionesreprehendoSiExistat(Request req) async {

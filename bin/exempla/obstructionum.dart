@@ -318,7 +318,6 @@ class Obstructionum {
     List<String> toCrack = args[1] as List<String>;
     SendPort mitte = args[2] as SendPort;
     String probationem = '';
-    bool doschoes = false;
     while (true) {
       do {
         interioreObstructionum.mine();
@@ -328,18 +327,10 @@ class Obstructionum {
         print(probationem);
       } while (!probationem
           .startsWith('0' * interioreObstructionum.obstructionumDifficultas));
-      for (int i = 0; i < toCrack.length; i++) {
-        if (probationem.contains(toCrack[i])) {
-          doschoes = true;
-        } else {
-          doschoes = false;
-          break;
-        }
-      }
-      if (doschoes) {
-        break;
-      } else {
+      if (!toCrack.every((tc) => probationem.contains(tc))) {
         continue;
+      } else {
+        break;
       }
     }
     mitte.send(Obstructionum(interioreObstructionum, probationem));
@@ -351,7 +342,6 @@ class Obstructionum {
     List<String> toCrack = args[1] as List<String>;
     SendPort mitte = args[2] as SendPort;
     String probationem = '';
-    bool doschoes = false;
     while (true) {
       do {
         interioreObstructionum.mine();
@@ -362,18 +352,10 @@ class Obstructionum {
               (interioreObstructionum.obstructionumDifficultas / 2).floor()) ||
           !probationem.endsWith('0' *
               (interioreObstructionum.obstructionumDifficultas / 2).floor()));
-      for (int i = 0; i < toCrack.length; i++) {
-        if (probationem.contains(toCrack[i])) {
-          doschoes = true;
-        } else {
-          doschoes = false;
-          break;
-        }
-      }
-      if (doschoes) {
-        break;
-      } else {
+      if (!toCrack.every((tc) => probationem.contains(tc))) {
         continue;
+      } else {
+        break;
       }
     }
     mitte.send(Obstructionum(interioreObstructionum, probationem));
@@ -465,8 +447,8 @@ class Obstructionum {
       }
     }
     gladiatorOutputs.removeWhere((element) => gladiatorInitibus.any((init) =>
-        init?.gladiatorIdentitatis == element.item1 &&
-        init?.primis == element.item3));
+        init?.victima.gladiatorIdentitatis == element.item1 &&
+        init?.victima.primis == element.item3));
     return gladiatorOutputs.map((g) => g.item2).toList();
   }
 
@@ -501,8 +483,8 @@ class Obstructionum {
       }
     });
     gladiatorOutputs.removeWhere((element) => gladiatorInitibus.any((init) =>
-        init?.gladiatorIdentitatis == element.item1 &&
-        init?.primis == element.item3));
+        init?.victima.gladiatorIdentitatis == element.item1 &&
+        init?.victima.primis == element.item3));
     return gladiatorOutputs;
   }
 
@@ -557,7 +539,7 @@ class Obstructionum {
         .map((o) => o.interioreObstructionum.gladiator.interioreGladiator.input)
         .toList();
     if (gis.any(
-        (g) => g?.gladiatorIdentitatis == gladiatorId && g?.primis == primis)) {
+        (g) => g?.victima.gladiatorIdentitatis == gladiatorId && g?.victima.primis == primis)) {
       return false;
     }
     return true;
@@ -581,7 +563,7 @@ class Obstructionum {
                 gladiatorIdentitatis) !=
             null
         ? lo
-            .singleWhere((obs) =>
+            .singleWhere((obs) => 
                 obs.interioreObstructionum.gladiator.interioreGladiator
                     .identitatis ==
                 gladiatorIdentitatis)
@@ -822,13 +804,26 @@ class Obstructionum {
     interioreObstructionum.liberTransactions
         .where((wlt) =>
             wlt.interioreTransactio.transactioSignificatio ==
-            TransactioSignificatio.regularis)
+            TransactioSignificatio.regularis || wlt.interioreTransactio.transactioSignificatio == TransactioSignificatio.expressi)
         .map((mlt) => mlt.interioreTransactio.outputs.where(
             (wo) => wo.publicaClavis == interioreObstructionum.producentis))
         .forEach(ltoProducer.addAll);
     for (TransactioOutput to in ltoProducer) {
       rfixum += to.pod;
     }
+    // if (interioreObstructionum)
+    // print('rfixumbefore $rfixum');
+    // List<TransactioOutput> ltotx = [];
+    // print('expressitxs\n');
+    // print('\n');  
+    // print(interioreObstructionum.expressiTransactions.map((e) => e.toJson()));
+    // interioreObstructionum.expressiTransactions.map((met) => met.interioreTransactio.outputs.where((wo) => wo.publicaClavis == interioreObstructionum.producentis)).forEach(ltotx.addAll);
+    // for (TransactioOutput to in ltotx) {
+
+    //   rfixum += to.pod;
+    // }
+    print('fixum $fixum and $rfixum');
+    return fixum == rfixum;
     // List<TransactioInput> ltir = [];
     // interioreObstructionum.liberTransactions
     //     .where((wlt) =>
@@ -854,8 +849,7 @@ class Obstructionum {
     //   print('specialscenario ${to.pod}');
     //   rfixum += to.pod;
     // }
-    print('fixum $fixum and $rfixum');
-    return fixum == rfixum;
+
   }
 
   Future<bool> vicit(List<Obstructionum> lo) async {
@@ -870,26 +864,23 @@ class Obstructionum {
     }
     Obstructionum swo = lo.singleWhere((swo) =>
         swo.interioreObstructionum.gladiator.interioreGladiator.identitatis ==
-        gi.gladiatorIdentitatis);
-
-    String victimGladiatorIdentitatis =
-        swo.interioreObstructionum.gladiator.interioreGladiator.identitatis;
+        gi.victima.gladiatorIdentitatis);
     String inimicusImpetumBasis = await Pera.turpiaGladiatoriaTelum(
-        gi.primis, true, gi.gladiatorIdentitatis, lo);
+        gi.inimicus.primis, true, gi.inimicus.gladiatorIdentitatis, lo);
     List<Telum> inimicusImpetusLiber = await Pera.maximeArma(
-        true, gi.primis, true, gi.gladiatorIdentitatis, lo);
+        true, gi.inimicus.primis, true, gi.inimicus.gladiatorIdentitatis, lo);
     List<Telum> inimicusImpetusFixum = await Pera.maximeArma(
-        false, gi.primis, true, gi.gladiatorIdentitatis, lo);
+        false, gi.inimicus.primis, true, gi.inimicus.gladiatorIdentitatis, lo);
     List<String> inimicusImpetus = [inimicusImpetumBasis];
     inimicusImpetusLiber.map((miil) => miil.telum).forEach(inimicusImpetus.add);
     inimicusImpetusFixum.map((miif) => miif.telum).forEach(inimicusImpetus.add);
 
     String victimaDefensioBasis = await Pera.turpiaGladiatoriaTelum(
-        gi.primis, false, victimGladiatorIdentitatis, lo);
+        gi.victima.primis, false, gi.victima.gladiatorIdentitatis, lo);
     List<Telum> victimaDefensioLiber = await Pera.maximeArma(
-        true, gi.primis, false, victimGladiatorIdentitatis, lo);
+        true, gi.victima.primis, false, gi.victima.gladiatorIdentitatis, lo);
     List<Telum> victimaDefensioFixum = await Pera.maximeArma(
-        false, gi.primis, false, victimGladiatorIdentitatis, lo);
+        false, gi.victima.primis, false, gi.victima.gladiatorIdentitatis, lo);
     List<String> victimaDefensiones = [victimaDefensioBasis];
     victimaDefensioLiber
         .map((mvdl) => mvdl.telum)
@@ -898,8 +889,13 @@ class Obstructionum {
         .map((mvdf) => mvdf.telum)
         .forEach(victimaDefensiones.add);
     List<String> requiritur = victimaDefensiones;
+    print('reqbefremv $requiritur');
+    print('impetusbefrem $inimicusImpetus');
     requiritur.removeWhere((rwr) => inimicusImpetus.any((aii) => aii == rwr));
+    print('requiritur $requiritur');
+    print('vicitprob $probationem');
     if (!requiritur.every((er) => probationem.contains(er))) {
+      print('itsamatterofattacksordefencesintheprobationem');
       return false;
     }
     List<GladiatorInput?> lgi = [];
@@ -908,19 +904,20 @@ class Obstructionum {
             mo.interioreObstructionum.gladiator.interioreGladiator.input)
         .forEach(lgi.add);
     if (lgi.any((agi) =>
-        agi?.gladiatorIdentitatis == gi.gladiatorIdentitatis &&
-        agi?.primis == gi.primis)) {
+        agi?.victima.gladiatorIdentitatis == gi.victima.gladiatorIdentitatis &&
+        agi?.victima.primis == gi.victima.primis)) {
       Print.nota(
           nuntius: 'gladiator iam victus est',
           message: 'gladiator is already defeated');
       return false;
     }
     GladiatorOutput go = swo.interioreObstructionum.gladiator.interioreGladiator
-        .outputs[gi.primis ? 0 : 1];
+        .outputs[gi.victima.primis ? 0 : 1];
     if (!Utils.cognoscereVictusGladiator(
         PublicKey.fromHex(Pera.curve(), interioreObstructionum.producentis),
         Signature.fromASN1Hex(gi.signature),
         go)) {
+      print('itsamatterofsignature');
       return false;
     }
     return true;

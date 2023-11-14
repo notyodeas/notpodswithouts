@@ -79,6 +79,7 @@ Future<Response> fossorConfussus(Request req) async {
             lo)));
       }
     }
+    liberTxs.addAll(priorObstructionum.interioreObstructionum.expressiTransactions);
     Tuple2<InterioreTransactio?, InterioreTransactio?> transform =
         await Pera.transformFixum(
             ip.privatusClavis!, par!.liberTransactions, lo);
@@ -90,18 +91,12 @@ Future<Response> fossorConfussus(Request req) async {
       print(transform.item2!.toJson());
       fixumTxs.add(Transactio.nullam(transform.item2!));
     }
-    List<String> ltum = [];
-    liberTxs.map((lt) => lt.interioreTransactio.identitatis).forEach(ltum.add);
     liberTxs.addAll(Transactio.grab(par!.liberTransactions
-        .where((wlt) => wlt.interioreTransactio.probatur == true)));
+        .where((wlt) => wlt.interioreTransactio.probatur == true && !wlt.capta)));
+    
     fixumTxs.addAll(Transactio.grab(par!.fixumTransactions
-        .where((wft) => wft.interioreTransactio.probatur == true)));
-    List<ConnexaLiberExpressi> cles = par!.invenireConnexaLiberExpressis(ltum);
-    List<Transactio> expressiTxs = par!.expressiTransactions
-        .where((et) => cles.any((cle) =>
-            et.interioreTransactio.identitatis ==
-            cle.interioreConnexaLiberExpressi.expressiIdentitatis))
-        .toList();
+        .where((wft) => wft.interioreTransactio.probatur == true && !wft.capta)));
+    List<String> ltum = [];
     List<Telum> impetus = [];
     impetus.addAll(await Pera.maximeArma(true, ip.inimicus!.primis!, true,
         ip.inimicus!.gladiatorIdentitatis!, lo));
@@ -120,7 +115,11 @@ Future<Response> fossorConfussus(Request req) async {
         ip.inimicus!.primis!, true, ip.inimicus!.gladiatorIdentitatis!, lo);
     scuta.add(baseDefensio);
     gladii.add(baseImpetum);
+    print('confussusbeforescuta $scuta');
+    print('confussusbeforegladi $gladii');
     scuta.removeWhere((defensio) => gladii.any((ag) => ag == defensio));
+    print('confscuta $scuta');
+    print('confgladi $gladii');
     List<int> on = await Obstructionum.utObstructionumNumerus(lo.last);
     BigInt numerus = await Obstructionum.numeruo(on);
     final obstructionumDifficultas = await Obstructionum.utDifficultas(lo);
@@ -138,13 +137,11 @@ Future<Response> fossorConfussus(Request req) async {
         obstructionumNumerus: on,
         producentis: argumentis!.publicaClavis,
         priorProbationem: priorObstructionum.probationem,
-        gladiator: Gladiator.nullam(InterioreGladiator.ce(
-            input: await InterioreGladiator.cegi(ip.victima!.primis!,
-                ip.privatusClavis!, ip.victima!.gladiatorIdentitatis!, lo))),
+        gladiator: Gladiator.nullam(InterioreGladiator.ce(input: await InterioreGladiator.cegi(privatusClavis: ip.privatusClavis!, inimicus: GladiatorInputPar(ip.inimicus!.primis!, ip.inimicus!.gladiatorIdentitatis!), victima: GladiatorInputPar(ip.victima!.primis!, ip.victima!.gladiatorIdentitatis!), lo: lo))),
         liberTransactions: liberTxs,
         fixumTransactions: fixumTxs,
         expressiTransactions: [],
-        connexaLiberExpressis: cles,
+        connexaLiberExpressis: [],
         siRemotiones: lsr,
         prior: priorObstructionum);
     stamina.confussusThreads.add(await Isolate.spawn(Obstructionum.confussus,
@@ -160,12 +157,17 @@ Future<Response> fossorConfussus(Request req) async {
           isolates.fixumTxIsolates[ft]?.kill(priority: Isolate.immediate));
       ifo.siRemotionems.forEach((sr) =>
           isolates.siRemotionemIsolates[sr]?.kill(priority: Isolate.immediate));
-      par!.removePropters(ifo.gladiatorIdentitatum);
-      par!.removeLiberTransactions(ifo.liberTransactions);
-      par!.removeFixumTransactions(ifo.fixumTransactions);
-      par!.removeConnexaLiberExpressis(ifo.connexaLiberExpressis);
-      par!.removeSiRemotionems(ifo.siRemotionems);
-      par!.syncBlock(obstructionum);
+      stamina.confussusThreads.forEach((ct) => ct.kill());
+      await par!.removePropters(ifo.gladiatorIdentitatum);
+      await par!.removeLiberTransactions(ifo.liberTransactions);
+      await par!.removeFixumTransactions(ifo.fixumTransactions);
+      await par!.removeExpressiTransactions(ifo.expressiTransactions);
+      await par!.removeConnexaLiberExpressis(ifo.connexaLiberExpressis);
+      await par!.removeSiRemotionems(ifo.siRemotionems);
+      await par!.sumoLiberTransactions(ifo.liberTransactions);
+      await par!.sumoFixumTransactions(ifo.fixumTransactions);
+      await par!.sumoExpressiTransactions(ifo.expressiTransactions);
+      await par!.syncBlock(obstructionum);
     });
     return Response.ok(json.encode({
       "nuntius": "coepi confussus miner",

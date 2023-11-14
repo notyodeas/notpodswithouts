@@ -58,7 +58,7 @@ Future<Response> submittereTransactioLiber(Request req) async {
           to: st.to!,
           transactioStagnum: stagnum,
           lo: lo));
-      await loschog(st.ex!, st.to!, st.pod!, liber, stagnum, lo);
+      await loschog(st.ex!, st.to!, st.pod!, liber, lo);
       return Response.ok(json.encode(TransactioSubmittereResponsionis(
               true, liber.interioreTransactio.identitatis)
           .toJson()));
@@ -73,7 +73,7 @@ Future<Response> submittereTransactioLiber(Request req) async {
           to: st.to!,
           transactioStagnum: stagnum,
           lo: lo));
-      await loschog(st.ex!, st.to!, st.pod!, liber, stagnum, lo);
+      await loschog(st.ex!, st.to!, st.pod!, liber, lo);
       return Response.ok(json.encode(TransactioSubmittereResponsionis(
               true, liber.interioreTransactio.identitatis)
           .toJson()));
@@ -91,56 +91,19 @@ Future<Response> removereTransactioStagnumLiber(Request req) async {
   }));
 }
 
-Future loschog(String ex, String to, BigInt pod, Transactio liber,
-    List<Transactio> stagnum, List<Obstructionum> lo) async {
-  stagnum.remove(liber);
-  final Transactio expressi = Transactio.nullam(await Pera.novamRem(
-      necessitudo: false,
-      liber: true,
-      twice: false,
-      ts: TransactioSignificatio.expressi,
+Future loschog(String ex, String to, BigInt pod, Transactio liber, List<Obstructionum> lo) async {
+  final Transactio expressi = Transactio.nullam(await Pera.novamExpressi(
       ex: ex,
-      value: pod,
       to: to,
-      transactioStagnum: stagnum,
-      lo: lo));
-  stagnum.add(liber);
+      value: pod,
+      regularis: liber,
+  ));
   final InterioreConnexaLiberExpressi icle = InterioreConnexaLiberExpressi(
       liberIdentitatis: liber.interioreTransactio.identitatis,
       expressiIdentitatis: expressi.interioreTransactio.identitatis);
   final ConnexaLiberExpressi cle = ConnexaLiberExpressi(
       PrivateKey.fromHex(Pera.curve(), ex).publicKey.toHex(), icle, ex);
   par!.syncConnexaLiberExpressi(cle);
-  if (liber.interioreTransactio.transactioSignificatio ==
-      TransactioSignificatio.ardeat) {
-    ReceivePort rp = ReceivePort();
-    isolates.liberTxIsolates[liber.interioreTransactio.identitatis] =
-        await Isolate.spawn(Transactio.quaestum,
-            List<dynamic>.from([liber.interioreTransactio, rp.sendPort]));
-    rp.listen((transactio) {
-      par!.syncLiberTransaction(transactio as Transactio);
-    });
-  } else {
-    par!.syncLiberTransaction(liber);
-    par!.syncLiberTransaction(liber);
-  }
+  par!.syncLiberTransaction(liber);
   par!.syncExpressiTransaction(expressi);
-  // ReceivePort acciperePortusLiber = ReceivePort();
-  // ReceivePort acciperePortusExpressi = ReceivePort();
-  // isolates.liberTxIsolates[liber.interioreTransactio.identitatis] =
-  //     await Isolate.spawn(
-  //         Transactio.quaestum,
-  //         List<dynamic>.from(
-  //             [liber.interioreTransactio, acciperePortusLiber.sendPort]));
-  // isolates.expressiTxIsolates[expressi.interioreTransactio.identitatis] =
-  //     await Isolate.spawn(
-  //         Transactio.quaestum,
-  //         List<dynamic>.from(
-  //             [expressi.interioreTransactio, acciperePortusExpressi.sendPort]));
-  // acciperePortusLiber.listen((transactio) {
-  //   par!.syncLiberTransaction(transactio as Transactio);
-  // });
-  // acciperePortusExpressi.listen((transactio) {
-  //   par!.syncExpressiTransaction(transactio as Transactio);
-  // });
 }

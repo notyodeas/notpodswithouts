@@ -107,13 +107,22 @@ Future<Response> fossorEfectus(Request req) async {
     });
     ifo.siRemotionems.forEach((sr) =>
         isolates.siRemotionemIsolates[sr]?.kill(priority: Isolate.immediate));
-    par!.removePropters(ifo.gladiatorIdentitatum);
-    par!.removeLiberTransactions(ifo.liberTransactions);
-    par!.removeFixumTransactions(ifo.fixumTransactions);
-    par!.removeExpressiTransactions(ifo.liberTransactions);
-    par!.removeConnexaLiberExpressis(ifo.connexaLiberExpressis);
-    par!.removeSiRemotionems(ifo.siRemotionems);
-    par!.syncBlock(obstructionum);
+    stamina.efectusThreads.forEach((et) => et.kill());
+    print('libertxsafterefectus\n');
+    await par!.removePropters(ifo.gladiatorIdentitatum);
+    await par!.removeLiberTransactions(ifo.liberTransactions);
+    await par!.removeFixumTransactions(ifo.fixumTransactions);
+    await par!.removeExpressiTransactions(ifo.liberTransactions);
+    await par!.removeConnexaLiberExpressis(ifo.connexaLiberExpressis);
+    await par!.removeSiRemotionems(ifo.siRemotionems);
+    print('libertxafterrem\n');
+    print(par!.liberTransactions.map((e) => e.toJson()));    
+    await par!.sumoLiberTransactions(ifo.liberTransactions);
+    await par!.sumoFixumTransactions(ifo.fixumTransactions);
+    await par!.sumoExpressiTransactions(ifo.expressiTransactions);
+    print('captatrue\n');
+    print(par!.liberTransactions.map((e) => e.toJson()));
+    await par!.syncBlock(obstructionum);
   });
   return Response.ok(json.encode({
     "nuntius": "coepi efectus fossores",

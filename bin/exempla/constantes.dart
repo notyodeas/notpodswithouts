@@ -80,7 +80,7 @@ class JSON {
   static String connexaLiberExpressis = 'connexa-liber-expressis';
   static String isCle = 'is-cle';
   static String liberIdentitatis = 'liber-identitatis';
-  static String expressiIdentitatis = 'fixum-identitatis';
+  static String expressiIdentitatis = 'expressi-identitatis';
   static String adRemovendumConnexaLiberExpressis =
       'ad-removendum-connexa-liber-expressis';
   static String basisImpetum = 'basis-impetum';
@@ -130,6 +130,8 @@ class JSON {
   static String siRemotionemIdentitatis = 'si-remotionem-identitatis';
   static String inimicus = 'inimicus';
   static String victima = 'victima';
+  static String capta = 'capta';
+  static String identitatum = 'identitatum';
 }
 
 class PervideasNuntiusCasibus {
@@ -197,6 +199,7 @@ class PervideasNuntiusCasibus {
   static String summaPetitioScandalum = 'summa-petit';
   static String summaCaudices = 'summa-caudices';
   static String privatus = 'privatus';
+  static String transactioGenus = 'transactio-genus';
 }
 
 class PervideasNuntiusTitulus {
@@ -204,4 +207,5 @@ class PervideasNuntiusTitulus {
   static String addereTridentes = 'addere-tridentes';
   static String accipreObstructionum = 'accipre-obstructionum';
   static String removeSiRemotionems = 'remove-si-remotionems';
+  static String sumoTransactions = 'sumo-transactions';
 }

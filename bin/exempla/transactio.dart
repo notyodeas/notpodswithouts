@@ -12,6 +12,8 @@ import 'package:elliptic/elliptic.dart';
 import 'package:ecdsa/ecdsa.dart';
 import './pera.dart';
 import './constantes.dart';
+import 'package:collection/collection.dart';
+
 
 enum TransactioSignificatio {
   regularis,
@@ -42,6 +44,17 @@ extension TransactioSignificatioFromJson on TransactioSignificatio {
 }
 
 enum TransactioGenus { liber, fixum, expressi }
+
+extension TransactioGenusFromJson on TransactioGenus {
+  static fromJson(String name) {
+    switch (name) {
+      case 'liber': return TransactioGenus.liber;
+      case 'fixum': return TransactioGenus.fixum;
+      case 'expressi': return TransactioGenus.expressi;
+      // case 'profundum': return TransactioGenus.profundum;
+    }
+  }
+}
 
 class TransactioInput {
   final int index;
@@ -295,6 +308,15 @@ class SiRemotionem {
     }
     return reditus;
   }
+  // but we dont have inputs yet so these depths could be payed
+  static Future<List<SiRemotionemOutput>> profundums(String publicaClavis, Directory directorium) async {
+    List<Obstructionum> lo = await Obstructionum.getBlocks(directorium);
+    List<SiRemotionem> lsr = [];
+    lo.map((mo) => mo.interioreObstructionum.siRemotiones).forEach(lsr.addAll);
+    List<SiRemotionemOutput> lsro = [];
+    lsr.where((wsr) => wsr.interioreSiRemotionem.siRemotionemOutput != null).where((wsr) => wsr.interioreSiRemotionem.siRemotionemOutput!.debetur == publicaClavis).map((msr) => msr.interioreSiRemotionem.siRemotionemOutput!).forEach(lsro.add);
+    return lsro;
+  }
 }
 
 class InterioreTransactio {
@@ -375,19 +397,23 @@ class InterioreTransactio {
 }
 
 class Transactio {
+  bool capta;
   late String probationem;
   final InterioreTransactio interioreTransactio;
-  Transactio(this.probationem, this.interioreTransactio);
+  Transactio(this.probationem, this.interioreTransactio): capta = false;
   Transactio.fromJson(Map<String, dynamic> jsoschon)
-      : probationem = jsoschon[JSON.probationem].toString(),
+      : capta = bool.parse(jsoschon[JSON.capta].toString()),
+        probationem = jsoschon[JSON.probationem].toString(),
         interioreTransactio = InterioreTransactio.fromJson(
             jsoschon[JSON.interioreTransactio] as Map<String, dynamic>);
   Transactio.nullam(this.interioreTransactio)
-      : probationem = HEX.encode(sha512
+      : capta = false,
+        probationem = HEX.encode(sha512
             .convert(utf8.encode(json.encode(interioreTransactio.toJson())))
             .bytes);
   Transactio.praemium(String producentis)
-      : interioreTransactio = InterioreTransactio.praemium(producentis) {
+      : capta = false,
+        interioreTransactio = InterioreTransactio.praemium(producentis) {
     probationem = HEX.encode(sha512
         .convert(utf8.encode(json.encode(interioreTransactio.toJson())))
         .bytes);
@@ -409,7 +435,8 @@ class Transactio {
   }
 
   Transactio.burn(this.interioreTransactio)
-      : probationem = HEX.encode(sha512
+      : capta = false,
+        probationem = HEX.encode(sha512
             .convert(utf8.encode(json.encode(interioreTransactio.toJson())))
             .bytes);
   bool validateBlockreward() {
@@ -523,95 +550,107 @@ class Transactio {
   // }
 
   Future<bool> convalidandumTransaction(
-      String? victor, TransactioGenus tg, List<Obstructionum> lo) async {
+      String? victor, TransactioGenus tg, List<Transactio> stagnum, List<Obstructionum> lo) async {
+    print('timetoconvtx hereis stagnum\n');
+    print(stagnum.map((e) => e.toJson()));
     BigInt spendable = BigInt.zero;
     for (TransactioInput input in interioreTransactio.inputs) {
       switch (tg) {
         case TransactioGenus.liber:
           {
-            Transactio transactio = lo
-                .singleWhere((obs) => obs
+            Obstructionum? o = lo
+                .singleWhereOrNull((obs) => obs
                     .interioreObstructionum.liberTransactions
                     .any((transactions) =>
                         transactions.interioreTransactio.identitatis ==
-                        input.transactioIdentitatis))
-                .interioreObstructionum
-                .liberTransactions
-                .singleWhere((transactio) =>
-                    transactio.interioreTransactio.identitatis ==
-                    input.transactioIdentitatis);
-            spendable +=
+                        input.transactioIdentitatis));
+            if (o == null) {
+              Transactio transactio = stagnum.singleWhere((sws) => sws.interioreTransactio.identitatis == input.transactioIdentitatis);
+              spendable +=
                 transactio.interioreTransactio.outputs[input.index].pod;
-            switch (transactio.interioreTransactio.transactioSignificatio) {
-              case TransactioSignificatio.ardeat:
-              case TransactioSignificatio.expressi:
-              case TransactioSignificatio.regularis:
-                {
-                  if (!estSominusPecuniae(input, transactio)) {
-                    return false;
-                  }
-                  break;
-                }
-              case TransactioSignificatio.transform:
-                {
-                  if (!estSubscriptioneVictor(victor!, input, transactio)) {
-                    return false;
-                  }
-                  break;
-                }
-              default:
-                break;
+              if(!transactio.validateLiber(victor, input)) {
+                Print.nota(nuntius: 'Invalidum liber transactio', message: 'Invalid liber transaction');
+                return false;
+              }
+            } else {
+              Transactio transactio = o.interioreObstructionum.liberTransactions.singleWhere((swlt) => swlt.interioreTransactio.identitatis == input.transactioIdentitatis);
+              spendable +=
+                transactio.interioreTransactio.outputs[input.index].pod;
+              if(!transactio.validateLiber(victor, input)) {
+                Print.nota(nuntius: 'Invalidum liber transactio', message: 'Invalid liber transaction');
+                return false;
+              }
             }
           }
         case TransactioGenus.expressi:
           {
-            Transactio transactio = lo
-                .singleWhere((obs) => obs
-                    .interioreObstructionum.liberTransactions
-                    .any((transactions) =>
-                        transactions.interioreTransactio.identitatis ==
-                        input.transactioIdentitatis))
-                .interioreObstructionum
-                .liberTransactions
-                .singleWhere((transactio) =>
-                    transactio.interioreTransactio.identitatis ==
-                    input.transactioIdentitatis);
-            spendable +=
+            Obstructionum? o = lo.singleWhereOrNull((swono) => swono.interioreObstructionum.liberTransactions.any((transactio) => transactio.interioreTransactio.identitatis == input.transactioIdentitatis));
+            if (o == null) {
+                print('inputsid\n');
+                print(input.transactioIdentitatis);
+                Transactio transactio = stagnum.singleWhere((sws) => sws.interioreTransactio.identitatis == input.transactioIdentitatis);
+                spendable +=
                 transactio.interioreTransactio.outputs[input.index].pod;
-            if (!estSominusPecuniae(input, transactio)) {
-              Print.nota(
-                  nuntius: 'non est dominus pecuniae',
-                  message: 'is not the owner of money');
-              return false;
+                if (!estSominusPecuniae(input, transactio)) {
+                  Print.nota(
+                      nuntius: 'non est dominus pecuniae',
+                      message: 'is not the owner of money');
+                  return false;
+                } else {
+                  return true;
+                }
             } else {
-              return true;
+                Transactio transactio = o.interioreObstructionum.liberTransactions.singleWhere((swlt) => swlt.interioreTransactio.identitatis == input.transactioIdentitatis);
+                spendable +=
+                transactio.interioreTransactio.outputs[input.index].pod;
+                if (!estSominusPecuniae(input, transactio)) {
+                  Print.nota(
+                      nuntius: 'non est dominus pecuniae',
+                      message: 'is not the owner of money');
+                  return false;
+                } else {
+                  return true;
+                }
             }
           }
         case TransactioGenus.fixum:
           {
-            Transactio transactio = lo
-                .singleWhere((obs) => obs
+            Obstructionum? o = lo
+                .singleWhereOrNull((obs) => obs
                     .interioreObstructionum.fixumTransactions
                     .any((transactions) =>
                         transactions.interioreTransactio.identitatis ==
-                        input.transactioIdentitatis))
-                .interioreObstructionum
-                .fixumTransactions
-                .singleWhere((transactio) =>
-                    transactio.interioreTransactio.identitatis ==
-                    input.transactioIdentitatis);
-            spendable +=
+                        input.transactioIdentitatis));
+            if (o == null) {
+              Transactio transactio = stagnum.singleWhere((sws) => sws.interioreTransactio.identitatis == input.transactioIdentitatis);
+              spendable +=
                 transactio.interioreTransactio.outputs[input.index].pod;
-            if (!estSominusPecuniae(input, transactio) &&
-                interioreTransactio.transactioSignificatio !=
-                    TransactioSignificatio.transform) {
-              Print.nota(
-                  nuntius: 'non est dominus pecuniae',
-                  message: 'is not the owner of money');
-              return false;
+              if (!estSominusPecuniae(input, transactio) &&
+                  interioreTransactio.transactioSignificatio !=
+                      TransactioSignificatio.transform) {
+                Print.nota(
+                    nuntius: 'non est dominus pecuniae',
+                    message: 'is not the owner of money');
+                return false;
+              } else {
+                return true;
+              }
             } else {
-              return true;
+              Transactio transactio = o.interioreObstructionum.fixumTransactions.singleWhere((swft) => swft.interioreTransactio.identitatis == input.transactioIdentitatis);
+              spendable +=
+                  transactio.interioreTransactio.outputs[input.index].pod;
+              if (!estSominusPecuniae(input, transactio) &&
+                  interioreTransactio.transactioSignificatio !=
+                      TransactioSignificatio.transform) {
+                Print.nota(
+                    nuntius: 'non est dominus pecuniae',
+                    message: 'is not the owner of money');
+                return false;
+              } else {
+                return true;
+              }
             }
+            
           }
       }
     }
@@ -643,6 +682,7 @@ class Transactio {
   }
 
   Map<String, dynamic> toJson() => {
+        JSON.capta: capta,
         JSON.probationem: probationem,
         JSON.interioreTransactio: interioreTransactio.toJson()
       };
@@ -671,6 +711,29 @@ class Transactio {
     return true;
   }
 
+  bool validateLiber(String? victor, TransactioInput ti) {
+      switch (interioreTransactio.transactioSignificatio) {
+              case TransactioSignificatio.ardeat:
+              case TransactioSignificatio.expressi:
+              case TransactioSignificatio.regularis:
+                {
+                  if (!estSominusPecuniae(ti, this)) {
+                    return false;
+                  }
+                  break;
+                }
+              case TransactioSignificatio.transform:
+                {
+                  if (!estSubscriptioneVictor(victor!, ti, this)) {
+                    return false;
+                  }
+                  break;
+                }
+              default: 
+                break;
+            }
+      return true;
+  }
   static Future<bool> omnesClavesPublicasDefendi(
       List<TransactioOutput> outputs, List<Obstructionum> lo) async {
     for (TransactioOutput output in outputs) {
@@ -682,13 +745,12 @@ class Transactio {
   }
 
   static Future<bool> inObstructionumCatenae(TransactioGenus tg,
-      List<String> identitatump, Directory directorium) async {
-    List<Obstructionum> obs = await Obstructionum.getBlocks(directorium);
+      List<String> identitatump, List<Obstructionum> lo) async {
     List<String> identitatum = [];
     switch (tg) {
       case TransactioGenus.liber:
         {
-          obs
+          lo
               .map((ob) => ob.interioreObstructionum.liberTransactions
                   .map((lt) => lt.interioreTransactio.identitatis))
               .forEach(identitatum.addAll);
@@ -697,7 +759,7 @@ class Transactio {
         }
       case TransactioGenus.fixum:
         {
-          obs
+          lo
               .map((ob) => ob.interioreObstructionum.fixumTransactions
                   .map((ft) => ft.interioreTransactio.identitatis))
               .forEach(identitatum.addAll);
@@ -706,7 +768,7 @@ class Transactio {
         }
       case TransactioGenus.expressi:
         {
-          obs
+          lo
               .map((ob) => ob.interioreObstructionum.expressiTransactions
                   .map((et) => et.interioreTransactio.identitatis))
               .forEach(identitatum.addAll);
@@ -715,4 +777,6 @@ class Transactio {
         }
     }
   }
+
+
 }

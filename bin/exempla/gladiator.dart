@@ -79,21 +79,31 @@ class Propter {
     return false;
   }
 }
+class GladiatorInputPar {
+  bool primis;
+  String gladiatorIdentitatis;
+  GladiatorInputPar(this.primis, this.gladiatorIdentitatis);
+  Map<String, dynamic> toJson() => {
+    JSON.primis: primis,
+    JSON.gladiatorIdentitatis: gladiatorIdentitatis
+  };
+  GladiatorInputPar.fromJson(Map<String, dynamic> map): primis = bool.parse(map[JSON.primis].toString()), gladiatorIdentitatis = map[JSON.gladiatorIdentitatis];
+}
 
 class GladiatorInput {
-  final bool primis;
   final String signature;
-  final String gladiatorIdentitatis;
-  GladiatorInput(this.primis, this.signature, this.gladiatorIdentitatis);
+  final GladiatorInputPar inimicus;
+  final GladiatorInputPar victima;
+  GladiatorInput({ required this.signature, required this.inimicus, required this.victima });
   Map<String, dynamic> toJson() => {
-        JSON.primis: primis,
         JSON.signature: signature,
-        JSON.gladiatorIdentitatis: gladiatorIdentitatis
+        JSON.inimicus: inimicus.toJson(),
+        JSON.victima: victima.toJson()
       };
   GladiatorInput.fromJson(Map jsoschon)
-      : primis = bool.parse(jsoschon[JSON.primis].toString()),
-        signature = jsoschon[JSON.signature].toString(),
-        gladiatorIdentitatis = jsoschon[JSON.gladiatorIdentitatis].toString();
+      : signature = jsoschon[JSON.signature].toString(),
+        inimicus = GladiatorInputPar.fromJson(jsoschon[JSON.inimicus] as Map<String, dynamic>),
+        victima = GladiatorInputPar.fromJson(jsoschon[JSON.victima] as Map<String, dynamic>);
 }
 
 class GladiatorOutput {
@@ -144,9 +154,9 @@ class InterioreGladiator {
     ];
   }
 
-  static Future<GladiatorInput> cegi(bool primis, String privatusClavis,
-      String gladiatorIdentitatis, List<Obstructionum> lo) async {
-    Gladiator? g = await Obstructionum.grabGladiator(gladiatorIdentitatis, lo);
+  static Future<GladiatorInput> cegi({ required String privatusClavis,
+      required GladiatorInputPar inimicus, required GladiatorInputPar victima, required List<Obstructionum> lo }) async {
+    Gladiator? g = await Obstructionum.grabGladiator(victima.gladiatorIdentitatis, lo);
     if (g == null) {
       throw BadRequest(
           code: 1,
@@ -154,10 +164,11 @@ class InterioreGladiator {
           message: 'Gladiator already defeaten or not found');
     }
     return GladiatorInput(
-        primis,
-        Utils.signum(PrivateKey.fromHex(Pera.curve(), privatusClavis),
-            g.interioreGladiator.outputs[primis ? 0 : 1]),
-        gladiatorIdentitatis);
+        signature: Utils.signum(PrivateKey.fromHex(Pera.curve(), privatusClavis),
+            g.interioreGladiator.outputs[victima.primis ? 0 : 1]),
+        inimicus: GladiatorInputPar(inimicus.primis, inimicus.gladiatorIdentitatis),
+        victima: GladiatorInputPar(victima.primis, victima.gladiatorIdentitatis)
+      );
   }
 
   Map<String, dynamic> toJson() => {

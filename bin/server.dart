@@ -60,6 +60,7 @@ final _router = Router()
   ..get('/transactio-stagnum-liber', transactioStagnumLiber)
   ..get('/transactio-stagnum-fixum', transactioStagnumFixum)
   ..get('/transactio-stagnum-expressi', transactioStagnumExpressi)
+  ..get('/transactio-stagnum-connexa-liber-expressi', transactioStagnumConnexaLiberExpressi)
   ..get('/transactio/<identitatis>', transactioIdentitatis)
   ..get('/connexa-liber-expressi/<liber-identitatis>',
       transactioConnexaLiberExpressi)
@@ -70,6 +71,7 @@ final _router = Router()
   ..post('/si-remotiones-denuo-proponendam', siRemotionesdenuoProponendam)
   ..get('/si-remotiones-stagnum', siRemotionesStagnum)
   ..post('/profundum-retribuere', profundumRetribuere)
+  // ..get('/profundum-profundums/<publica-clavis>', profundumProfundums)
   ..get('/furca-foramen', furcaForamen)
   ..get('/furca-tridentes', furcaTridentes);
 

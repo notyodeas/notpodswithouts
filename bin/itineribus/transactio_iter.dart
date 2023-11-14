@@ -109,5 +109,8 @@ Response transactioStagnumFixum(Request req) {
 
 Response transactioStagnumExpressi(Request req) {
   return Response.ok(
-      json.encode(par!.expressiTransactions.map((et) => et.toJson())));
+      json.encode(par!.expressiTransactions.map((et) => et.toJson()).toList()));
+}
+Response transactioStagnumConnexaLiberExpressi(Request req) {
+  return Response.ok(json.encode(par!.connexiaLiberExpressis.map((mcle) => mcle.toJson()).toList()));
 }

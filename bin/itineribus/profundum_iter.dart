@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:shelf/shelf.dart';
+import 'package:shelf_router/shelf_router.dart';
 
 import '../exempla/errors.dart';
 import '../exempla/obstructionum.dart';
@@ -60,3 +61,8 @@ Future<Response> profundumRetribuere(Request req) async {
 Future<Response> profundumDebita(Request req) async {
   return Response.ok({});
 }
+
+// Future<Response> profundumProfundums(Request req) async {
+//   String publica = req.params['publica-clavis']!;
+
+// }

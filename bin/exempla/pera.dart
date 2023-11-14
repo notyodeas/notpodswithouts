@@ -232,14 +232,14 @@ class Pera {
 
   //left off
   static Future<Tuple2<InterioreTransactio?, InterioreTransactio?>>
-      transformFixum(String privatus, List<Transactio> txStagnum,
+      transformFixum(String privatus, List<Transactio> expressiTransactions,
           List<Obstructionum> lo) async {
     String publica =
         PrivateKey.fromHex(Pera.curve(), privatus).publicKey.toHex();
     List<Tuple3<int, String, TransactioOutput>> outs =
         await inconsumptusOutputs(true, publica, lo);
     for (Transactio tx
-        in txStagnum.where((t) => t.interioreTransactio.liber == true)) {
+        in expressiTransactions) {
       outs.removeWhere((element) => tx.interioreTransactio.inputs
           .any((ischin) => ischin.transactioIdentitatis == element.item2));
       for (int i = 0; i < tx.interioreTransactio.outputs.length; i++) {
@@ -363,7 +363,7 @@ class Pera {
     return calculateTransaction(
         necessitudo: false,
         liber: true,
-        twice: true,
+        twice: false,
         ts: TransactioSignificatio.ardeat,
         privatus: privatus,
         to: probationum,
@@ -371,6 +371,15 @@ class Pera {
         outs: outs);
   }
 
+  static Future<InterioreTransactio> novamExpressi({ required String ex, required String to, required BigInt value, required Transactio regularis}) async {
+    List<Tuple3<int, String, TransactioOutput>> tissto = [];
+    for (int i = 0; i < regularis.interioreTransactio.outputs.length; i++) {
+      if (regularis.interioreTransactio.outputs[i].publicaClavis == PrivateKey.fromHex(Pera.curve(), ex).publicKey.toHex()) {
+        tissto.add(Tuple3(i, regularis.interioreTransactio.identitatis, regularis.interioreTransactio.outputs[i]));
+      }
+    } 
+    return calculateTransaction(necessitudo: false, liber: true, twice: false, ts: TransactioSignificatio.expressi, privatus: PrivateKey.fromHex(Pera.curve(), ex), to: to, value: value, outs: tissto);
+  }
   static Future<InterioreTransactio> novamRem(
       {required bool necessitudo,
       required bool liber,

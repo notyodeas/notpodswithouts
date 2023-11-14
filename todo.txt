@@ -338,3 +338,9 @@ again txs should mine on the other node too instead only on the node you submit 
 
 heel raar maar al onze remove functies voor het weghalen van txs of propter of siremotionem kunnen de should be deleted value bewaren als 
 miss een extra nul wordt gevonden op dezelfde tijd van het block
+
+
+maby it is better to have 2 attacks and 1 defence in a block to always be able of mining a block
+
+
+if this poolusertest works we have to test straightaway what if their are multiple outputs in a tx in the stagnum
