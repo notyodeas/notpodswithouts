@@ -232,14 +232,14 @@ class Pera {
 
   //left off
   static Future<Tuple2<InterioreTransactio?, InterioreTransactio?>>
-      transformFixum(String privatus, List<Transactio> expressiTransactions,
+      transformFixum(String privatus, List<Transactio> txs,
           List<Obstructionum> lo) async {
     String publica =
         PrivateKey.fromHex(Pera.curve(), privatus).publicKey.toHex();
     List<Tuple3<int, String, TransactioOutput>> outs =
         await inconsumptusOutputs(true, publica, lo);
     for (Transactio tx
-        in expressiTransactions) {
+        in txs) {
       outs.removeWhere((element) => tx.interioreTransactio.inputs
           .any((ischin) => ischin.transactioIdentitatis == element.item2));
       for (int i = 0; i < tx.interioreTransactio.outputs.length; i++) {

@@ -53,6 +53,8 @@ Future<Response> fossorExpressi(Request req) async {
           .where((wft) => wft.interioreTransactio.probatur == true && !wft.capta)));
       liberTxs.addAll(Transactio.grab(par!.liberTransactions
           .where((wlt) => wlt.interioreTransactio.probatur == true && !wlt.capta)));
+        // maby we need capta too to validate upon a youngerblock on a different node but lets see that would occur auto
+      List<SiRemotionem> lsr = SiRemotionem.grab(par!.siRemotiones);
       final obstructionumDifficultas = await Obstructionum.utDifficultas(lo);
       // liberTxs
       //     .addAll(priorObstructionum.interioreObstructionum.expressiTransactions);
@@ -90,9 +92,10 @@ Future<Response> fossorExpressi(Request req) async {
               lo)));
         }
       }
+      liberTxs.addAll(lsr.where((wsr) => wsr.interioreSiRemotionem.siRemotionemInput != null).map((msr) => Transactio.nullam(msr.interioreSiRemotionem.siRemotionemInput!.interioreTransactio)));
       Tuple2<InterioreTransactio?, InterioreTransactio?> transform =
           await Pera.transformFixum(
-              gladiatorExpressiPrivateKey, priorObstructionum.interioreObstructionum.expressiTransactions, lo);
+              gladiatorExpressiPrivateKey, liberTxs, lo);
       if (transform.item1 != null) {
         liberTxs.add(Transactio.nullam(transform.item1!));
       }
@@ -124,7 +127,6 @@ Future<Response> fossorExpressi(Request req) async {
       scuta.removeWhere((impetus) => gladii.any((ag) => ag == impetus));
       List<int> on = await Obstructionum.utObstructionumNumerus(lo.last);
       BigInt numerus = await Obstructionum.numeruo(on);
-      List<SiRemotionem> lsr = SiRemotionem.grab(par!.siRemotiones);
       InterioreObstructionum interiore = InterioreObstructionum.expressi(
           estFurca: estFurca,
           obstructionumDifficultas: obstructionumDifficultas.length,

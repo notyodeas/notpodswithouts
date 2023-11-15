@@ -1718,7 +1718,11 @@ class ParAdRimor {
               message: 'the incoming block should not have reached this state');
           return false;
         }
-      case Generare.expressi:
+      case Generare.expressi: {
+        if (lo.last.interioreObstructionum.generare != Generare.efectus) {
+          Print.nota(nuntius: 'an expressi scandalum fieri potest nisi super efectus scandalum', message: 'an expressi block can only occur on top of an efectus block');
+        }
+      }
       case Generare.confussus:
         {
           if (await Obstructionum.gladiatorConfodiantur(
@@ -1774,7 +1778,7 @@ class ParAdRimor {
                   'the sender of this block is trying to mess up the block number');
           return false;
         }
-      default:
+        default:
         {
           Print.nota(
               nuntius:

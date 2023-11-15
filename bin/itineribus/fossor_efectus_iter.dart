@@ -50,20 +50,11 @@ Future<Response> fossorEfectus(Request req) async {
           et.interioreTransactio.identitatis ==
           cle.interioreConnexaLiberExpressi.expressiIdentitatis))
       .toList();
-  List<SiRemotionemInput?> lsri = [];
-  priorObstructionum.interioreObstructionum.siRemotiones
-      .map((msr) => msr.interioreSiRemotionem.siRemotionemInput)
-      .forEach(lsri.add);
-  for (SiRemotionemInput? sri in lsri) {
-    if (sri != null) {
-      if (sri.interioreTransactio.liber) {
-        liberTxs.add(Transactio.nullam(sri.interioreTransactio));
-      } else {
-        fixumTxs.add(Transactio.nullam(sri.interioreTransactio));
-      }
-    }
-  }
-
+  liberTxs.addAll(
+  priorObstructionum.interioreObstructionum.siRemotiones.where((wsr) => wsr.interioreSiRemotionem.siRemotionemInput != null && wsr.interioreSiRemotionem.siRemotionemInput!.interioreTransactio.liber)
+      .map((msr) => Transactio.nullam(msr.interioreSiRemotionem.siRemotionemInput!.interioreTransactio)));
+  fixumTxs.addAll(priorObstructionum.interioreObstructionum.siRemotiones.where((wsr) => wsr.interioreSiRemotionem.siRemotionemInput != null && !wsr.interioreSiRemotionem.siRemotionemInput!.interioreTransactio.liber)
+      .map((msr) => Transactio.nullam(msr.interioreSiRemotionem.siRemotionemInput!.interioreTransactio)));
   List<Obstructionum> lo = await Obstructionum.getBlocks(directory);
   final obstructionumDifficultas = await Obstructionum.utDifficultas(lo);
   List<int> on = await Obstructionum.utObstructionumNumerus(lo.last);
