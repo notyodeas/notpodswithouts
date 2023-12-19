@@ -344,3 +344,22 @@ maby it is better to have 2 attacks and 1 defence in a block to always be able o
 
 
 if this poolusertest works we have to test straightaway what if their are multiple outputs in a tx in the stagnum
+
+
+je valt in je  eentje iets van 100 public keys aan die allemaal defences hebben gekocht dus hoeveel attacks zou je moeten krijgen als je geld stuurt naar een blockhash
+maar wacht kun je al je wapens van je team gebruiken?
+
+
+payment accounts
+we need payment accounts that can only send money to one address or public key
+if this public key get defeated we want to burn all money on the payment accounts too
+so that we do not have to send this money automatic to this key but the owner can keep it their or send it through if it wants to accept another payment
+
+
+we have forgotten about why capta is nessesary just forget about sumo and remove also were capta is true
+
+
+if the fissile paymnt account referes a payment account could it bypass a limit and should we disable payments accounts to b a reciver of a payment acc
+
+
+expressi block miner should throw error if the block is not mined on top of an efectus

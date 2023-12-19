@@ -25,9 +25,17 @@ Future<Response> profundumRetribuere(Request req) async {
     SiRemotionem sr = lsr.singleWhere((swsr) =>
         swsr.interioreSiRemotionem.identitatisInterioreSiRemotionem ==
         rp.identitatis);
+    if (!await Pera.isPublicaClavisDefended(sr.interioreSiRemotionem.siRemotionemOutput!.habereIus, lo)) {
+      return Response.badRequest(
+          body: json.encode(BadRequest(
+                  code: 1,
+                  nuntius: 'accipientis non defenditur',
+                  message: 'public key is not defended')
+              .toJson()));
+    }
     List<Transactio> stagnum = par!.liberTransactions;
     SiRemotionemInput sri = SiRemotionemInput(
-        Utils.signum(PrivateKey.fromHex(Pera.curve(), rp.ex!), sr),
+        Utils.signum(PrivateKey.fromHex(Pera.curve(), rp.ex!), sr.interioreSiRemotionem),
         rp.identitatis!,
         await Pera.novamRem(
             necessitudo: false,

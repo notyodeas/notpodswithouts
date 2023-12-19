@@ -10,6 +10,7 @@ import './constantes.dart';
 import './obstructionum.dart';
 import './errors.dart';
 import 'connexa_liber_expressi.dart';
+import 'solucionis_propter.dart';
 
 class Utils {
   static final Random _random = Random.secure();
@@ -42,7 +43,15 @@ class Utils {
           PublicKey publicaClavis, Signature signature, TransactioInput ti) =>
       verify(publicaClavis, utf8.encode(json.encode(ti.toJson())), signature);
 
-  static bool cognoscereSiRemotionem(PublicKey publicaClavis,
+  static bool cognoscereSiRemotionemOutput(PublicKey publicaClavis,
           Signature signature, SiRemotionemOutput sro) =>
       verify(publicaClavis, utf8.encode(json.encode(sro.toJson())), signature);
+  static bool cognoscereInterioreSiRemotionem(PublicKey publicaClavis, Signature signature, InterioreSiRemotionem isr) => verify(publicaClavis, utf8.encode(json.encode(isr.toJson())), signature);
+
+  static bool cognoscereInterioreInterioreSolucionisPropter(PublicKey publicaClavis, Signature signature, InterioreInterioreSolucionisPropter iisp) =>  
+    verify(publicaClavis, utf8.encode(json.encode(iisp.toJson())), signature);
+  
+  static bool cognoscereInterioreInterioreFissileSolucionisPropter(PublicKey publicaClavis, Signature signature, InterioreInterioreFissileSolucionisPropter iifsp) =>  
+    verify(publicaClavis, utf8.encode(json.encode(iifsp.toJson())), signature);
+    
 }

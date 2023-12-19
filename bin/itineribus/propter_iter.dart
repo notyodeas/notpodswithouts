@@ -114,5 +114,18 @@ Future<Response> propterNovus(Request req) async {
 }
 
 Future<Response> propterStagnum(Request req) async {
-  return Response.ok(json.encode(par!.rationibus.map((e) => e.toJson())));
+  return Response.ok(json.encode(par!.rationibus.map((e) => e.toJson()).toList()));
+}
+
+Future<Response> propterHabetBid(Request req) async {
+  final String publica = req.params['publica-clavis']!;
+  Directory directorium =
+      Directory('vincula/${argumentis!.obstructionumDirectorium}');
+  List<Obstructionum> lo = await Obstructionum.getBlocks(directorium);
+  final BigInt liber = await Pera.habetBid(true, publica, lo);
+  final BigInt fixum = await Pera.habetBid(false, publica, lo);
+  return Response.ok(json.encode({
+    "liber": liber.toString(),
+    "fixum": fixum.toString()
+  }));
 }

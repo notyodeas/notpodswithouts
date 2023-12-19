@@ -8,19 +8,19 @@ import 'utils.dart';
 
 class InterioreConnexaLiberExpressi {
   String liberIdentitatis;
-  String expressiIdentitatis;
+  List<String> expressiIdentitatum;
   String identitatis;
   InterioreConnexaLiberExpressi(
-      {required this.liberIdentitatis, required this.expressiIdentitatis})
+      {required this.liberIdentitatis, required this.expressiIdentitatum})
       : identitatis = Utils.randomHex(64);
   Map<String, dynamic> toJson() => {
         JSON.liberIdentitatis: liberIdentitatis,
-        JSON.expressiIdentitatis: expressiIdentitatis,
+        JSON.expressiIdentitatum: expressiIdentitatum,
         JSON.identitatis: identitatis,
       };
   InterioreConnexaLiberExpressi.fromJson(Map<String, dynamic> map)
       : liberIdentitatis = map[JSON.liberIdentitatis],
-        expressiIdentitatis = map[JSON.expressiIdentitatis],
+        expressiIdentitatum = List<String>.from(map[JSON.expressiIdentitatum] as List<dynamic>),
         identitatis = map[JSON.identitatis];
 }
 

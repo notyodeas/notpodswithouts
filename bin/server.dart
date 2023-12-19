@@ -16,13 +16,13 @@ import 'exempla/obstructionum.dart';
 import 'itineribus/profundum_iter.dart';
 import 'itineribus/propter_iter.dart';
 import 'itineribus/si_remotiones_iter.dart';
+import 'itineribus/solucionis_iter.dart';
 import 'itineribus/submittere_transactio_liber_iter.dart';
 import 'itineribus/transactio_iter.dart';
 import 'itineribus/statera_iter.dart';
 import 'auxiliatores/print.dart';
 import 'itineribus/fossor_expressi_iter.dart';
 import 'itineribus/gladiator_iter.dart';
-import 'itineribus/statera_iter.dart';
 
 class PoschosTesches {
   String? vaschal;
@@ -51,7 +51,9 @@ final _router = Router()
   ..delete('/prohibere-expressi-fossores', prohibereExpressi)
   ..post('/propter-submittere/<publica-clavis>', propterSubmittere)
   ..get('/propter-status/<propter-identitatis>', propterStatus)
-  ..get('/propter/novus', propterNovus)
+  ..get('/propter-novus', propterNovus)
+  ..get('/propter-habet-bid/<publica-clavis>', propterHabetBid)
+  ..get('/propter-stagnum', propterStagnum)
   ..get('/gladiator-invictos', gladiatorInvictos)
   ..get('/gladiator-defenditur/<publica-clavis>', gladiatorDefenditur)
   ..get('/gladiator-arma/<propter-identitatis>', gladiatorArma)
@@ -73,7 +75,11 @@ final _router = Router()
   ..post('/profundum-retribuere', profundumRetribuere)
   // ..get('/profundum-profundums/<publica-clavis>', profundumProfundums)
   ..get('/furca-foramen', furcaForamen)
-  ..get('/furca-tridentes', furcaTridentes);
+  ..get('/furca-tridentes', furcaTridentes)
+  ..post('/solucionis-submittere-solocionis-propter', solucionisSubmittereSolocionisPropter)
+  ..get('/solucionis-stagnum', solucionisStagnum)
+  ..post('/solucionis-cash-ex', solucionisCashEx)
+  ..post('/solucionis-submittere-fissile-solocionis-propter', solucionisSubmittereFissileSolocionisPropter);
 
 Response _rootHandler(Request req) {
   return Response.ok('Hello, World!\n');
@@ -120,6 +126,8 @@ class Isolates {
   Map<String, Isolate> expressiTxIsolates = Map();
   Map<String, Isolate> connexaLiberExpressiIsolates = Map();
   Map<String, Isolate> siRemotionemIsolates = Map();
+  Map<String, Isolate> solocionisRationem = Map();
+  Map<String, Isolate> fissileSolocionisRationem = Map();
   Isolates();
 }
 

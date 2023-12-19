@@ -80,7 +80,7 @@ class JSON {
   static String connexaLiberExpressis = 'connexa-liber-expressis';
   static String isCle = 'is-cle';
   static String liberIdentitatis = 'liber-identitatis';
-  static String expressiIdentitatis = 'expressi-identitatis';
+  static String expressiIdentitatum = 'expressi-identitatum';
   static String adRemovendumConnexaLiberExpressis =
       'ad-removendum-connexa-liber-expressis';
   static String basisImpetum = 'basis-impetum';
@@ -132,56 +132,52 @@ class JSON {
   static String victima = 'victima';
   static String capta = 'capta';
   static String identitatum = 'identitatum';
+  static String solucionis = 'solucionis';
+  static String accipientis = 'accipientis';
+  static String fixs = 'fixs';
+  static String reliquiae = 'reliquiae';
+  static String interioreSolucionisPropter = 'interiore-solucionis-propter';
+  static String interioreFissileSolucionisPropter = 'interiore-fissile-solucionis-propter';
+  static String solucionisPropter = 'solucionis-propter';
+  static String fissileSolucionisPropter = 'fissile-solucionis-propter';
+  static String interioreInterioreSolucionisPropter = 'interiore-interiore-solucionis-propter';
+  static String interioreInterioreFissileSolucionisPropter = 'interiore-interiore-fissile-solucionis-propter';
+  static String interioreSubmittereSiRemotionem = 'interiore-submittere-si-remotionem';
+  static String interioreInterioreTransactio = 'interiore-interiore-transactio';
 }
 
 class PervideasNuntiusCasibus {
   static String titulus = 'titulus';
   static String accepit = 'accepit';
-  static String connectTaberNodi = 'connect-tabernus-nodi';
   static String nervus = 'nervus';
   static String bases = 'bases';
   static String rationibus = 'rationibus';
   static String liberTransactions = 'liberTransactions';
   static String fixumTransactions = 'fixumTransactions';
   static String expressiTransactions = 'expressiTransactions';
-  static String removeTransactions = 'removeTransactions';
-  static String onConnect = 'on-connect';
-  static String singleSocket = 'single-socket';
-  static String liberTransaction = 'liberTransaction';
-  static String fixumTransaction = 'fixumTransaction';
-  static String expressiTransaction = 'expressiTransaction';
   static String transactio = 'transactio';
   static String transactions = 'transactions';
   static String exemplar = 'exemplar';
   static String indexIdentitatis = 'indexIdentitatits';
-  static String prepareObstructionumSync = 'prepare-obstructionum-sync';
-  static String prepareObstructionumAnswer = 'prepare-obstructionum-answer';
   static String obstructionum = 'obstructionum';
-  static String petitioObstructionum = 'petitio-obstructionum';
   static String secret = 'secret';
   static String numerus = 'numerus';
   static String probationem = 'probationem';
   static String matchingInvenireProbationem = 'matching-invenire-probationem';
-  static String propter = 'propter';
   static String liber = 'liber';
   static String expressi = 'expressi';
   static String fixum = 'fixum';
   static String identitatum = 'identitatum';
-  static String removePropters = 'remove-propters';
   static String salvare = 'salvare';
-  static String obstructionumIsSalvare = 'obstructionum-is-salvare';
   static String obstructionumReponere = 'obstructionum-reponere';
   static String summum = 'summum';
   static String reponere = 'reponere';
   static String postea = 'postea';
-  static String petitioObstructionumIncipio = 'petitio-obstructionum-incipio';
-  static String obstructionumReponereUna = 'obstructionum-reponere-una';
   static String petitioSummumObsturctionumProbationem =
       'petitio-summum-obsturctionum-probationem';
   static String subter = 'subter';
   static String ip = 'ip';
   static String documenta = 'documenta';
-  static String connexaLiberExpressi = 'connexa-liber-expressi';
   static String cle = 'cle';
   static String interioreConnexaLiberExpressi =
       'interiore-connexa-liber-expressi';
@@ -189,23 +185,55 @@ class PervideasNuntiusCasibus {
   static String expressiProbationem = 'expressi-probationem';
   static String connexaLiberExpressiIdentiatis =
       'connexa-liber-expressi-identiatis';
-  static String removeConnexaLiberExpressis = 'remove-connexa-liber-expressis';
   static String removeLiberTransactions = 'remove-liber-transactions';
   static String removeFixumTransactions = 'remove-fixum-transactions';
   static String removeExpressiTransactions = 'remove-expressi-transactions';
-  static String summaScandalumExNodo = 'summa-scandalum-ex-nodo';
   static String siRemotionem = 'si-remotionem';
-  static String siRemotionemSync = 'si-remotionem-sync';
   static String summaPetitioScandalum = 'summa-petit';
   static String summaCaudices = 'summa-caudices';
   static String privatus = 'privatus';
   static String transactioGenus = 'transactio-genus';
+  static String solucionisPropter = 'solucionis-propter';
+  static String fissileSolucionisPropter = 'fissile-solucionis-propter';
+  static String connexaLiberExpressi = 'connexa-liber-expressi';
+  static String propter = 'propter';
+  static String expressiTransactio = 'expressi-transactio';
+  static String pervideasNuntius = 'pervideas-nuntius';
 }
 
 class PervideasNuntiusTitulus {
-  static String addereForamenFurca = 'addere-foramen-furca';
-  static String addereTridentes = 'addere-tridentes';
-  static String accipreObstructionum = 'accipre-obstructionum';
-  static String removeSiRemotionems = 'remove-si-remotionems';
-  static String sumoTransactions = 'sumo-transactions';
+  static const String connectTaberNodi = 'connect-tabernus-nodi';
+  static const String onConnect = 'on-connect';
+  static const String singleSocket = 'single-socket';
+  static const String petitioObstructionumIncipio = 'petitio-obstructionum-incipio';
+  static const String obstructionumReponereUna = 'obstructionum-reponere-una';
+  static const String petitioObstructionum = 'petitio-obstructionum';
+  static const String summaScandalumExNodo = 'summa-scandalum-ex-nodo';
+  static const String propter = 'propter';
+  static const String prepareObstructionumSync = 'prepare-obstructionum-sync';
+  static const String prepareObstructionumAnswer = 'prepare-obstructionum-answer';
+  static const String liberTransactio = 'liberTransactio';
+  static const String fixumTransactio = 'fixumTransactio';
+  static const String expressiTransactio = 'expressi-transactio';
+  static const String connexaLiberExpressi = 'connexa-liber-expressi';
+  static const String siRemotionem = 'si-remotionem';
+  static const String removeTransactions = 'removeTransactions';
+  static const String obstructionumIsSalvare = 'obstructionum-is-salvare';
+  
+
+  static const String addereForamenFurca = 'addere-foramen-furca';
+  static const String addereTridentes = 'addere-tridentes';
+  static const String accipreObstructionum = 'accipre-obstructionum';
+  static const String removePropters = 'remove-propters';
+  static const String removeSiRemotionems = 'remove-si-remotionems';
+  static const String sumoTransactions = 'sumo-transactions';
+  static const String petitioExpressiTransactio = 'petitio-expressi-transactio';
+  static const String solucionisPropter = 'solucionis-propter';
+  static const String fissileSolucionisPropter = 'fissile-solucionis-propter';
+  static const String removeSolucionisRationibus = 'remove-solucionis-rationibus';
+  static const String removeFissileSolucionisRationibus = 'remove-fissile-solucionis-rationibus';
+  static const String removeConnexaLiberExpressis = 'remove-connexa-liber-expressis';
+  static const String centumPercentAccepit = 'centum-percent-accepit';
+
+
 }

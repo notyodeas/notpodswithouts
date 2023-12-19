@@ -7,12 +7,10 @@ import 'package:shelf_router/shelf_router.dart';
 import '../exempla/constantes.dart';
 import '../exempla/errors.dart';
 import '../exempla/obstructionum.dart';
-import '../exempla/petitio/submittere_si-remotionem.dart';
-import '../exempla/responsio/recipiens_si_remotionem.dart';
-import '../exempla/responsio/transactio_submittere_responsionis.dart';
+import '../exempla/petitio/submittere_si_remotionem.dart';
 import '../exempla/transactio.dart';
 import '../server.dart';
-
+import 'package:collection/collection.dart';
 class Dominium {
   String publicaClavis;
   Transactio transactio;
@@ -22,12 +20,17 @@ class Dominium {
 Future<Response> siRemotionessubmittereProof(Request req) async {
   SubmittereSiRemotionem ssr =
       SubmittereSiRemotionem.fromJson(json.decode(await req.readAsString()));
-  Transactio lt = ssr.liber!
+  Transactio lt = ssr.interioreSubmittereSiRemotionem.liber
       ? par!.liberTransactions.singleWhere(
-          (swlt) => swlt.interioreTransactio.identitatis == ssr.identitatis)
+          (swlt) => swlt.interioreTransactio.interioreInterioreTransactio.identitatis == ssr.interioreSubmittereSiRemotionem.identitatis)
       : par!.fixumTransactions.singleWhere(
-          (swft) => swft.interioreTransactio.identitatis == ssr.identitatis);
+          (swft) => swft.interioreTransactio.interioreInterioreTransactio.identitatis == ssr.interioreSubmittereSiRemotionem.identitatis);
   lt.interioreTransactio.probatur = true;
+  Transactio? et = par!.expressiTransactions.singleWhere((swet) => swet.interioreTransactio.inputs.any((ai) => ai.transactioIdentitatis == lt.interioreTransactio.identitatis));
+  while (et != null) {
+    et.interioreTransactio.probatur = true;
+    et = par!.expressiTransactions.singleWhereOrNull((swonet) => swonet.interioreTransactio.inputs.any((ai) => ai.transactioIdentitatis == et!.interioreTransactio.identitatis));
+  }
   SiRemotionem reschet = lt.interioreTransactio.siRemotionem!;
   lt.interioreTransactio.siRemotionem = null;
   ReceivePort rp = ReceivePort();

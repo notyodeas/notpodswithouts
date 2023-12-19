@@ -11,6 +11,7 @@ import '../exempla/gladiator.dart';
 import '../exempla/errors.dart';
 import 'obstructionum_arma.dart';
 import 'responsio/gladiator_arma.dart';
+import 'solucionis_propter.dart';
 import 'telum.dart';
 import 'package:collection/collection.dart';
 
@@ -18,6 +19,32 @@ import 'telum_exemplar.dart';
 
 class Pera {
   static EllipticCurve curve() => getP256();
+
+  static BigInt habetBid(bool liber, String publica, List<Obstructionum> lo) {
+    List<String> probationems = lo.map((mo) => mo.probationem).toList();
+    List<Transactio> lt = [];
+    lo.map((mo) => liber ? mo.interioreObstructionum.liberTransactions.where((wlt) => wlt.interioreTransactio.outputs.any((ao) => probationems.contains(ao.publicaClavis))) : mo.interioreObstructionum.fixumTransactions.where((wlt) => wlt.interioreTransactio.outputs.any((ao) => probationems.contains(ao.publicaClavis)))).forEach(lt.addAll);
+    List<TransactioInput> lti = [];
+    lt.map((mlt) => mlt.interioreTransactio.inputs).forEach(lti.addAll);
+    // List<TransactioOutput> lto = [];
+    List<Transactio> ltp = [];
+    for (TransactioInput ti in lti) {
+      List<Transactio> flt = [];
+      lo.map((mo) => liber ? mo.interioreObstructionum.liberTransactions.where((wo) => wo.interioreTransactio.identitatis == ti.transactioIdentitatis) : mo.interioreObstructionum.fixumTransactions.where((wo) => wo.interioreTransactio.identitatis == ti.transactioIdentitatis)).forEach(flt.addAll); 
+      for (Transactio t in flt) {
+        if (Utils.cognoscere(PublicKey.fromHex(Pera.curve(), publica), Signature.fromASN1Hex(ti.signature), t.interioreTransactio.outputs[ti.index])) {          
+          ltp.add(lt.singleWhere((swt) => swt.interioreTransactio.inputs.contains(ti)));
+        }
+      }
+    }
+    BigInt persoluta = BigInt.zero;
+    for (Transactio t in ltp) {
+      for (TransactioOutput to in t.interioreTransactio.outputs.where((wo) => probationems.contains(wo.publicaClavis))) {
+        persoluta += to.pod;
+      } 
+    }
+    return persoluta;
+  }
   static Future<String> turpiaGladiatoriaTelum(bool primis, bool impetum,
       String gladiatorIdentitatis, List<Obstructionum> lo) async {
     List<Gladiator> lg = [];
@@ -266,29 +293,20 @@ class Pera {
           out.item2));
     }
     return Tuple2<InterioreTransactio, InterioreTransactio>(
-        InterioreTransactio.transform(liber: true, inputs: inputs, outputs: []),
+        InterioreTransactio.transform(liber: true, dominus: publica, inputs: inputs, outputs: []),
         InterioreTransactio.transform(
-            liber: false, inputs: [], outputs: outputs));
+            liber: false, dominus: publica, inputs: [], outputs: outputs));
   }
 
   static Future<List<Tuple3<int, String, TransactioOutput>>>
       inconsumptusOutputs(
           bool liber, String publicKey, List<Obstructionum> lo) async {
     List<Tuple3<int, String, TransactioOutput>> outputs = [];
-    List<TransactioInput> initibus = [];
     List<Transactio> txs = [];
-    for (Obstructionum o in lo) {
-      txs.addAll(liber
-          ? o.interioreObstructionum.liberTransactions
-          : o.interioreObstructionum.fixumTransactions);
-    }
-    Iterable<List<TransactioInput>> initibuses =
-        txs.map((tx) => tx.interioreTransactio.inputs);
-    for (List<TransactioInput> init in initibuses) {
-      initibus.addAll(init);
-    }
-    for (Transactio tx in txs.where((tx) => tx.interioreTransactio.outputs
-        .any((e) => e.publicaClavis == publicKey))) {
+    lo.map((mo) => liber ? mo.interioreObstructionum.liberTransactions : mo.interioreObstructionum.fixumTransactions).forEach(txs.addAll);
+    List<TransactioInput> lti = [];
+    txs.map((tx) => tx.interioreTransactio.inputs).forEach(lti.addAll);
+    for (Transactio tx in txs.where((tx) => tx.interioreTransactio.outputs.any((e) => e.publicaClavis == publicKey))) {
       for (int t = 0; t < tx.interioreTransactio.outputs.length; t++) {
         if (tx.interioreTransactio.outputs[t].publicaClavis == publicKey) {
           outputs.add(Tuple3<int, String, TransactioOutput>(
@@ -298,9 +316,10 @@ class Pera {
         }
       }
     }
-    outputs.removeWhere((output) => initibus.any((init) =>
+    outputs.removeWhere((output) => lti.any((init) =>
         init.transactioIdentitatis == output.item2 &&
         init.index == output.item1));
+    print('inconsumptus chrono ${outputs.map((e) => e.item3.toJson())}');
     return outputs;
   }
 
@@ -356,15 +375,36 @@ class Pera {
     return balance;
   }
 
-  static Future<InterioreTransactio> ardeat(PrivateKey privatus, String publica,
-      String probationum, BigInt value, List<Obstructionum> lo) async {
+  static Future<InterioreTransactio?> perdita(PrivateKey privatus, String publica,
+      String probationum, List<Transactio> lt, List<Obstructionum> lo) async {
+    print('ispublicathesameasprivate $publica and ${privatus.publicKey.toHex()}');
     List<Tuple3<int, String, TransactioOutput>> outs =
         await inconsumptusOutputs(true, publica, lo);
+    for (Transactio tx in lt
+        .where((t) => t.interioreTransactio.liber)) {
+      outs.removeWhere((element) => tx.interioreTransactio.inputs
+          .any((ischin) => ischin.transactioIdentitatis == element.item2));
+      for (int i = 0; i < tx.interioreTransactio.outputs.length; i++) {
+        if (tx.interioreTransactio.outputs[i].publicaClavis == publica) {
+         outs.add(Tuple3<int, String, TransactioOutput>(
+              i,
+              tx.interioreTransactio.identitatis,
+              tx.interioreTransactio.outputs[i]));
+        }
+      }
+    }
+    BigInt value = BigInt.zero;
+    for (Tuple3<int, String, TransactioOutput> out in outs) {
+      value += out.item3.pod;
+    }
+    if (value == BigInt.zero) {
+      return null;
+    }
     return calculateTransaction(
         necessitudo: false,
         liber: true,
         twice: false,
-        ts: TransactioSignificatio.ardeat,
+        ts: TransactioSignificatio.perdita,
         privatus: privatus,
         to: probationum,
         value: value,
@@ -460,6 +500,7 @@ class Pera {
         ex: ex,
         liber: liber,
         identitatis: identitatis,
+        dominus: PrivateKey.fromHex(Pera.curve(), ex).publicKey.toHex(),
         transactioSignificatio: ts,
         inputs: inputs,
         outputs: outputs,
@@ -505,4 +546,5 @@ class Pera {
         .any((swgo) => swgo.rationibus.contains(p)));
     return g.interioreGladiator.identitatis;
   }
+
 }
