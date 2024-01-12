@@ -24,43 +24,43 @@ Future<Response> transactioIdentitatis(Request req) async {
   }
   Obstructionum prior = await Obstructionum.acciperePrior(directory);
   for (InterioreObstructionum interiore
-      in obs.map((o) => o.interioreObstructionum)) {
+      in obs.map((o) => o.interiore)) {
     for (Transactio tx in interiore.liberTransactions) {
-      if (tx.interioreTransactio.identitatis == identitatis) {
+      if (tx.interiore.identitatis == identitatis) {
         TransactioNotitia txInfo = TransactioNotitia(
             true,
-            tx.interioreTransactio.inputs
+            tx.interiore.inputs
                 .map((x) => x.transactioIdentitatis)
                 .toList(),
             interiore.indicatione,
             interiore.obstructionumNumerus,
             Obstructionum.confirmationes(interiore.obstructionumNumerus,
-                prior.interioreObstructionum.obstructionumNumerus));
+                prior.interiore.obstructionumNumerus));
         return Response.ok(
             json.encode({"data": txInfo.toJson(), "scriptum": tx.toJson()}));
       }
     }
     for (Transactio tx in interiore.fixumTransactions) {
-      if (tx.interioreTransactio.identitatis == identitatis) {
+      if (tx.interiore.identitatis == identitatis) {
         TransactioNotitia txInfo = TransactioNotitia(
             true,
-            tx.interioreTransactio.inputs
+            tx.interiore.inputs
                 .map((x) => x.transactioIdentitatis)
                 .toList(),
             interiore.indicatione,
             interiore.obstructionumNumerus,
             Obstructionum.confirmationes(interiore.obstructionumNumerus,
-                prior.interioreObstructionum.obstructionumNumerus));
+                prior.interiore.obstructionumNumerus));
         return Response.ok(
             json.encode({"data": txInfo.toJson(), "scriptum": tx.toJson()}));
       }
     }
   }
   for (Transactio tx in par!.liberTransactions) {
-    if (tx.interioreTransactio.identitatis == identitatis) {
+    if (tx.interiore.identitatis == identitatis) {
       TransactioNotitia txInfo = TransactioNotitia(
           false,
-          tx.interioreTransactio.inputs
+          tx.interiore.inputs
               .map((x) => x.transactioIdentitatis)
               .toList(),
           null,
@@ -70,10 +70,10 @@ Future<Response> transactioIdentitatis(Request req) async {
     }
   }
   for (Transactio tx in par!.fixumTransactions) {
-    if (tx.interioreTransactio.identitatis == identitatis) {
+    if (tx.interiore.identitatis == identitatis) {
       TransactioNotitia txInfo = TransactioNotitia(
           false,
-          tx.interioreTransactio.inputs
+          tx.interiore.inputs
               .map((x) => x.transactioIdentitatis)
               .toList(),
           null,
@@ -93,7 +93,7 @@ Future<Response> transactioIdentitatis(Request req) async {
 Response transactioConnexaLiberExpressi(Request req) {
   String liberIdentitatis = req.params['liber-identitatis']!;
   ConnexaLiberExpressi cle = par!.connexiaLiberExpressis.singleWhere((cle) =>
-      cle.interioreConnexaLiberExpressi.liberIdentitatis == liberIdentitatis);
+      cle.interioreConnexaLiberExpressi.identitatis == liberIdentitatis);
   return Response.ok(json.encode(cle.toJson()));
 }
 

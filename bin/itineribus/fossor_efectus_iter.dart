@@ -2,39 +2,53 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
+import 'package:elliptic/elliptic.dart';
 import 'dart:isolate';
 import '../auxiliatores/fossor_praecipuus.dart';
-import '../connect/par_ad_rimor.dart';
-import '../connect/pervideas_to_pervideas.dart';
-import '../exempla/connexa_liber_expressi.dart';
+import '../exempla/errors.dart';
 import '../exempla/gladiator.dart';
 import '../exempla/obstructionum.dart';
-import '../exempla/solucionis_propter.dart';
+import '../exempla/pera.dart';
 import '../exempla/transactio.dart';
-import '../exempla/constantes.dart';
-import '../exempla/utils.dart';
-import 'package:collection/collection.dart';
 import '../server.dart';
-import 'obstructionum_iter.dart';
 
 
 Future<Response> fossorEfectus(Request req) async {
   Directory directorium =
       Directory('vincula/${argumentis!.obstructionumDirectorium}');
   bool estFurca = bool.parse(req.params['furca']!);
-  List<Transactio> lltc = List<Transactio>.from(par!.liberTransactions.map((mlt) => Transactio.fromJson(mlt.toJson())));
-  List<Propter> lpc = List<Propter>.from(par!.rationibus.map((mp) => Propter.fromJson(mp.toJson())));
-  // List<ConnexaLiberExpressi> lclec = List<ConnexaLiberExpressi>.from(par!.connexiaLiberExpressis.map((cle) => ConnexaLiberExpressi.fromJson(cle.toJson())));
+  String privatus = req.params['privatus']!;
+  if (PrivateKey.fromHex(Pera.curve(), privatus).publicKey.toHex() != argumentis!.publicaClavis) {
+    return Response.badRequest(body: json.encode(BadRequest(code: 0, nuntius: 'non habes ius truncum in hac nodo producendi', message: 'you do not have the right to produce a block on this node')));
+  }
   List<Obstructionum> lo = await Obstructionum.getBlocks(directorium);
-  FossorPraecipuus fp = FossorPraecipuus(efectus: true, maxime: 100, llt: lltc.where((wltc) => wltc.interioreTransactio.probatur), lft: par!.fixumTransactions.where((wft) => wft.interioreTransactio.probatur),  let: par!.expressiTransactions.where((wet) => wet.interioreTransactio.probatur), lcle: par!.connexiaLiberExpressis, lsr: par!.siRemotiones, lp: lpc, lsp: par!.solucionisRationibus, lfsp: par!.fissileSolucionisRationibus, lo: lo);
-  fp.llttbi.insert(0, Transactio.nullam(InterioreTransactio.praemium(argumentis!.publicaClavis)));
+  if (!await Pera.isPublicaClavisDefended(argumentis!.publicaClavis, lo)) {
+    return Response.badRequest(body: json.encode(BadRequest(code: 1, nuntius: 'non potest meus esse efectus, quia productor tuus clavis non defenditur', message: 'can not mine an efectus, because your producer key is not defended ')));
+  }
+  FossorPraecipuus fp = FossorPraecipuus();
+  fp.accipere(    
+    efectus: true, 
+    maxime: 100, 
+    llt: par!.liberTransactions, 
+    lft: par!.fixumTransactions, 
+    let: par!.expressiTransactions, 
+    lcle: par!.connexiaLiberExpressis, 
+    lsr: par!.siRemotiones, 
+    lp: par!.rationibus, 
+    lsp: par!.solucionisRationibus, 
+    lfsp: par!.fissileSolucionisRationibus, 
+    lit: par!.inritaTransactions,
+    lo: lo
+  );
+  Obstructionum incipio = await Obstructionum.accipereIncipio(directorium);
+  fp.llttbi.insert(0, Transactio.nullam(InterioreTransactio.praemium(argumentis!.publicaClavis, incipio.interiore.praemium!)));
   final obstructionumDifficultas = await Obstructionum.utDifficultas(lo);
   List<int> on = await Obstructionum.utObstructionumNumerus(lo.last);
   BigInt numerus = await Obstructionum.numeruo(on);
   Obstructionum prior =
   await Obstructionum.acciperePrior(directorium);
-  for (SiRemotionem sr in fp.lsrtbi.where((wlsr) => wlsr.interioreSiRemotionem.siRemotionemInput != null)) {
-    sr.interioreSiRemotionem.siRemotionemInput!.interioreTransactio = null;
+  for (SiRemotionem sr in fp.lsrtbi.where((wlsr) => wlsr.interiore.siRemotionemInput != null)) {
+    sr.interiore.siRemotionemInput!.interioreTransactio = null;
   }
   ReceivePort rp = ReceivePort();
   InterioreObstructionum interiore = InterioreObstructionum.efectus(
@@ -57,6 +71,7 @@ Future<Response> fossorEfectus(Request req) async {
     siRemotiones: fp.lsrtbi,
     solucionisRationibus: fp.lsptbi,
     fissileSolucionisRationibus: fp.lfsptbi,
+    inritaTransactions: fp.littbi,
     prior: prior);
     stamina.efectusThreads.add(await Isolate.spawn(Obstructionum.efectus,
       List<dynamic>.from([interiore, rp.sendPort])));

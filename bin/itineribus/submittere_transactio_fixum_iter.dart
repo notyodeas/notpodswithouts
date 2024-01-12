@@ -7,8 +7,7 @@ import '../exempla/obstructionum.dart';
 import '../exempla/pera.dart';
 import '../exempla/petitio/submittere_transactio.dart';
 import '../exempla/transactio.dart';
-import '../connect/par_ad_rimor.dart';
-import '../exempla/errors.dart';
+
 import '../server.dart';
 
 Future<Response> submittereFixumTransaction(Request req) async {
@@ -24,7 +23,7 @@ Future<Response> submittereFixumTransaction(Request req) async {
       "english": "can not send 0"
     });
   }
-  PrivateKey pk = PrivateKey.fromHex(Pera.curve(), st.ex!);
+  PrivateKey pk = PrivateKey.fromHex(Pera.curve(), st.ex);
   if (pk.publicKey.toHex() == st.to) {
     return Response.ok({
       "message": "potest mittere pecuniam publicam clavem",
@@ -36,22 +35,22 @@ Future<Response> submittereFixumTransaction(Request req) async {
       liber: false,
       twice: false,
       ts: TransactioSignificatio.regularis,
-      ex: st.ex!,
-      value: st.pod!,
-      to: st.to!,
+      ex: st.ex,
+      value: st.pod,
+      to: st.to,
       transactioStagnum: par!.fixumTransactions,
       lo: lo));
   ReceivePort acciperePortus = ReceivePort();
-  isolates.fixumTxIsolates[transactio.interioreTransactio.identitatis] =
+  isolates.fixumTxIsolates[transactio.interiore.identitatis] =
       await Isolate.spawn(
           Transactio.quaestum,
           List<dynamic>.from(
-              [transactio.interioreTransactio, acciperePortus.sendPort]));
+              [transactio.interiore, acciperePortus.sendPort]));
   acciperePortus.listen((transactio) {
     par!.syncFixumTransaction(transactio as Transactio);
   });
   return Response.ok(
-      {"transactionIdentitatis": transactio.interioreTransactio.identitatis});
+      {"transactionIdentitatis": transactio.interiore.identitatis});
 }
 
 Future<Response> fixumTransactionStagnum(Request req) async {

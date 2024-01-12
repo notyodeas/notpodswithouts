@@ -23,6 +23,7 @@ import 'itineribus/statera_iter.dart';
 import 'auxiliatores/print.dart';
 import 'itineribus/fossor_expressi_iter.dart';
 import 'itineribus/gladiator_iter.dart';
+import 'itineribus/network_iter.dart';
 
 class PoschosTesches {
   String? vaschal;
@@ -40,7 +41,7 @@ final _router = Router()
   ..post('/obstructionum-probationem-jugum', obstructionumProbationemJugum)
   ..get('/obstructionum-prior', obstructionumPrior)
   ..delete('/obstructionum-removere-ultimum', obstructionumRemovereUltimum)
-  ..post('/fossor-efectus/<furca>', fossorEfectus)
+  ..post('/fossor-efectus/<furca>/<privatus>', fossorEfectus)
   ..get('/fossor-efectus-threads', efectusThreads)
   ..delete('/prohibere-efectus-fossores', prohibereEfectus)
   ..post('/fossor-confussus/<furca>', fossorConfussus)
@@ -50,15 +51,17 @@ final _router = Router()
   ..get('/fossor-expressi-threads', expressiThreads)
   ..delete('/prohibere-expressi-fossores', prohibereExpressi)
   ..post('/propter-submittere/<publica-clavis>', propterSubmittere)
-  ..get('/propter-status/<propter-identitatis>', propterStatus)
+  ..post('/propter-submittere-multi', propterSubmittereMulti)
+  ..get('/propter-status/<publica-clavis>', propterStatus)
   ..get('/propter-novus', propterNovus)
   ..get('/propter-habet-bid/<publica-clavis>', propterHabetBid)
   ..get('/propter-stagnum', propterStagnum)
   ..get('/gladiator-invictos', gladiatorInvictos)
   ..get('/gladiator-defenditur/<publica-clavis>', gladiatorDefenditur)
-  ..get('/gladiator-arma/<propter-identitatis>', gladiatorArma)
+  ..get('/gladiator-arma/<publica-clavis>', gladiatorArma)
   ..get('/gladiator-summa-bid-arma/<probationem>', gladiatorSummaBidArma)
-  ..post('/transactio-liber-submittere', submittereTransactioLiber)
+  ..post('/submittere-transactio-liber', submittereTransactioLiber)
+  ..delete('/submittere-transactio-liber-remouens', submittereTransactioLiberRemouens)
   ..get('/transactio-stagnum-liber', transactioStagnumLiber)
   ..get('/transactio-stagnum-fixum', transactioStagnumFixum)
   ..get('/transactio-stagnum-expressi', transactioStagnumExpressi)
@@ -66,12 +69,13 @@ final _router = Router()
   ..get('/transactio/<identitatis>', transactioIdentitatis)
   ..get('/connexa-liber-expressi/<liber-identitatis>',
       transactioConnexaLiberExpressi)
-  ..delete('/removere-liber-transactio-stagnum', removereTransactioStagnumLiber)
   ..get('/statera/<publica-clavis>', statera)
   ..post('/si-remotiones-submittere-proof', siRemotionessubmittereProof)
   ..get('/si-remotiones-reprehendo-si-existat', siRemotionesreprehendoSiExistat)
   ..post('/si-remotiones-denuo-proponendam', siRemotionesdenuoProponendam)
   ..get('/si-remotiones-stagnum', siRemotionesStagnum)
+  ..get('/profundum-profundis', profundumProfundis)
+  ..get('/profundum-debita-habereius/<debita>/<ex>', profundumDebitaHabereIus)
   ..post('/profundum-retribuere', profundumRetribuere)
   // ..get('/profundum-profundums/<publica-clavis>', profundumProfundums)
   ..get('/furca-foramen', furcaForamen)
@@ -79,7 +83,10 @@ final _router = Router()
   ..post('/solucionis-submittere-solocionis-propter', solucionisSubmittereSolocionisPropter)
   ..get('/solucionis-stagnum', solucionisStagnum)
   ..post('/solucionis-cash-ex', solucionisCashEx)
-  ..post('/solucionis-submittere-fissile-solocionis-propter', solucionisSubmittereFissileSolocionisPropter);
+  ..post('/solucionis-submittere-fissile-solocionis-propter', solucionisSubmittereFissileSolocionisPropter)
+  ..get('/solucionis-fissile-stagnum', solucionisFissileStagnum)
+  ..post('/solucionis-fissile-cash-ex', solucionisFissileCashEx)
+  ..get('/network-nodorum', networkNodorum);
 
 Response _rootHandler(Request req) {
   return Response.ok('Hello, World!\n');
@@ -128,6 +135,7 @@ class Isolates {
   Map<String, Isolate> siRemotionemIsolates = Map();
   Map<String, Isolate> solocionisRationem = Map();
   Map<String, Isolate> fissileSolocionisRationem = Map();
+  Map<String, Isolate> neTransactions = Map();
   Isolates();
 }
 
@@ -144,6 +152,7 @@ void main(List<String> args) async {
   total.addOption('rpc-portus', defaultsTo: '8080');
   total.addOption('tabernus-nodi');
   total.addOption('producentis', mandatory: true);
+  total.addOption('praemium', defaultsTo: '763000000000000000000');
   total.addFlag('partum-key-par');
   total.addFlag('novus-catena');
   total.addFlag('novus');
@@ -151,8 +160,8 @@ void main(List<String> args) async {
   var eventus = total.parse(args);
   if (eventus['partum-key-par']) {
     final kp = ClavisPar();
-    print('publica-clavis: ${kp.publicaClavis}');
-    print('privatus-clavis: ${kp.privatusClavis}');
+    print('\npublica-clavis: \n ${kp.publicaClavis} \n');
+    print('privatus-clavis: \n ${kp.privatusClavis}');
     exit(0);
   }
   argumentis = Argumentis(
@@ -178,8 +187,9 @@ void main(List<String> args) async {
   }
   String obstructionumDirectorium = eventus['obstructionum-directorium'];
   String internumIp = eventus['internum-ip'];
+  String praemium = eventus['praemium'];
   String? tabernusNodi = eventus['tabernus-nodi'];
-  String? externumIp = eventus['externum-ip'];
+  // String? externumIp = eventus['externum-ip'];
 
   bool novusCatena = eventus['novus-catena'];
   bool novus = eventus['novus'];
@@ -190,11 +200,19 @@ void main(List<String> args) async {
           .create(recursive: true);
   if (novusCatena && directory.listSync().isEmpty) {
     Obstructionum obs = Obstructionum.incipio(
-        InterioreObstructionum.incipio(producentis: producentis));
+        InterioreObstructionum.incipio(producentis: producentis, praemium: BigInt.parse(praemium)));
     await obs.salvareIncipio(directory);
     Print.nota(
         nuntius: 'Incipiens creatus obstructionum',
         message: 'Created Incipio block');
+  }
+  if (!novus && directory.listSync().isEmpty) {
+    Print.nota(nuntius: 'Quaeso addere novus vexillum ad imperium tuum lineam, quod tuum obstructionum directorium vacuum est', message: 'please add the novus flag to your command line because your block directory is empty');
+    exit(0);
+  }
+  if (novus && directory.listSync().isNotEmpty) {
+    Print.nota(nuntius: 'novam catenam incipere non potes si tuum directorium vacuum non est, elige directorium diversum vel novum flag removere', message: 'you can not start a new chain if your directory is not empty, please choose different directory or remove the novus flag');
+    exit(0);
   }
   par = ParAdRimor(
       int.parse(eventus['max-pervideas']),

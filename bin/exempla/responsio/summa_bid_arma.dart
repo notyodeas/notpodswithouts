@@ -1,5 +1,4 @@
 import '../constantes.dart';
-import '../obstructionum.dart';
 import '../obstructionum_arma.dart';
 
 class SummaBidArma {

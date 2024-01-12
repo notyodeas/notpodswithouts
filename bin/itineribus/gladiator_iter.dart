@@ -52,25 +52,25 @@ Future<Response> gladiatorDefenditur(Request req) async {
 
 Future<Response> gladiatorArma(Request req) async {
   try {
-    final String propterIdentitatis = req.params['propter-identitatis']!;
+    final String publica = req.params['publica-clavis']!;
     Directory directory =
         Directory('vincula/${argumentis!.obstructionumDirectorium}');
     List<Obstructionum> lo = await Obstructionum.getBlocks(directory);
-    final primis = await Pera.isPrimis(propterIdentitatis, directory);
+    final primis = await Pera.isPrimis(publica, directory);
     final gladiatorIdentitatis =
-        await Pera.accipereGladiatorIdentitatis(propterIdentitatis, directory);
+        await Pera.accipereGladiatorIdentitatis(publica, directory);
     final String basisDefensio = await Pera.turpiaGladiatoriaTelum(
         primis, false, gladiatorIdentitatis, lo);
     final basisImpetum =
-        await Pera.turpiaGladiatoriaTelum(primis, true, propterIdentitatis, lo);
+        await Pera.turpiaGladiatoriaTelum(primis, true, gladiatorIdentitatis, lo);
     final List<Telum> liberDefensiones =
-        await Pera.maximeArma(true, primis, false, gladiatorIdentitatis, lo);
+        await Pera.maximeArma(liber: true, primis: primis, impetum: false, gladiatorIdentitatis:  gladiatorIdentitatis, publica: publica, lo: lo);
     final List<Telum> liberImpetus =
-        await Pera.maximeArma(true, primis, true, gladiatorIdentitatis, lo);
+        await Pera.maximeArma(liber: true, primis: primis, impetum: true, gladiatorIdentitatis:  gladiatorIdentitatis, publica: publica, lo: lo);
     final List<Telum> fixumDefensiones =
-        await Pera.maximeArma(false, primis, false, gladiatorIdentitatis, lo);
+        await Pera.maximeArma(liber: false, primis: primis, impetum: false, gladiatorIdentitatis:  gladiatorIdentitatis, publica: publica, lo: lo);
     final List<Telum> fixumImpetus =
-        await Pera.maximeArma(false, primis, true, gladiatorIdentitatis, lo);
+        await Pera.maximeArma(liber: false, primis: primis, impetum: true, gladiatorIdentitatis:  gladiatorIdentitatis, publica: publica, lo: lo);
     GladiatorArma ga = GladiatorArma(
         basisDefensio: basisDefensio,
         basisImpetum: basisImpetum,

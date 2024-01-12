@@ -11,22 +11,19 @@ import 'dart:io';
 import 'package:shelf/shelf.dart';
 import 'dart:convert';
 import '../exempla/obstructionum.dart';
-import '../exempla/petitio/obstructionum_numerus.dart';
-import '../exempla/petitio/probationem_range.dart';
+import '../exempla/petitio/probationem_jugum.dart';
 import '../exempla/utils.dart';
 import '../server.dart';
 import '../exempla/constantes.dart';
-import 'package:shelf_router/shelf_router.dart';
 import 'package:collection/collection.dart';
 
 Future<Response> obstructionumPerNumerus(Request req) async {
-  final ObstructionumNumerus on =
-      ObstructionumNumerus.fromJson(json.decode(await req.readAsString()));
+  final List<int> on = List<int>.from(json.decode(await req.readAsString()));
   try {
     File file = File(
-        'vincula/${argumentis!.obstructionumDirectorium}/${Constantes.caudices}${(on.numerus!.length - 1).toString()}.txt');
+        'vincula/${argumentis!.obstructionumDirectorium}/${Constantes.caudices}${(on.length - 1).toString()}.txt');
     return Response.ok(await Utils.fileAmnis(file)
-        .elementAt(on.numerus![on.numerus!.length - 1]));
+        .elementAt(on[on.length - 1]));
   } catch (err) {
     return Response.notFound(json.encode({
       "code": 0,
@@ -47,7 +44,7 @@ Future<Response> obstructionumRemovereUltimum(Request req) async {
   Directory directorium =
       Directory('vincula/${argumentis!.obstructionumDirectorium}');
   Obstructionum obs = await Obstructionum.acciperePrior(directorium);
-  if (obs.interioreObstructionum.generare == Generare.incipio) {
+  if (obs.interiore.generare == Generare.incipio) {
     return Response.badRequest(
         body: json.encode({
       "code": 0,
@@ -72,7 +69,7 @@ Future<Response> obstructionumNumerus(Request req) async {
       '${Constantes.vincula}/${argumentis!.obstructionumDirectorium}');
   Obstructionum obs = await Obstructionum.acciperePrior(directorium);
   return Response.ok(json
-      .encode({"numerus": obs.interioreObstructionum.obstructionumNumerus}));
+      .encode({"numerus": obs.interiore.obstructionumNumerus}));
 }
 
 Future<Response> obstructionumProbationemJugum(Request req) async {
@@ -86,12 +83,12 @@ Future<Response> obstructionumProbationemJugum(Request req) async {
   int end = 0;
   for (int i = 0; i < obs.length; i++) {
     if (ListEquality().equals(
-        obs[i].interioreObstructionum.obstructionumNumerus, pj.indexPrimis)) {
+        obs[i].interiore.obstructionumNumerus, pj.primis)) {
       start = i;
     }
     if (ListEquality().equals(
-        obs[i].interioreObstructionum.obstructionumNumerus,
-        pj.indexNovissime)) {
+        obs[i].interiore.obstructionumNumerus,
+        pj.novissime)) {
       end = i;
     }
   }

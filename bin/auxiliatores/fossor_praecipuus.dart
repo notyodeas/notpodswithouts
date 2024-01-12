@@ -1,4 +1,5 @@
 
+import 'package:ecdsa/ecdsa.dart';
 import 'package:tuple/tuple.dart';
 
 import '../exempla/connexa_liber_expressi.dart';
@@ -10,6 +11,9 @@ import '../exempla/solucionis_propter.dart';
 import '../exempla/transactio.dart';
 import 'package:collection/collection.dart';
 import 'package:elliptic/elliptic.dart';
+
+import '../exempla/utils.dart';
+
 
 class COE {
   int maxime;
@@ -29,10 +33,10 @@ class COE {
     List<Transactio> ltp = [];
     List<String> llti = [];
     for (String acc in gladiator
-          .interioreGladiator.outputs[ip.victima!.primis! ? 0 : 1].rationibus
-          .map((e) => e.interiorePropter.publicaClavis)) {
+          .interiore.outputs[ip.victima.primis ? 0 : 1].rationibus
+          .map((e) => e.interiore.publicaClavis)) {
       InterioreTransactio? it = await Pera.perdita(
-        PrivateKey.fromHex(Pera.curve(), ip.privatusClavis!),
+        PrivateKey.fromHex(Pera.curve(), ip.ex),
         acc,
         prior.probationem,
         llt,
@@ -46,29 +50,38 @@ class COE {
     llttbi.addAll(ltp);
     List<Transactio> ltpr = [];
     for (Transactio t in ltp) {
-      Transactio? rtt = llt.singleWhereOrNull((swonlt) => t.interioreTransactio.inputs.any((ai) => ai.transactioIdentitatis == swonlt.interioreTransactio.identitatis) && !llti.contains(swonlt.interioreTransactio.identitatis));
+      Transactio? rtt = llt.singleWhereOrNull((swonlt) => t.interiore.inputs.any((ai) => ai.transactioIdentitatis == swonlt.interiore.identitatis) && !llti.contains(swonlt.interiore.identitatis));
       while (rtt != null) {
         ltpr.add(rtt);
-        llti.add(rtt.interioreTransactio.identitatis);
+        llti.add(rtt.interiore.identitatis);
         maxime -= 1;
-        rtt = llt.singleWhereOrNull((swonlt) => rtt!.interioreTransactio.inputs.any((ai) => ai.transactioIdentitatis == swonlt.interioreTransactio.identitatis) && !llti.contains(swonlt.interioreTransactio.identitatis));
+        rtt = llt.singleWhereOrNull((swonlt) => rtt!.interiore.inputs.any((ai) => ai.transactioIdentitatis == swonlt.interiore.identitatis) && !llti.contains(swonlt.interiore.identitatis));
       }
     }
     llttbi.insertAll(0, ltpr);
     List<Transactio> lttf = [];
     Tuple2<InterioreTransactio?, InterioreTransactio?> transform =
           await Pera.transformFixum(
-              ip.privatusClavis!, llt, lo);
+              ip.ex, llt.where((wlt) => wlt.interiore.transactioSignificatio != TransactioSignificatio.regularis || wlt.interiore.certitudo != null), lo);
     if (transform.item1 != null) {
       llttbi.add(Transactio.nullam(transform.item1!));
       maxime -= transform.item1!.inputs.length;
       for (TransactioInput ti in transform.item1!.inputs) {
-        Transactio? ift = llt.singleWhereOrNull((swonlt) => swonlt.interioreTransactio.identitatis == ti.transactioIdentitatis && !llti.contains(swonlt.interioreTransactio.identitatis));
+        Transactio? ift = llt.singleWhereOrNull(
+          (swonlt) => (swonlt.interiore.identitatis == ti.transactioIdentitatis && 
+          !llti.contains(swonlt.interiore.identitatis) && 
+          swonlt.interiore.transactioSignificatio != TransactioSignificatio.regularis) || 
+          (swonlt.interiore.identitatis == ti.transactioIdentitatis && 
+          !llti.contains(swonlt.interiore.identitatis) && swonlt.interiore.certitudo != null));
         while (ift != null) {
           lttf.add(ift);
-          llti.add(ift.interioreTransactio.identitatis); 
+          llti.add(ift.interiore.identitatis); 
           maxime -= 1;
-          ift = llt.singleWhereOrNull((swonlt) => ift!.interioreTransactio.inputs.any((ai) => ai.transactioIdentitatis == swonlt.interioreTransactio.identitatis) && !llti.contains(swonlt.interioreTransactio.identitatis));
+          ift = llt.singleWhereOrNull(
+            (swonlt) => (ift!.interiore.inputs.any((ai) => ai.transactioIdentitatis == swonlt.interiore.identitatis) && 
+            !llti.contains(swonlt.interiore.identitatis) && 
+            swonlt.interiore.transactioSignificatio != TransactioSignificatio.regularis) || 
+            (ift.interiore.inputs.any((ai) => ai.transactioIdentitatis == swonlt.interiore.identitatis) && !llti.contains(swonlt.interiore.identitatis) && swonlt.interiore.certitudo != null));
         }  
       }
     }
@@ -94,20 +107,47 @@ class FossorPraecipuus {
   List<Propter> lptbi = [];
   List<String> lpi = [];
   List<SiRemotionem> lsrtbi = [];
-  List<String> lsri = [];
+  List<String> lsrsoo = [];
+  List<String> lsrsoi = [];
   List<SolucionisPropter> lsptbi = [];
   List<String> lspi = [];
   List<FissileSolucionisPropter> lfsptbi = [];
   List<String> lfspi = [];
+  List<InritaTransactio> littbi = [];
+  List<String> liti = [];
 
   List<String> referreDebetIdentitatumLiber = [];
   List<String> referreDebetIdentitatumExpressi = [];
 
-  FossorPraecipuus({ required bool efectus, required int maxime, required Iterable<Transactio> llt, required Iterable<Transactio> lft, required Iterable<Transactio> let, required Iterable<ConnexaLiberExpressi> lcle, required Iterable<SiRemotionem> lsr, required Iterable<Propter> lp, required Iterable<SolucionisPropter> lsp, required Iterable<FissileSolucionisPropter> lfsp, required Iterable<Obstructionum> lo }) {
-    llt.map((mlt) => mlt.interioreTransactio.identitatis).forEach(referreDebetIdentitatumLiber.add);
+  FossorPraecipuus();
+
+  FossorPraecipuus.coe({ required this.llttbi, required this.lfttbi }): llti = llttbi.map((mlttbi) => mlttbi.interiore.identitatis).toList();
+
+  accipere({ required bool efectus, required int maxime, required Iterable<Transactio> llt, required Iterable<Transactio> lft, required Iterable<Transactio> let, required Iterable<ConnexaLiberExpressi> lcle, required Iterable<SiRemotionem> lsr, required Iterable<Propter> lp, required Iterable<SolucionisPropter> lsp, required Iterable<FissileSolucionisPropter> lfsp, required Iterable<InritaTransactio> lit, required Iterable<Obstructionum> lo }) {      
+    Iterable<SiRemotionem> lsrc = List<SiRemotionem>.from(lsr.map((mlsr) => SiRemotionem.fromJson(mlsr.toJson())));
+    Iterable<Transactio> lltf = llt.where(
+      (wlt) => wlt.interiore.transactioSignificatio != TransactioSignificatio.regularis ||
+      (
+        wlt.interiore.certitudo != null && 
+        Utils.cognoscereIdentitatis(PublicKey.fromHex(Pera.curve(), wlt.interiore.recipiens), Signature.fromASN1Hex(wlt.interiore.certitudo!), wlt.interiore.identitatis)
+      )
+    );
+    Iterable<Transactio> lftf = lft.where(
+      (wft) => wft.interiore.transactioSignificatio != TransactioSignificatio.regularis ||
+      (
+        wft.interiore.certitudo != null && 
+        Utils.cognoscereIdentitatis(PublicKey.fromHex(Pera.curve(), wft.interiore.recipiens), Signature.fromASN1Hex(wft.interiore.certitudo!), wft.interiore.identitatis)
+      )
+    );
+    Iterable<Transactio> letf = let.where(
+      (wet) => wet.interiore.certitudo != null && 
+      Utils.cognoscereIdentitatis(PublicKey.fromHex(Pera.curve(), wet.interiore.recipiens), Signature.fromASN1Hex(wet.interiore.certitudo!), wet.interiore.identitatis)
+    );
+    print('iwannknowyourprob \n ${letf.map((e) => e.toJson())}');
+    lltf.map((mlt) => mlt.interiore.identitatis).forEach(referreDebetIdentitatumLiber.add);
     List<Transactio> llttm = [];
-    lo.map((mo) => mo.interioreObstructionum.liberTransactions).forEach(llttm.addAll);
-    llttm.map((mlt) => mlt.interioreTransactio.identitatis).forEach(referreDebetIdentitatumLiber.add);
+    lo.map((mo) => mo.interiore.liberTransactions).forEach(llttm.addAll);
+    llttm.map((mlt) => mlt.interiore.identitatis).forEach(referreDebetIdentitatumLiber.add);
     bool istxs = false;
     bool capta = false;
     for (int i = 128; i > 0; i--) {
@@ -116,62 +156,62 @@ class FossorPraecipuus {
       while ((maxime > 0 && !capta) || (istxs && !capta)) {
         int tslt = llttbui.length;
         llttbui.addAll(
-            llt.where((wlt) => wlt.probationem.startsWith('0' * i) && !llti.contains(wlt.interioreTransactio.identitatis) && wlt.interioreTransactio.inputs.every((ei) => referreDebetIdentitatumLiber.contains(ei.transactioIdentitatis))  && wlt.interioreTransactio.probatur).isNotEmpty ?  
-          llt.where((wlt) => wlt.probationem.startsWith('0' * i) && !llti.contains(wlt.interioreTransactio.identitatis) && wlt.interioreTransactio.inputs.every((ei) => referreDebetIdentitatumLiber.contains(ei.transactioIdentitatis)) && wlt.interioreTransactio.probatur) : 
+            lltf.where((wlt) => wlt.probationem.startsWith('0' * i) && !llti.contains(wlt.interiore.identitatis) && wlt.interiore.inputs.every((ei) => referreDebetIdentitatumLiber.contains(ei.transactioIdentitatis))).isNotEmpty ?  
+          lltf.where((wlt) => wlt.probationem.startsWith('0' * i) && !llti.contains(wlt.interiore.identitatis) && wlt.interiore.inputs.every((ei) => referreDebetIdentitatumLiber.contains(ei.transactioIdentitatis))) : 
           []
         );
         maxime -= (llttbui.length - tslt);
-        llti.addAll(llttbui.map((e) => e.interioreTransactio.identitatis));
+        llti.addAll(llttbui.where((wlt) => !llti.contains(wlt.interiore.identitatis)).map((e) => e.interiore.identitatis));
         maxime -= llttbui.length;
         List<Transactio> llttba = [];
         for (Transactio t in llttbui) {
-          for (TransactioInput ti in t.interioreTransactio.inputs) {
-            Transactio? rt = llt.singleWhereOrNull((swonlt) => swonlt.interioreTransactio.identitatis == ti.transactioIdentitatis && !llttbui.map((mlt) => mlt.interioreTransactio).contains(swonlt.interioreTransactio) && !llti.contains(swonlt.interioreTransactio.identitatis));
+          for (TransactioInput ti in t.interiore.inputs) {
+            Transactio? rt = llt.singleWhereOrNull((swonlt) => swonlt.interiore.identitatis == ti.transactioIdentitatis && !llttbui.map((mlt) => mlt.interiore).contains(swonlt.interiore) && !llti.contains(swonlt.interiore.identitatis));
             while (rt != null) {
               maxime -= 1;
               llttba.add(rt);
-              llti.add(rt.interioreTransactio.identitatis);
-              rt = llt.singleWhereOrNull((swonlt) => rt!.interioreTransactio.inputs.any((ai) => ai.transactioIdentitatis == swonlt.interioreTransactio.identitatis) && !llti.contains(swonlt.interioreTransactio.identitatis)  && !llttba.map((mlt) => mlt.interioreTransactio).contains(swonlt.interioreTransactio) && !llttbui.map((mlt) => mlt.interioreTransactio).contains(swonlt.interioreTransactio));
+              llti.add(rt.interiore.identitatis);
+              rt = llt.singleWhereOrNull((swonlt) => rt!.interiore.inputs.any((ai) => ai.transactioIdentitatis == swonlt.interiore.identitatis) && !llti.contains(swonlt.interiore.identitatis)  && !llttba.map((mlt) => mlt.interiore).contains(swonlt.interiore) && !llttbui.map((mlt) => mlt.interiore).contains(swonlt.interiore));
             }
           }
         }
-        print('jupjallttbui \n${llttbui.map((e) => e.toJson())} and ja llttba \n ${llttba.map((e) => e.toJson())}');
         llttbi.addAll(llttbui);
-        llttbi.addAll(llttba);
+        // llttbi.addAll(llttba);
+        llttbi.insertAll(0, llttba);
         llttbui = [];
-        print('ohholdup llttbi had value ${llttbi.map((e) => e.toJson())}');
-
         if (efectus) {
           int tscle = lcletbi.length;
           List<String> llttbii = [];
-          llttbi.map((mlttbi) => mlttbi.interioreTransactio.identitatis).forEach(llttbii.add);
-          lcletbi.addAll(lcle.where((cle) => llttbii.any((alti) => alti == cle.interioreConnexaLiberExpressi.liberIdentitatis) && !lclei.contains(cle.interioreConnexaLiberExpressi.identitatis)).toList());
+          llttbi.map((mlttbi) => mlttbi.interiore.identitatis).forEach(llttbii.add);
+          lcletbi.addAll(lcle.where((cle) => llttbii.any((alti) => alti == cle.interioreConnexaLiberExpressi.identitatis) && !lclei.contains(cle.interioreConnexaLiberExpressi.identitatis)).toList());
           maxime -= (lcletbi.length - tscle);
-          lclei.addAll(lcletbi.map((mcle) => mcle.interioreConnexaLiberExpressi.identitatis));
-          lettbi.addAll(let
+          lclei.addAll(lcletbi.where((wcle) => !lclei.contains(wcle.interioreConnexaLiberExpressi.identitatis)).map((mcle) => mcle.interioreConnexaLiberExpressi.identitatis));
+          lettbi.addAll(letf
               .where((et) => lcle.any((cle) =>
-              cle.interioreConnexaLiberExpressi.expressiIdentitatum.any((aei) => aei == et.interioreTransactio.identitatis)) && !leti.contains(et.interioreTransactio.identitatis)));
-          leti.addAll(lettbi.map((met) => met.interioreTransactio.identitatis));
+              cle.interioreConnexaLiberExpressi.identitatum.any((aei) => aei == et.interiore.identitatis)
+              && llttbii.any((alti) => alti == cle.interioreConnexaLiberExpressi.identitatis)
+              ) && !leti.contains(et.interiore.identitatis)));
+          leti.addAll(lettbi.where((wet) => !leti.contains(wet.interiore.identitatis)).map((met) => met.interiore.identitatis));
         }
         istxs = false;
         istxs = true;
         int tsft = lfttbui.length;
         lfttbui.addAll(
-          lft.where((wft) => wft.probationem.startsWith('0' * i) && !lfti.contains(wft.interioreTransactio.identitatis)  && wft.interioreTransactio.probatur).isNotEmpty ?  
-          lft.where((wft) => wft.probationem.startsWith('0' * i) && !lfti.contains(wft.interioreTransactio.identitatis) && wft.interioreTransactio.probatur): 
+          lft.where((wft) => wft.probationem.startsWith('0' * i) && !lfti.contains(wft.interiore.identitatis)).isNotEmpty ?  
+          lft.where((wft) => wft.probationem.startsWith('0' * i) && !lfti.contains(wft.interiore.identitatis)): 
           []
         );
-        lfti.addAll(lfttbui.map((e) => e.interioreTransactio.identitatis));
+        lfti.addAll(lfttbui.where((wft) => !lfti.contains(wft.interiore.identitatis)).map((e) => e.interiore.identitatis));
         maxime -= (lfttbui.length - tsft);
         List<Transactio> lfttba = [];
         for (Transactio t in lfttbui) {
-          for (TransactioInput ti in t.interioreTransactio.inputs) {
-            Transactio? rt = lft.singleWhereOrNull((swonft) => swonft.interioreTransactio.identitatis == ti.transactioIdentitatis);
+          for (TransactioInput ti in t.interiore.inputs) {
+            Transactio? rt = lftf.singleWhereOrNull((swonft) => swonft.interiore.identitatis == ti.transactioIdentitatis);
             while (rt != null) {
               maxime -= 1;
               lfttba.add(rt);
-              lfti.add(rt.interioreTransactio.identitatis);
-              rt = lft.singleWhereOrNull((swonft) => rt!.interioreTransactio.inputs.any((ai) => ai.transactioIdentitatis == swonft.interioreTransactio.identitatis) && !lfti.contains(swonft.interioreTransactio.identitatis));
+              lfti.add(rt.interiore.identitatis);
+              rt = lftf.singleWhereOrNull((swonft) => rt!.interiore.inputs.any((ai) => ai.transactioIdentitatis == swonft.interiore.identitatis) && !lfti.contains(swonft.interiore.identitatis));
             }
           }
         }
@@ -181,38 +221,70 @@ class FossorPraecipuus {
         istxs = false;
         istxs  = true;
         int tssr = lsrtbi.length;
-        lsrtbi.addAll(lsr.where((wsr) => wsr.probationem.startsWith('0' * i) && !lsri.contains(wsr.interioreSiRemotionem.identitatisInterioreSiRemotionem)));
-        lsri.addAll(lsrtbi.map((msr) => msr.interioreSiRemotionem.identitatisInterioreSiRemotionem));
+        lsrtbi.addAll(lsrc.where((wsr) => wsr.probationem.startsWith('0' * i) && wsr.interiore.siRemotionemOutput != null && !lsrsoo.contains(wsr.interiore.signatureInterioreSiRemotionem)));
+        lsrtbi.addAll(lsrc.where((wsr) => wsr.probationem.startsWith('0' * i) && wsr.interiore.siRemotionemInput != null && !lsrsoi.contains(wsr.interiore.siRemotionemInput!.siRemotionemSignature)));
+        lsrsoo.addAll(lsrtbi.where((wlsrtbi) => wlsrtbi.interiore.siRemotionemOutput != null && !lsrsoo.contains(wlsrtbi.interiore.signatureInterioreSiRemotionem) && wlsrtbi.interiore.siRemotionemOutput != null).map((msr) => msr.interiore.signatureInterioreSiRemotionem!));        
         maxime -= (lsrtbi.length - tssr);
         List<Transactio> lltrbsr = [];
-        lsrtbi.where((wsr) => wsr.interioreSiRemotionem.siRemotionemInput != null && wsr.interioreSiRemotionem.siRemotionemInput!.interioreTransactio!.liber).map((msr) => Transactio.nullam(msr.interioreSiRemotionem.siRemotionemInput!.interioreTransactio!)).forEach(lltrbsr.add);
-        llttbi.addAll(lltrbsr);
+        lsrtbi.where((wsr) => wsr.interiore.siRemotionemInput != null && wsr.interiore.siRemotionemInput!.interioreTransactio!.liber && !lsrsoi.contains(wsr.interiore.siRemotionemInput!.siRemotionemSignature)).map((msr) => Transactio.nullam(msr.interiore.siRemotionemInput!.interioreTransactio!)).forEach(lltrbsr.add);
+        llttbi.insertAll(0, lltrbsr);
         maxime -= lltrbsr.length;
         List<Transactio> lftrbsr = [];
-        lsrtbi.where((wsr) => wsr.interioreSiRemotionem.siRemotionemInput != null && !wsr.interioreSiRemotionem.siRemotionemInput!.interioreTransactio!.liber).map((msr) => Transactio.nullam(msr.interioreSiRemotionem.siRemotionemInput!.interioreTransactio!)).forEach(lftrbsr.add);
-        lfttbi.addAll(lftrbsr);
+        lsrtbi.where((wsr) => wsr.interiore.siRemotionemInput != null && !wsr.interiore.siRemotionemInput!.interioreTransactio!.liber && !lsrsoi.contains(wsr.interiore.siRemotionemInput!.siRemotionemSignature)).map((msr) => Transactio.nullam(msr.interiore.siRemotionemInput!.interioreTransactio!)).forEach(lftrbsr.add);
+        lfttbi.insertAll(0, lftrbsr);
         maxime -= lftrbsr.length;
+        lsrsoi.addAll(lsrtbi.where((wlsrtbi) => wlsrtbi.interiore.siRemotionemInput != null && !lsrsoi.contains(wlsrtbi.interiore.siRemotionemInput!.siRemotionemSignature)).map((mlsrtbi) => mlsrtbi.interiore.siRemotionemInput!.siRemotionemSignature));
+        
+        
+        
         istxs = false;
         int tslp = lptbi.length;
-        lptbi.addAll(lp.where((wp) => wp.probationem.startsWith('0' * i) && !lpi.contains(wp.interiorePropter.identitatis)));
-        lpi.addAll(lptbi.map((mp) => mp.interiorePropter.identitatis));
+        lptbi.addAll(lp.where((wp) => wp.probationem.startsWith('0' * i) && !lpi.contains(wp.interiore.publicaClavis)));
+        lpi.addAll(lptbi.where((wp) => !lpi.contains(wp.interiore.publicaClavis)).map((mp) => mp.interiore.publicaClavis));
         maxime -= (lp.length - tslp);
 
         int tssp = lsptbi.length;
         lsptbi.addAll(lsp.where((wsp) => wsp.probationem.startsWith('0' * i) && !lspi.contains(wsp.interioreSolucionisPropter.interioreInterioreSolucionisPropter.solucionis)));
-        lspi.addAll(lsptbi.map((msp) => msp.interioreSolucionisPropter.interioreInterioreSolucionisPropter.solucionis));
+        lspi.addAll(lsptbi.where((wsp) => !lspi.contains(wsp.interioreSolucionisPropter.interioreInterioreSolucionisPropter.solucionis)).map((msp) => msp.interioreSolucionisPropter.interioreInterioreSolucionisPropter.solucionis));
         maxime -= (lsptbi.length - tssp);
-        int tsfsp = lfsp.length;
-        lfsptbi.addAll(lfsp.where((wfsp) => wfsp.probationem.startsWith('0' * i) && lfspi.contains(wfsp.interioreFissileSolucionisPropter.interioreInterioreFissileSolucionisPropter.solucionis)));
-        lfspi.addAll(lfsptbi.map((mfsp) => mfsp.interioreFissileSolucionisPropter.interioreInterioreFissileSolucionisPropter.solucionis));
+        int tsfsp = lfsptbi.length;
+        lfsptbi.addAll(lfsp.where((wfsp) => wfsp.probationem.startsWith('0' * i) && !lfspi.contains(wfsp.interioreFissileSolucionisPropter.interioreInterioreFissileSolucionisPropter.solucionis)));
+        lfspi.addAll(lfsptbi.where((wfsp) => !lfspi.contains(wfsp.interioreFissileSolucionisPropter.interioreInterioreFissileSolucionisPropter.solucionis)).map((mfsp) => mfsp.interioreFissileSolucionisPropter.interioreInterioreFissileSolucionisPropter.solucionis));
         maxime -= (lfsptbi.length - tsfsp);
+        int tsit = littbi.length;
+        littbi.addAll(lit.where((wit) => wit.probationem.startsWith('0' * i) && !liti.contains(wit.interiore.identitatis)));
+        liti.addAll(littbi.where((wit) => !liti.contains(wit.interiore.identitatis)).map((mit) => mit.interiore.identitatis));
+        maxime = (littbi.length - tsit);
         print('reachedendcaptawillbetrue');
+        print('andlfsptbi?? ${lfsptbi.map((e) => e.toJson())}');
         capta = true;        
       }
     }
   }
-  FossorPraecipuus.coe({ required this.llttbi, required this.lfttbi, required bool efectus, required int maxime, required Iterable<Transactio> llt, required Iterable<Transactio> lft, required Iterable<Transactio> let, required Iterable<ConnexaLiberExpressi> lcle, required Iterable<SiRemotionem> lsr, required Iterable<Propter> lp, required Iterable<SolucionisPropter> lsp, required Iterable<FissileSolucionisPropter> lfsp, required Iterable<Obstructionum> lo }) {
-    FossorPraecipuus(efectus: efectus, maxime: maxime, llt: llt, lft: lft, let: let, lcle: lcle, lsr: lsr, lp: lp, lsp: lsp, lfsp: lfsp, lo: lo);
-  }
 
+  reset() {
+    llttbui = [];
+    llttbi = [];
+    llti = [];
+    lcletbi = [];
+    lclei = [];
+    lettbi = [];
+    leti = [];
+    lfttbui = [];
+    lfttbi = [];
+    lfti = [];
+    lptbi = [];
+    lpi = [];
+    lsrtbi = [];
+    lsrsoo = [];
+    lsrsoi = [];
+    lsptbi = [];
+    lspi = [];
+    lfsptbi = [];
+    lspi = [];
+    littbi = [];
+    liti = [];
+    referreDebetIdentitatumLiber = [];
+    referreDebetIdentitatumExpressi = [];
+  }
 }

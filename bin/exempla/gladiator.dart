@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import './utils.dart';
 import 'dart:convert';
 import 'package:hex/hex.dart';
@@ -14,12 +12,9 @@ import 'package:elliptic/elliptic.dart';
 class InteriorePropter {
   final String publicaClavis;
   BigInt nonce;
-  final String identitatis;
-  InteriorePropter(this.publicaClavis, this.nonce)
-      : identitatis = Utils.randomHex(64);
+  InteriorePropter(this.publicaClavis): nonce = BigInt.zero;
   InteriorePropter.incipio(this.publicaClavis)
-      : nonce = BigInt.zero,
-        identitatis = Utils.randomHex(64);
+      : nonce = BigInt.zero;
   mine() {
     nonce += BigInt.one;
   }
@@ -27,22 +22,20 @@ class InteriorePropter {
   Map<String, dynamic> toJson() => {
         JSON.publicaClavis: publicaClavis,
         JSON.nonce: nonce.toString(),
-        JSON.identitatis: identitatis
       };
   InteriorePropter.fromJson(Map<String, dynamic> jsoschon)
       : publicaClavis = jsoschon[JSON.publicaClavis].toString(),
-        nonce = BigInt.parse(jsoschon[JSON.nonce].toString()),
-        identitatis = jsoschon[JSON.identitatis].toString();
+        nonce = BigInt.parse(jsoschon[JSON.nonce].toString());
 }
 
 class Propter {
   late String probationem;
-  final InteriorePropter interiorePropter;
-  Propter(this.probationem, this.interiorePropter);
+  final InteriorePropter interiore;
+  Propter(this.probationem, this.interiore);
 
-  Propter.incipio(this.interiorePropter)
+  Propter.incipio(this.interiore)
       : probationem = HEX.encode(sha512
-            .convert(utf8.encode(json.encode(interiorePropter.toJson())))
+            .convert(utf8.encode(json.encode(interiore.toJson())))
             .bytes);
   static void quaestum(List<dynamic> argumentis) {
     InteriorePropter interiorePropter = argumentis[0] as InteriorePropter;
@@ -56,6 +49,13 @@ class Propter {
             .convert(utf8.encode(json.encode(interiorePropter.toJson())))
             .bytes);
       } while (!probationem.startsWith('0' * zeros));
+      for (int i = zeros + 1; i < probationem.length; i++) {
+        if (probationem.substring(0, i) == ('0' * i)) {
+          zeros += 1;          
+        } else {
+          break;
+        }
+      } 
       zeros += 1;
       mitte.send(Propter(probationem, interiorePropter));
     }
@@ -63,16 +63,16 @@ class Propter {
 
   Map<String, dynamic> toJson() => {
         JSON.probationem: probationem,
-        JSON.interiorePropter: interiorePropter.toJson()
+        JSON.interiore: interiore.toJson()
       };
   Propter.fromJson(Map<String, dynamic> jsoschon)
       : probationem = jsoschon[JSON.probationem].toString(),
-        interiorePropter = InteriorePropter.fromJson(
-            jsoschon[JSON.interiorePropter] as Map<String, dynamic>);
+        interiore = InteriorePropter.fromJson(
+            jsoschon[JSON.interiore] as Map<String, dynamic>);
   bool isProbationem() {
     if (probationem ==
         HEX.encode(sha512
-            .convert(utf8.encode(json.encode(interiorePropter.toJson())))
+            .convert(utf8.encode(json.encode(interiore.toJson())))
             .bytes)) {
       return true;
     }
@@ -81,13 +81,13 @@ class Propter {
 }
 class GladiatorInputPar {
   bool primis;
-  String gladiatorIdentitatis;
-  GladiatorInputPar(this.primis, this.gladiatorIdentitatis);
+  String identitatis;
+  GladiatorInputPar(this.primis, this.identitatis);
   Map<String, dynamic> toJson() => {
     JSON.primis: primis,
-    JSON.gladiatorIdentitatis: gladiatorIdentitatis
+    JSON.identitatis: identitatis
   };
-  GladiatorInputPar.fromJson(Map<String, dynamic> map): primis = bool.parse(map[JSON.primis].toString()), gladiatorIdentitatis = map[JSON.gladiatorIdentitatis];
+  GladiatorInputPar.fromJson(Map<String, dynamic> map): primis = bool.parse(map[JSON.primis].toString()), identitatis = map[JSON.identitatis];
 }
 
 class GladiatorInput {
@@ -156,7 +156,7 @@ class InterioreGladiator {
 
   static Future<GladiatorInput> cegi({ required String privatusClavis,
       required GladiatorInputPar inimicus, required GladiatorInputPar victima, required List<Obstructionum> lo }) async {
-    Gladiator? g = await Obstructionum.grabGladiator(victima.gladiatorIdentitatis, lo);
+    Gladiator? g = await Obstructionum.grabGladiator(victima.identitatis, lo);
     if (g == null) {
       throw BadRequest(
           code: 1,
@@ -165,9 +165,9 @@ class InterioreGladiator {
     }
     return GladiatorInput(
         signature: Utils.signum(PrivateKey.fromHex(Pera.curve(), privatusClavis),
-            g.interioreGladiator.outputs[victima.primis ? 0 : 1]),
-        inimicus: GladiatorInputPar(inimicus.primis, inimicus.gladiatorIdentitatis),
-        victima: GladiatorInputPar(victima.primis, victima.gladiatorIdentitatis)
+            g.interiore.outputs[victima.primis ? 0 : 1]),
+        inimicus: GladiatorInputPar(inimicus.primis, inimicus.identitatis),
+        victima: GladiatorInputPar(victima.primis, victima.identitatis)
       );
   }
 
@@ -185,36 +185,36 @@ class InterioreGladiator {
             as Iterable<dynamic>),
         identitatis = jsoschon[JSON.identitatis].toString();
 
-  static List<Propter> grab(List<Propter> propters) {
-    List<Propter> reditus = [];
-    for (int i = 64; i > 0; i--) {
-      if (propters.any((p) => p.probationem.startsWith('0' * i))) {
-        if (reditus.length < Constantes.perRationesObstructionum) {
-          reditus.addAll(propters.where((p) =>
-              p.probationem.startsWith('0' * i) && !reditus.contains(p)));
-        } else {
-          break;
-        }
-      }
-    }
-    return reditus;
-  }
+  // static List<Propter> grab(List<Propter> propters) {
+  //   List<Propter> reditus = [];
+  //   for (int i = 64; i > 0; i--) {
+  //     if (propters.any((p) => p.probationem.startsWith('0' * i))) {
+  //       if (reditus.length < Constantes.perRationesObstructionum) {
+  //         reditus.addAll(propters.where((p) =>
+  //             p.probationem.startsWith('0' * i) && !reditus.contains(p)));
+  //       } else {
+  //         break;
+  //       }
+  //     }
+  //   }
+  //   return reditus;
+  // }
 }
 
 class Gladiator {
   String probationem;
-  InterioreGladiator interioreGladiator;
-  Gladiator(this.probationem, this.interioreGladiator);
-  Gladiator.nullam(this.interioreGladiator)
+  InterioreGladiator interiore;
+  Gladiator(this.probationem, this.interiore);
+  Gladiator.nullam(this.interiore)
       : probationem = HEX.encode(sha512
-            .convert(utf8.encode(json.encode(interioreGladiator.toJson())))
+            .convert(utf8.encode(json.encode(interiore.toJson())))
             .bytes);
   Map<String, dynamic> toJson() => {
         JSON.probationem: probationem,
-        JSON.interioreGladiator: interioreGladiator.toJson()
+        JSON.interiore: interiore.toJson()
       };
   Gladiator.fromJson(Map<String, dynamic> jsoschon)
       : probationem = jsoschon[JSON.probationem],
-        interioreGladiator = InterioreGladiator.fromJson(
-            jsoschon[JSON.interioreGladiator] as Map<String, dynamic>);
+        interiore = InterioreGladiator.fromJson(
+            jsoschon[JSON.interiore] as Map<String, dynamic>);
 }

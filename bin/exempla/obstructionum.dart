@@ -2,10 +2,8 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:ecdsa/ecdsa.dart';
 import '../auxiliatores/print.dart';
-import '../connect/par_ad_rimor.dart';
 import './constantes.dart';
 import 'connexa_liber_expressi.dart';
-import 'errors.dart';
 import 'gladiator.dart';
 import './transactio.dart';
 import './utils.dart';
@@ -48,6 +46,7 @@ class InterioreObstructionum {
   int? numeruCuneosMaximumsOrdinata;
   int obstructionumDifficultas;
   int indicatione;
+  BigInt? praemium;
   BigInt nonce;
   final double divisa;
   final BigInt summaObstructionumDifficultas;
@@ -56,8 +55,8 @@ class InterioreObstructionum {
   final BigInt fixumForumCap;
   BigInt? obstructionumPraemium;
   final List<int> obstructionumNumerus;
-  String? defensio;
-  String? impetum;
+  List<String> defensio;
+  List<String> impetus;
   final String producentis;
   final String priorProbationem;
   final Gladiator gladiator;
@@ -68,6 +67,7 @@ class InterioreObstructionum {
   final Iterable<SiRemotionem> siRemotiones;
   final Iterable<SolucionisPropter> solucionisRationibus;
   final Iterable<FissileSolucionisPropter> fissileSolucionisRationibus;
+  final Iterable<InritaTransactio> inritaTransactions;
 
   InterioreObstructionum(
       {required this.generare,
@@ -80,7 +80,7 @@ class InterioreObstructionum {
       required this.fixumForumCap,
       required this.obstructionumNumerus,
       required this.defensio,
-      required this.impetum,
+      required this.impetus,
       required this.producentis,
       required this.priorProbationem,
       required this.gladiator,
@@ -90,36 +90,39 @@ class InterioreObstructionum {
       required this.connexaLiberExpressis,
       required this.siRemotiones,
       required this.solucionisRationibus,
-      required this.fissileSolucionisRationibus
+      required this.fissileSolucionisRationibus,
+      required this.inritaTransactions
     })
       : indicatione = DateTime.now().microsecondsSinceEpoch,
         nonce = BigInt.zero;
 
-  InterioreObstructionum.incipio({required this.producentis})
+  InterioreObstructionum.incipio({required this.producentis, required BigInt praemium})
       : generare = Generare.incipio,
         estFurca = false,
         numeruCuneosMaximumsOrdinata = 7637637637637637637,
         obstructionumDifficultas = 0,
         divisa = 0,
         indicatione = DateTime.now().microsecondsSinceEpoch,
+        praemium = BigInt.parse("763000000000000000000"),
         nonce = BigInt.zero,
         summaObstructionumDifficultas = BigInt.zero,
         forumCap = BigInt.zero,
         liberForumCap = BigInt.zero,
         fixumForumCap = BigInt.zero,
         obstructionumNumerus = [0],
-        defensio = Utils.randomHex(1),
-        impetum = Utils.randomHex(1),
+        defensio = [],
+        impetus = [],
         priorProbationem = '',
         gladiator = Gladiator.nullam(InterioreGladiator.incipio(producentis)),
         liberTransactions = List<Transactio>.from(
-            [Transactio.nullam(InterioreTransactio.praemium(producentis))]),
+            [Transactio.nullam(InterioreTransactio.praemium(producentis, praemium))]),
         fixumTransactions = [],
         expressiTransactions = [],
         connexaLiberExpressis = [],
         siRemotiones = [],
         solucionisRationibus = [],
-        fissileSolucionisRationibus = [];
+        fissileSolucionisRationibus = [],
+        inritaTransactions = [];
 
   InterioreObstructionum.efectus(
       {required this.estFurca,
@@ -140,12 +143,13 @@ class InterioreObstructionum {
       required this.siRemotiones,
       required this.solucionisRationibus,
       required this.fissileSolucionisRationibus,
+      required this.inritaTransactions,
       required Obstructionum prior})
       : generare = Generare.efectus,
         indicatione = DateTime.now().microsecondsSinceEpoch,
         nonce = BigInt.zero,
-        defensio = Utils.randomHex(1),
-        impetum = Utils.randomHex(1);
+        defensio = [Utils.randomHex(1)],
+        impetus = [Utils.randomHex(1), Utils.randomHex(1)];
 
   InterioreObstructionum.confussus(
       {required this.estFurca,
@@ -166,10 +170,14 @@ class InterioreObstructionum {
       required this.siRemotiones,
       required this.solucionisRationibus,
       required this.fissileSolucionisRationibus,
+      required this.inritaTransactions,
       required Obstructionum prior})
       : generare = Generare.confussus,
         indicatione = DateTime.now().microsecondsSinceEpoch,
-        nonce = BigInt.zero;
+        nonce = BigInt.zero,
+        defensio = [Utils.randomHex(1)],
+        impetus = [Utils.randomHex(1), Utils.randomHex(1)];
+
   InterioreObstructionum.expressi(
       {required this.estFurca,
       required this.obstructionumDifficultas,
@@ -189,10 +197,13 @@ class InterioreObstructionum {
       required this.siRemotiones,
       required this.solucionisRationibus,
       required this.fissileSolucionisRationibus,
+      required this.inritaTransactions,
       required Obstructionum prior})
       : generare = Generare.expressi,
         indicatione = DateTime.now().microsecondsSinceEpoch,
-        nonce = BigInt.zero;
+        nonce = BigInt.zero,
+        defensio = [Utils.randomHex(1)],
+        impetus = [Utils.randomHex(1), Utils.randomHex(1)];
 
   mine() {
     indicatione = DateTime.now().microsecondsSinceEpoch;
@@ -205,6 +216,7 @@ class InterioreObstructionum {
         JSON.obstructionumDifficultas: obstructionumDifficultas,
         JSON.divisa: divisa.toString(),
         JSON.indicatione: indicatione,
+        JSON.praemium: praemium.toString(),
         JSON.nonce: nonce.toString(),
         JSON.summaObstructionumDifficultas:
             summaObstructionumDifficultas.toString(),
@@ -213,7 +225,7 @@ class InterioreObstructionum {
         JSON.fixumForumCap: fixumForumCap.toString(),
         JSON.obstructionumNumerus: obstructionumNumerus.toList(),
         JSON.defensio: defensio,
-        JSON.impetum: impetum,
+        JSON.impetus: impetus,
         JSON.producentis: producentis,
         JSON.priorProbationem: priorProbationem,
         JSON.gladiator: gladiator.toJson(),
@@ -227,7 +239,8 @@ class InterioreObstructionum {
             connexaLiberExpressis.map((e) => e.toJson()).toList(),
         JSON.siRemotiones: siRemotiones.map((e) => e.toJson()).toList(),
         JSON.solucionisPropter: solucionisRationibus.map((e) => e.toJson()).toList(),
-        JSON.fissileSolucionisPropter: fissileSolucionisRationibus.map((e) => e.toJson()).toList()
+        JSON.fissileSolucionisPropter: fissileSolucionisRationibus.map((e) => e.toJson()).toList(),
+        JSON.inritaTransactions: inritaTransactions.map((e) => e.toJson()).toList()
       }..removeWhere((key, value) => value == null);
   InterioreObstructionum.fromJson(Map jsoschon)
       : estFurca = bool.parse(jsoschon[JSON.estFurca].toString()),
@@ -237,6 +250,7 @@ class InterioreObstructionum {
             int.parse(jsoschon[JSON.obstructionumDifficultas].toString()),
         divisa = double.parse(jsoschon[JSON.divisa].toString()),
         indicatione = int.parse(jsoschon[JSON.indicatione].toString()),
+        praemium = jsoschon[JSON.praemium].toString() == 'null' ? null : BigInt.parse(jsoschon[JSON.praemium].toString()),
         nonce = BigInt.parse(jsoschon[JSON.nonce].toString()),
         summaObstructionumDifficultas = BigInt.parse(
             jsoschon[JSON.summaObstructionumDifficultas].toString()),
@@ -245,12 +259,8 @@ class InterioreObstructionum {
         fixumForumCap = BigInt.parse(jsoschon[JSON.fixumForumCap]),
         obstructionumNumerus = List<int>.from(
             jsoschon[JSON.obstructionumNumerus] as List<dynamic>),
-        defensio = jsoschon[JSON.defensio].toString() == 'null'
-            ? null
-            : jsoschon[JSON.defensio].toString(),
-        impetum = jsoschon[JSON.impetum].toString() == 'null'
-            ? null
-            : jsoschon[JSON.impetum].toString(),
+        defensio = List<String>.from(jsoschon[JSON.defensio]),
+        impetus = List<String>.from(jsoschon[JSON.impetus]),
         producentis = jsoschon[JSON.producentis].toString(),
         priorProbationem = jsoschon[JSON.priorProbationem].toString(),
         gladiator = Gladiator.fromJson(
@@ -275,7 +285,8 @@ class InterioreObstructionum {
                 as List<dynamic>)
             .map((sr) => SiRemotionem.fromJson(sr as Map<String, dynamic>))),
         solucionisRationibus = List<SolucionisPropter>.from((jsoschon[JSON.solucionisPropter] as List<dynamic>).map((msp) => SolucionisPropter.fromJson(msp as Map<String, dynamic>))),
-        fissileSolucionisRationibus = List<FissileSolucionisPropter>.from((jsoschon[JSON.fissileSolucionisPropter] as List<dynamic>).map((mfsp) => FissileSolucionisPropter.fromJson(mfsp as Map<String, dynamic>)));
+        fissileSolucionisRationibus = List<FissileSolucionisPropter>.from((jsoschon[JSON.fissileSolucionisPropter] as List<dynamic>).map((mfsp) => FissileSolucionisPropter.fromJson(mfsp as Map<String, dynamic>))),
+        inritaTransactions = List<InritaTransactio>.from((jsoschon[JSON.inritaTransactions] as List<dynamic>).map((mit) => InritaTransactio.fromJson(mit as Map<String, dynamic>)));
 
   BigInt numero() {
     BigInt n = BigInt.zero;
@@ -312,12 +323,12 @@ class InFieriObstructionum {
 }
 
 class Obstructionum {
-  final InterioreObstructionum interioreObstructionum;
+  final InterioreObstructionum interiore;
   late String probationem;
-  Obstructionum(this.interioreObstructionum, this.probationem);
-  Obstructionum.incipio(this.interioreObstructionum)
+  Obstructionum(this.interiore, this.probationem);
+  Obstructionum.incipio(this.interiore)
       : probationem = HEX.encode(sha512
-            .convert(utf8.encode(json.encode(interioreObstructionum.toJson())))
+            .convert(utf8.encode(json.encode(interiore.toJson())))
             .bytes);
   static Future efectus(List<dynamic> args) async {
     InterioreObstructionum interioreObstructionum =
@@ -329,7 +340,6 @@ class Obstructionum {
       probationem = HEX.encode(sha512
           .convert(utf8.encode(json.encode(interioreObstructionum.toJson())))
           .bytes);
-      print(probationem);
     } while (!probationem
         .startsWith('0' * interioreObstructionum.obstructionumDifficultas));
     mitte.send(Obstructionum(interioreObstructionum, probationem));
@@ -347,7 +357,7 @@ class Obstructionum {
         probationem = HEX.encode(sha512
             .convert(utf8.encode(json.encode(interioreObstructionum.toJson())))
             .bytes);
-        print(probationem);
+        // print(probationem);
       } while (!probationem
           .startsWith('0' * interioreObstructionum.obstructionumDifficultas));
       if (!toCrack.every((tc) => probationem.contains(tc))) {
@@ -385,18 +395,18 @@ class Obstructionum {
   }
 
   Map<String, dynamic> toJson() => {
-        JSON.interioreObstructionum: interioreObstructionum.toJson(),
+        JSON.interiore: interiore.toJson(),
         JSON.probationem: probationem
       };
   Obstructionum.fromJson(Map<String, dynamic> jsoschon)
-      : interioreObstructionum = InterioreObstructionum.fromJson(
-            jsoschon[JSON.interioreObstructionum] as Map<String, dynamic>),
+      : interiore = InterioreObstructionum.fromJson(
+            jsoschon[JSON.interiore] as Map<String, dynamic>),
         probationem = jsoschon[JSON.probationem].toString();
 
   bool isProbationem() {
     if (probationem ==
         HEX.encode(sha512
-            .convert(utf8.encode(json.encode(interioreObstructionum.toJson())))
+            .convert(utf8.encode(json.encode(interiore.toJson())))
             .bytes)) {
       return true;
     }
@@ -455,22 +465,22 @@ class Obstructionum {
     List<Tuple3<String, GladiatorOutput, bool>> gladiatorOutputs = [];
     lo
         .map((mo) =>
-            mo.interioreObstructionum.gladiator.interioreGladiator.input)
+            mo.interiore.gladiator.interiore.input)
         .forEach(gladiatorInitibus.add);
     for (Obstructionum o in lo) {
       for (int i = 0;
           i <
-              o.interioreObstructionum.gladiator.interioreGladiator.outputs
+              o.interiore.gladiator.interiore.outputs
                   .length;
           i++) {
         gladiatorOutputs.add(Tuple3<String, GladiatorOutput, bool>(
-            o.interioreObstructionum.gladiator.interioreGladiator.identitatis,
-            o.interioreObstructionum.gladiator.interioreGladiator.outputs[i],
+            o.interiore.gladiator.interiore.identitatis,
+            o.interiore.gladiator.interiore.outputs[i],
             (i == 0 ? true : false)));
       }
     }
     gladiatorOutputs.removeWhere((element) => gladiatorInitibus.any((init) =>
-        init?.victima.gladiatorIdentitatis == element.item1 &&
+        init?.victima.identitatis == element.item1 &&
         init?.victima.primis == element.item3));
     return gladiatorOutputs.map((g) => g.item2).toList();
   }
@@ -489,34 +499,38 @@ class Obstructionum {
     }
     caudices.forEach((obstructionum) {
       gladiatorInitibus.add(obstructionum
-          .interioreObstructionum.gladiator.interioreGladiator.input);
+          .interiore.gladiator.interiore.input);
     });
     caudices.forEach((obstructionum) {
       for (int i = 0;
           i <
-              obstructionum.interioreObstructionum.gladiator.interioreGladiator
+              obstructionum.interiore.gladiator.interiore
                   .outputs.length;
           i++) {
         gladiatorOutputs.add(Tuple3<String, GladiatorOutput, bool>(
-            obstructionum.interioreObstructionum.gladiator.interioreGladiator
+            obstructionum.interiore.gladiator.interiore
                 .identitatis,
             obstructionum
-                .interioreObstructionum.gladiator.interioreGladiator.outputs[i],
+                .interiore.gladiator.interiore.outputs[i],
             i == 0 ? true : false));
       }
     });
     gladiatorOutputs.removeWhere((element) => gladiatorInitibus.any((init) =>
-        init?.victima.gladiatorIdentitatis == element.item1 &&
+        init?.victima.identitatis == element.item1 &&
         init?.victima.primis == element.item3));
     return gladiatorOutputs;
   }
 
   static Future<BigInt> utSummaDifficultas(List<Obstructionum> lo) async {
     List<GladiatorOutput> lgo = await Obstructionum.utDifficultas([lo.first]);
+    print('lgolength \n ${lgo.length}');
     BigInt total = BigInt.from(lgo.length);
+    print('lohasduplicateforsure \n\n ${lo.map((e) => e.toJson())}');
     for (Obstructionum o in lo) {
-      total += BigInt.from(o.interioreObstructionum.obstructionumDifficultas);
+      print('okeyappend \n ${o.interiore.obstructionumDifficultas}');
+      total += BigInt.from(o.interiore.obstructionumDifficultas);
     }
+    print('withtotal \n$total');
     return total;
   }
 
@@ -524,7 +538,7 @@ class Obstructionum {
       Obstructionum obstructionum) async {
     Obstructionum co = Obstructionum.fromJson(
         json.decode(json.encode(obstructionum.toJson())));
-    List<int> dif = co.interioreObstructionum.obstructionumNumerus;
+    List<int> dif = co.interiore.obstructionumNumerus;
     final int priorObstructionumNumerus = dif[dif.length - 1];
     if (priorObstructionumNumerus < Constantes.maximeCaudicesFile) {
       dif[dif.length - 1]++;
@@ -559,38 +573,38 @@ class Obstructionum {
       bool primis, String gladiatorId, Directory dir) async {
     List<Obstructionum> obs = await getBlocks(dir);
     List<GladiatorInput?> gis = obs
-        .map((o) => o.interioreObstructionum.gladiator.interioreGladiator.input)
+        .map((o) => o.interiore.gladiator.interiore.input)
         .toList();
     if (gis.any(
-        (g) => g?.victima.gladiatorIdentitatis == gladiatorId && g?.victima.primis == primis)) {
+        (g) => g?.victima.identitatis == gladiatorId && g?.victima.primis == primis)) {
       return false;
     }
     return true;
   }
 
   static Future<bool> gladiatorConfodiantur(
-      String gladiatorId, String publicaClavis, List<Obstructionum> lo) async {
+      bool primis, String gladiatorId, String publicaClavis, List<Obstructionum> lo) async {
     Obstructionum obsGladiator = lo.singleWhere((swo) =>
-        swo.interioreObstructionum.gladiator.interioreGladiator.identitatis ==
+        swo.interiore.gladiator.interiore.identitatis ==
         gladiatorId);
-    Gladiator gladiator = obsGladiator.interioreObstructionum.gladiator;
-    return gladiator.interioreGladiator.outputs.any((o) => o.rationibus
-        .any((r) => r.interiorePropter.publicaClavis == publicaClavis));
+    Gladiator gladiator = obsGladiator.interiore.gladiator;
+    return gladiator.interiore.outputs[primis ? 0 : 1].rationibus
+        .any((r) => r.interiore.publicaClavis == publicaClavis);
   }
 
   static Future<Gladiator?> grabGladiator(
       String gladiatorIdentitatis, List<Obstructionum> lo) async {
     return lo.singleWhereOrNull((obs) =>
-                obs.interioreObstructionum.gladiator.interioreGladiator
+                obs.interiore.gladiator.interiore
                     .identitatis ==
                 gladiatorIdentitatis) !=
             null
         ? lo
             .singleWhere((obs) => 
-                obs.interioreObstructionum.gladiator.interioreGladiator
+                obs.interiore.gladiator.interiore
                     .identitatis ==
                 gladiatorIdentitatis)
-            .interioreObstructionum
+            .interiore
             .gladiator
         : null;
   }
@@ -598,11 +612,11 @@ class Obstructionum {
   static Future<BigInt> accipereForumCap(List<Obstructionum> lo) async {
     final obstructionumPraemium = lo
         .where((obs) =>
-            obs.interioreObstructionum.generare == Generare.incipio ||
-            obs.interioreObstructionum.generare == Generare.efectus)
+            obs.interiore.generare == Generare.incipio ||
+            obs.interiore.generare == Generare.efectus)
         .length;
-    return (BigInt.parse(obstructionumPraemium.toString()) *
-        Constantes.obstructionumPraemium);
+    
+    return (BigInt.parse(obstructionumPraemium.toString()) * lo.first.interiore.praemium!);
   }
 
   static Future<BigInt> accipereForumCapLiberFixum(
@@ -612,20 +626,20 @@ class Obstructionum {
     List<Transactio> txs = [];
     for (Obstructionum o in lo) {
       txs.addAll(liber
-          ? o.interioreObstructionum.liberTransactions
-          : o.interioreObstructionum.fixumTransactions);
+          ? o.interiore.liberTransactions
+          : o.interiore.fixumTransactions);
     }
     Iterable<List<TransactioInput>> initibuses =
-        txs.map((tx) => tx.interioreTransactio.inputs);
+        txs.map((tx) => tx.interiore.inputs);
     for (List<TransactioInput> init in initibuses) {
       initibus.addAll(init);
     }
     for (Transactio tx in txs) {
-      for (int t = 0; t < tx.interioreTransactio.outputs.length; t++) {
+      for (int t = 0; t < tx.interiore.outputs.length; t++) {
         outputs.add(Tuple3<int, String, TransactioOutput>(
             t,
-            tx.interioreTransactio.identitatis,
-            tx.interioreTransactio.outputs[t]));
+            tx.interiore.identitatis,
+            tx.interiore.outputs[t]));
       }
     }
     outputs.removeWhere((output) => initibus.any((init) =>
@@ -640,20 +654,20 @@ class Obstructionum {
 
   static bool estNovamNodi(Directory directorium, Obstructionum obs) {
     return directorium.listSync().isEmpty &&
-        obs.interioreObstructionum.generare == Generare.incipio;
+        obs.interiore.generare == Generare.incipio;
   }
 
   static QuidFacere fortiorEst(
       InterioreObstructionum advenientis, Obstructionum nostrum) {
     if (advenientis.priorProbationem == nostrum.probationem) {
       if (advenientis.summaObstructionumDifficultas >
-          nostrum.interioreObstructionum.summaObstructionumDifficultas) {
+          nostrum.interiore.summaObstructionumDifficultas) {
         return QuidFacere.solitum;
       } else {
         return QuidFacere.corrupt;
       }
     }
-    if (advenientis.divisa < nostrum.interioreObstructionum.divisa) {
+    if (advenientis.divisa < nostrum.interiore.divisa) {
       return QuidFacere.subter;
     }
     return QuidFacere.solitum;
@@ -694,35 +708,35 @@ class Obstructionum {
   }
 
   Future<bool> validatePraemium(Obstructionum incipio) async {
-    if (interioreObstructionum.fixumTransactions.any((ft) =>
-        ft.interioreTransactio.transactioSignificatio ==
+    if (interiore.fixumTransactions.any((ft) =>
+        ft.interiore.transactioSignificatio ==
         TransactioSignificatio.praemium)) {
       print('idkone');
       return false;
     }
-    if (interioreObstructionum.liberTransactions
+    if (interiore.liberTransactions
             .where((wlt) =>
-                wlt.interioreTransactio.transactioSignificatio ==
+                wlt.interiore.transactioSignificatio ==
                 TransactioSignificatio.praemium)
             .length >
         1) {
       print('idktwo');
       return false;
     }
-    Transactio t = interioreObstructionum.liberTransactions.singleWhere(
+    Transactio t = interiore.liberTransactions.singleWhere(
         (swlt) =>
-            swlt.interioreTransactio.transactioSignificatio ==
+            swlt.interiore.transactioSignificatio ==
             TransactioSignificatio.praemium);
-    if (t.interioreTransactio.outputs.length > 1) {
+    if (t.interiore.outputs.length > 1) {
       print('idkthree');
       return false;
     }
-    return t.interioreTransactio.outputs[0].pod ==
-        incipio.interioreObstructionum.liberTransactions
+    return t.interiore.outputs[0].pod ==
+        incipio.interiore.liberTransactions
             .singleWhere((swlt) =>
-                swlt.interioreTransactio.transactioSignificatio ==
+                swlt.interiore.transactioSignificatio ==
                 TransactioSignificatio.praemium)
-            .interioreTransactio
+            .interiore
             .outputs[0]
             .pod;
   }
@@ -731,14 +745,14 @@ class Obstructionum {
       Obstructionum foramen, Directory directorium) async {
     List<Obstructionum> obss = await Obstructionum.getBlocks(directorium);
     Obstructionum hNostrum = obss.last;
-    if (hNostrum.interioreObstructionum.obstructionumNumerus.length ==
-        foramen.interioreObstructionum.obstructionumNumerus.length) {
+    if (hNostrum.interiore.obstructionumNumerus.length ==
+        foramen.interiore.obstructionumNumerus.length) {
       for (int i = 0;
-          i < hNostrum.interioreObstructionum.obstructionumNumerus.length;
+          i < hNostrum.interiore.obstructionumNumerus.length;
           i++) {
         File f = File('${directorium.path}${Constantes.caudices}$i.txt');
         List<String> ss = await Utils.fileAmnis(f).toList();
-        ss.removeRange(foramen.interioreObstructionum.obstructionumNumerus.last,
+        ss.removeRange(foramen.interiore.obstructionumNumerus.last,
             ss.length);
         f.deleteSync();
         f.createSync();
@@ -746,13 +760,13 @@ class Obstructionum {
         for (String jobs in ss) {
           sink.write('$jobs\n');
         }
-        sink.close();
+        await sink.close();
       }
     } else {
       //still
       // for (int i =
-      //         adventientis.interioreObstructionum.obstructionumNumerus.length;
-      //     i < hNostrum.interioreObstructionum.obstructionumNumerus.length;
+      //         adventientis.interiore.obstructionumNumerus.length;
+      //     i < hNostrum.interiore.obstructionumNumerus.length;
       //     i--) {
       //   File f = File('${directorium.path}${Constantes.caudices}$i.txt');
       //   f.deleteSync();
@@ -768,56 +782,56 @@ class Obstructionum {
 
   InFieriObstructionum inFieriObstructionum() {
     List<String> gladiatorIdentitatum = [];
-    interioreObstructionum.gladiator.interioreGladiator.outputs
-        .map((go) => go.rationibus.map((gr) => gr.interiorePropter.identitatis))
+    interiore.gladiator.interiore.outputs
+        .map((go) => go.rationibus.map((gr) => gr.interiore.publicaClavis))
         .forEach(gladiatorIdentitatum.addAll);
-    List<String> lt = interioreObstructionum.liberTransactions.where((wlt) => wlt.interioreTransactio.transactioSignificatio == TransactioSignificatio.regularis || wlt.interioreTransactio.transactioSignificatio == TransactioSignificatio.ardeat)
-        .map((lt) => lt.interioreTransactio.identitatis)
+    List<String> lt = interiore.liberTransactions.where((wlt) => wlt.interiore.transactioSignificatio == TransactioSignificatio.regularis || wlt.interiore.transactioSignificatio == TransactioSignificatio.ardeat || wlt.interiore.transactioSignificatio == TransactioSignificatio.solucionis || wlt.interiore.transactioSignificatio == TransactioSignificatio.fissile || wlt.interiore.transactioSignificatio == TransactioSignificatio.reliquiae)
+        .map((lt) => lt.interiore.identitatis)
         .toList();
-    List<String> ft = interioreObstructionum.fixumTransactions.where((wft) => wft.interioreTransactio.transactioSignificatio == TransactioSignificatio.regularis || wft.interioreTransactio.transactioSignificatio == TransactioSignificatio.ardeat)
-        .map((ft) => ft.interioreTransactio.identitatis)
+    List<String> ft = interiore.fixumTransactions.where((wft) => wft.interiore.transactioSignificatio == TransactioSignificatio.regularis || wft.interiore.transactioSignificatio == TransactioSignificatio.ardeat  || wft.interiore.transactioSignificatio == TransactioSignificatio.solucionis || wft.interiore.transactioSignificatio == TransactioSignificatio.fissile || wft.interiore.transactioSignificatio == TransactioSignificatio.reliquiae)
+        .map((ft) => ft.interiore.identitatis)
         .toList();
-    List<String> et = interioreObstructionum.expressiTransactions
-        .map((et) => et.interioreTransactio.identitatis)
+    List<String> et = interiore.expressiTransactions
+        .map((et) => et.interiore.identitatis)
         .toList();
-    List<String> cles = interioreObstructionum.connexaLiberExpressis
+    List<String> cles = interiore.connexaLiberExpressis
         .map((cle) => cle.interioreConnexaLiberExpressi.identitatis)
         .toList();
-    List<String> srs = interioreObstructionum.siRemotiones
+    List<String> srs = interiore.siRemotiones
         .map(
-            (msr) => msr.interioreSiRemotionem.identitatisInterioreSiRemotionem)
+            (msr) => msr.interiore.signatureInterioreSiRemotionem!)
         .toList();
-    List<String> sp = interioreObstructionum.solucionisRationibus.map((msp) => msp.interioreSolucionisPropter.interioreInterioreSolucionisPropter.solucionis).toList();
-    List<String> fsp = interioreObstructionum.fissileSolucionisRationibus.map((mfsp) => mfsp.interioreFissileSolucionisPropter.interioreInterioreFissileSolucionisPropter.solucionis).toList();
+    List<String> sp = interiore.solucionisRationibus.map((msp) => msp.interioreSolucionisPropter.interioreInterioreSolucionisPropter.solucionis).toList();
+    List<String> fsp = interiore.fissileSolucionisRationibus.map((mfsp) => mfsp.interioreFissileSolucionisPropter.interioreInterioreFissileSolucionisPropter.solucionis).toList();
     return InFieriObstructionum(gladiatorIdentitatum: gladiatorIdentitatum, liberTransactions: lt, fixumTransactions: ft, expressiTransactions: et, connexaLiberExpressis: cles, siRemotionems: srs, solucionisRationibus: sp, fissileSolucionisRationibus: fsp);
   }
 
   Future<bool> convalidandumTransform(List<Obstructionum> lo) async {
     List<TransactioInput> ltit = [];
-    interioreObstructionum.liberTransactions
+    interiore.liberTransactions
         .where((wlt) =>
-            wlt.interioreTransactio.transactioSignificatio ==
+            wlt.interiore.transactioSignificatio ==
             TransactioSignificatio.transform)
-        .map((mlt) => mlt.interioreTransactio.inputs)
+        .map((mlt) => mlt.interiore.inputs)
         .forEach(ltit.addAll);
     List<TransactioOutput> lto = [];
-    interioreObstructionum.fixumTransactions
+    interiore.fixumTransactions
         .where((wlf) =>
-            wlf.interioreTransactio.transactioSignificatio ==
+            wlf.interiore.transactioSignificatio ==
             TransactioSignificatio.transform)
-        .map((mft) => mft.interioreTransactio.outputs)
+        .map((mft) => mft.interiore.outputs)
         .forEach(lto.addAll);
     List<String> identitatumltit = [];
     ltit.map((mlt) => mlt.transactioIdentitatis).forEach(identitatumltit.add);
     List<Transactio> ltop = [];
     lo
-        .map((mlo) => mlo.interioreObstructionum.liberTransactions.where(
+        .map((mlo) => mlo.interiore.liberTransactions.where(
             (wlt) => identitatumltit.any((identitatis) =>
-                identitatis == wlt.interioreTransactio.identitatis)))
+                identitatis == wlt.interiore.identitatis)))
         .forEach(ltop.addAll);
 
     List<TransactioOutput> rlt = [];
-    ltop.map((mltop) => mltop.interioreTransactio.outputs.where((wo) => wo.publicaClavis == interioreObstructionum.producentis)).forEach(rlt.addAll);
+    ltop.map((mltop) => mltop.interiore.outputs.where((wo) => wo.publicaClavis == interiore.producentis)).forEach(rlt.addAll);
     BigInt fixum = BigInt.zero;
     for (TransactioOutput to in lto) {
       fixum += to.pod;
@@ -827,88 +841,51 @@ class Obstructionum {
       rfixum += to.pod;
     }
     List<TransactioInput> tlti = [];
-    interioreObstructionum.liberTransactions.where((wlt) => 
-      wlt.interioreTransactio.transactioSignificatio == 
+    interiore.liberTransactions.where((wlt) => 
+      wlt.interiore.transactioSignificatio == 
       TransactioSignificatio.regularis || 
-      wlt.interioreTransactio.transactioSignificatio == 
+      wlt.interiore.transactioSignificatio == 
       TransactioSignificatio.expressi ||
-      wlt.interioreTransactio.transactioSignificatio == 
+      wlt.interiore.transactioSignificatio == 
       TransactioSignificatio.refugium ||
-      wlt.interioreTransactio.transactioSignificatio == 
+      wlt.interiore.transactioSignificatio == 
       TransactioSignificatio.ardeat
-    ).map((mlt) => mlt.interioreTransactio.inputs).forEach(tlti.addAll);
+    ).map((mlt) => mlt.interiore.inputs).forEach(tlti.addAll);
     List<TransactioOutput> ltoProducer = [];
-    interioreObstructionum.liberTransactions
+    interiore.liberTransactions
         .where((wlt) =>
-            (wlt.interioreTransactio.transactioSignificatio ==
+            (wlt.interiore.transactioSignificatio ==
             TransactioSignificatio.regularis || 
-            wlt.interioreTransactio.transactioSignificatio == 
+            wlt.interiore.transactioSignificatio == 
             TransactioSignificatio.expressi || 
-            wlt.interioreTransactio.transactioSignificatio == 
+            wlt.interiore.transactioSignificatio == 
             TransactioSignificatio.refugium || 
-            wlt.interioreTransactio.transactioSignificatio == 
-            TransactioSignificatio.ardeat) && !tlti.any((atlti) => atlti.transactioIdentitatis == wlt.interioreTransactio.identitatis))
-        .map((mlt) => mlt.interioreTransactio.outputs.where(
-            (wo) => wo.publicaClavis == interioreObstructionum.producentis))
+            wlt.interiore.transactioSignificatio == 
+            TransactioSignificatio.ardeat) && !tlti.any((atlti) => atlti.transactioIdentitatis == wlt.interiore.identitatis))
+        .map((mlt) => mlt.interiore.outputs.where(
+            (wo) => wo.publicaClavis == interiore.producentis))
         .forEach(ltoProducer.addAll);
     for (TransactioOutput to in ltoProducer) {
       rfixum += to.pod;
     }
-    // if (interioreObstructionum)
-    // print('rfixumbefore $rfixum');
-    // List<TransactioOutput> ltotx = [];
-    // print('expressitxs\n');
-    // print('\n');  
-    // print(interioreObstructionum.expressiTransactions.map((e) => e.toJson()));
-    // interioreObstructionum.expressiTransactions.map((met) => met.interioreTransactio.outputs.where((wo) => wo.publicaClavis == interioreObstructionum.producentis)).forEach(ltotx.addAll);
-    // for (TransactioOutput to in ltotx) {
-
-    //   rfixum += to.pod;
-    // }
     print('fixum $fixum and $rfixum');
     return fixum == rfixum;
-    // List<TransactioInput> ltir = [];
-    // interioreObstructionum.liberTransactions
-    //     .where((wlt) =>
-    //         wlt.interioreTransactio.transactioSignificatio ==
-    //         TransactioSignificatio.regularis)
-    //     .map((mlt) => mlt.interioreTransactio.inputs)
-    //     .forEach(ltir.addAll);
-    // List<String> identitatumltir = [];
-    // ltir.map((mlt) => mlt.transactioIdentitatis).forEach(identitatumltir.add);
-    // List<Transactio> ltops = [];
-    // lo
-    //     .map((mlo) => mlo.interioreObstructionum.liberTransactions.where(
-    //         (wlt) => identitatumltir.any((identitatis) =>
-    //             identitatis == wlt.interioreTransactio.identitatis)))
-    //     .forEach(ltops.addAll);
-
-    // List<TransactioOutput> ltomop = [];
-    // ltops
-    //     .map((mltop) => mltop.interioreTransactio.outputs.where(
-    //         (wo) => wo.publicaClavis == interioreObstructionum.producentis))
-    //     .forEach(ltomop.addAll);
-    // for (TransactioOutput to in ltomop) {
-    //   print('specialscenario ${to.pod}');
-    //   rfixum += to.pod;
-    // }
-
   }
   // mab y map and addal in inner for loop have conccerns
   Future<bool> convalidandumPerdita(List<Obstructionum> lo) async {
     List<TransactioInput> lti = []; 
-    interioreObstructionum.liberTransactions
-    .where((wlt) => wlt.interioreTransactio.transactioSignificatio == TransactioSignificatio.perdita)
-    .map((mlt) => mlt.interioreTransactio.inputs)
+    interiore.liberTransactions
+    .where((wlt) => wlt.interiore.transactioSignificatio == TransactioSignificatio.perdita)
+    .map((mlt) => mlt.interiore.inputs)
     .forEach(lti.addAll); 
     List<TransactioOutput> lto = [];
     for (TransactioInput ti in lti) {
       List<Transactio> lt = [];
-      lo.map((mo) => mo.interioreObstructionum.liberTransactions.where((wo) => wo.interioreTransactio.identitatis == ti.transactioIdentitatis)).forEach(lt.addAll);
-      lt.addAll(interioreObstructionum.liberTransactions.where((wi) => wi.interioreTransactio.identitatis == ti.transactioIdentitatis));
+      lo.map((mo) => mo.interiore.liberTransactions.where((wo) => wo.interiore.identitatis == ti.transactioIdentitatis)).forEach(lt.addAll);
+      lt.addAll(interiore.liberTransactions.where((wi) => wi.interiore.identitatis == ti.transactioIdentitatis));
       for (Transactio t in lt) {
-        TransactioOutput to = t.interioreTransactio.outputs[ti.index];
-        if (!Utils.cognoscere(PublicKey.fromHex(Pera.curve(), interioreObstructionum.producentis), Signature.fromASN1Hex(ti.signature), to)) {
+        TransactioOutput to = t.interiore.outputs[ti.index];
+        if (!Utils.cognoscere(PublicKey.fromHex(Pera.curve(), interiore.producentis), Signature.fromASN1Hex(ti.signature), to)) {
           Print.nota(nuntius: 'combussit pecuniam non signatum producentis amet', message: 'burned money is not signed with the producer key');
           return false;
         } 
@@ -916,9 +893,9 @@ class Obstructionum {
       }
     }    
     List<TransactioOutput> ltoi = [];
-    interioreObstructionum.liberTransactions
-    .where((wlt) => wlt.interioreTransactio.transactioSignificatio == TransactioSignificatio.perdita)
-    .map((mlt) => mlt.interioreTransactio.outputs)
+    interiore.liberTransactions
+    .where((wlt) => wlt.interiore.transactioSignificatio == TransactioSignificatio.perdita)
+    .map((mlt) => mlt.interiore.outputs)
     .forEach(ltoi.addAll);
     if (!ltoi.every((eltoi) => eltoi.publicaClavis == lo.last.probationem)) {
       Print.nota(nuntius: 'pecunia non uritur ante probationem', message: 'money is not burned to previous proof');
@@ -937,7 +914,7 @@ class Obstructionum {
   }
   Future<bool> vicit(List<Obstructionum> lo) async {
     GladiatorInput? gi =
-        interioreObstructionum.gladiator.interioreGladiator.input;
+        interiore.gladiator.interiore.input;
     if (gi == null) { 
       Print.nota(
           nuntius: 'Obstructionum gladiatorem sine input',
@@ -946,31 +923,31 @@ class Obstructionum {
       return false;
     }
     Obstructionum swo = lo.singleWhere((swo) =>
-        swo.interioreObstructionum.gladiator.interioreGladiator.identitatis ==
-        gi.victima.gladiatorIdentitatis);
+        swo.interiore.gladiator.interiore.identitatis ==
+        gi.victima.identitatis);
     String inimicusImpetumBasis = await Pera.turpiaGladiatoriaTelum(
-        gi.inimicus.primis, true, gi.inimicus.gladiatorIdentitatis, lo);
+        gi.inimicus.primis, true, gi.inimicus.identitatis, lo);
     List<Telum> inimicusImpetusLiber = await Pera.maximeArma(
-        true, gi.inimicus.primis, true, gi.inimicus.gladiatorIdentitatis, lo);
+        liber: true, primis: gi.inimicus.primis, impetum: true, gladiatorIdentitatis: gi.inimicus.identitatis, lo: lo);
     List<Telum> inimicusImpetusFixum = await Pera.maximeArma(
-        false, gi.inimicus.primis, true, gi.inimicus.gladiatorIdentitatis, lo);
+        liber: false, primis: gi.inimicus.primis, impetum: true, gladiatorIdentitatis: gi.inimicus.identitatis, lo: lo);
     List<String> inimicusImpetus = [inimicusImpetumBasis];
-    inimicusImpetusLiber.map((miil) => miil.telum).forEach(inimicusImpetus.add);
-    inimicusImpetusFixum.map((miif) => miif.telum).forEach(inimicusImpetus.add);
+    inimicusImpetusLiber.map((miil) => miil.telum).forEach(inimicusImpetus.addAll);
+    inimicusImpetusFixum.map((miif) => miif.telum).forEach(inimicusImpetus.addAll);
 
     String victimaDefensioBasis = await Pera.turpiaGladiatoriaTelum(
-        gi.victima.primis, false, gi.victima.gladiatorIdentitatis, lo);
+        gi.victima.primis, false, gi.victima.identitatis, lo);
     List<Telum> victimaDefensioLiber = await Pera.maximeArma(
-        true, gi.victima.primis, false, gi.victima.gladiatorIdentitatis, lo);
+        liber: true, primis: gi.victima.primis, impetum: false, gladiatorIdentitatis: gi.victima.identitatis, lo: lo);
     List<Telum> victimaDefensioFixum = await Pera.maximeArma(
-        false, gi.victima.primis, false, gi.victima.gladiatorIdentitatis, lo);
+        liber: false, primis: gi.victima.primis, impetum: false, gladiatorIdentitatis: gi.victima.identitatis, lo: lo);
     List<String> victimaDefensiones = [victimaDefensioBasis];
     victimaDefensioLiber
         .map((mvdl) => mvdl.telum)
-        .forEach(victimaDefensiones.add);
+        .forEach(victimaDefensiones.addAll);
     victimaDefensioFixum
         .map((mvdf) => mvdf.telum)
-        .forEach(victimaDefensiones.add);
+        .forEach(victimaDefensiones.addAll);
     List<String> requiritur = victimaDefensiones;
     print('reqbefremv $requiritur');
     print('impetusbefrem $inimicusImpetus');
@@ -984,20 +961,20 @@ class Obstructionum {
     List<GladiatorInput?> lgi = [];
     lo
         .map((mo) =>
-            mo.interioreObstructionum.gladiator.interioreGladiator.input)
+            mo.interiore.gladiator.interiore.input)
         .forEach(lgi.add);
     if (lgi.any((agi) =>
-        agi?.victima.gladiatorIdentitatis == gi.victima.gladiatorIdentitatis &&
+        agi?.victima.identitatis == gi.victima.identitatis &&
         agi?.victima.primis == gi.victima.primis)) {
       Print.nota(
           nuntius: 'gladiator iam victus est',
           message: 'gladiator is already defeated');
       return false;
     }
-    GladiatorOutput go = swo.interioreObstructionum.gladiator.interioreGladiator
+    GladiatorOutput go = swo.interiore.gladiator.interiore
         .outputs[gi.victima.primis ? 0 : 1];
     if (!Utils.cognoscereVictusGladiator(
-        PublicKey.fromHex(Pera.curve(), interioreObstructionum.producentis),
+        PublicKey.fromHex(Pera.curve(), interiore.producentis),
         Signature.fromASN1Hex(gi.signature),
         go)) {
       print('itsamatterofsignature');
@@ -1008,35 +985,35 @@ class Obstructionum {
 
   bool transactionsIncluduntur(List<Obstructionum> lo) {
     List<Transactio> llt = [];
-    lo.map((mo) => mo.interioreObstructionum.liberTransactions).forEach(llt.addAll);
+    lo.map((mo) => mo.interiore.liberTransactions).forEach(llt.addAll);
     List<String> llti = [];
-    llt.map((mlt) => mlt.interioreTransactio.identitatis).forEach(llti.add); 
-    if (!interioreObstructionum.liberTransactions.every(
-      (elt) => elt.interioreTransactio.inputs.every(
+    llt.map((mlt) => mlt.interiore.identitatis).forEach(llti.add); 
+    if (!interiore.liberTransactions.every(
+      (elt) => elt.interiore.inputs.every(
         (ei) => llti.any((alti) => ei.transactioIdentitatis == alti) || 
-        interioreObstructionum.liberTransactions.any((alt) => alt.interioreTransactio.identitatis == ei.transactioIdentitatis)))) {
+        interiore.liberTransactions.any((alt) => alt.interiore.identitatis == ei.transactioIdentitatis)))) {
       return false;
     }
     List<Transactio> let = [];
-    lo.map((mo) => mo.interioreObstructionum.expressiTransactions).forEach(let.addAll);
+    lo.map((mo) => mo.interiore.expressiTransactions).forEach(let.addAll);
     List<String> leti = [];
-    let.map((met) => met.interioreTransactio.identitatis).forEach(leti.add);
-    if (!interioreObstructionum.expressiTransactions.every(
-      (eet) => eet.interioreTransactio.inputs.every(
+    let.map((met) => met.interiore.identitatis).forEach(leti.add);
+    if (!interiore.expressiTransactions.every(
+      (eet) => eet.interiore.inputs.every(
         (ei) => leti.any((aeti) => ei.transactioIdentitatis == aeti) || 
         llti.any((alti) =>  ei.transactioIdentitatis == alti) || 
-        interioreObstructionum.liberTransactions.any((alt) => ei.transactioIdentitatis == alt.interioreTransactio.identitatis) ||
-        interioreObstructionum.expressiTransactions.any((aet) => ei.transactioIdentitatis == aet.interioreTransactio.identitatis)))) {
+        interiore.liberTransactions.any((alt) => ei.transactioIdentitatis == alt.interiore.identitatis) ||
+        interiore.expressiTransactions.any((aet) => ei.transactioIdentitatis == aet.interiore.identitatis)))) {
           return false;
     }
     List<Transactio> lft = [];
-    lo.map((mo) => mo.interioreObstructionum.fixumTransactions).forEach(lft.addAll);
+    lo.map((mo) => mo.interiore.fixumTransactions).forEach(lft.addAll);
     List<String> lfti = [];
-    lft.map((mft) => mft.interioreTransactio.identitatis).forEach(lfti.add);
-    if (!interioreObstructionum.fixumTransactions.every(
-      (eft) => eft.interioreTransactio.inputs.every(
+    lft.map((mft) => mft.interiore.identitatis).forEach(lfti.add);
+    if (!interiore.fixumTransactions.every(
+      (eft) => eft.interiore.inputs.every(
         (ei) => lfti.any((afti) => ei.transactioIdentitatis == afti) ||
-        interioreObstructionum.fixumTransactions.any((aft) => aft.interioreTransactio.identitatis == ei.transactioIdentitatis)))) {
+        interiore.fixumTransactions.any((aft) => aft.interiore.identitatis == ei.transactioIdentitatis)))) {
           return false;
         }
     return true;
@@ -1057,15 +1034,15 @@ class Obstructionum {
   Future<bool> convalidandumObsturcutionumNumerus(
       Obstructionum incipio, Obstructionum prioro) async {
     for (int i = 0;
-        i > prioro.interioreObstructionum.obstructionumNumerus.length;
+        i > prioro.interiore.obstructionumNumerus.length;
         i++) {
-      if (interioreObstructionum.obstructionumNumerus.any((eon) =>
-          eon > incipio.interioreObstructionum.numeruCuneosMaximumsOrdinata!)) {
+      if (interiore.obstructionumNumerus.any((eon) =>
+          eon > incipio.interiore.numeruCuneosMaximumsOrdinata!)) {
         return false;
       }
-      if (!interioreObstructionum.obstructionumNumerus.every((eon) =>
+      if (!interiore.obstructionumNumerus.every((eon) =>
           eon <=
-          incipio.interioreObstructionum.numeruCuneosMaximumsOrdinata!)) {
+          incipio.interiore.numeruCuneosMaximumsOrdinata!)) {
         return false;
       }
     }
@@ -1075,7 +1052,7 @@ class Obstructionum {
   // Future<List<SiRemotionemOutput>> inconsumptusRemotionems(
   //     List<Obstructionum> lo) async {
   //   List<SiRemotionem> lsr = [];
-  //   lo.map((mo) => mo.interioreObstructionum.siRemotiones).forEach(lsr.addAll);
+  //   lo.map((mo) => mo.interiore.siRemotiones).forEach(lsr.addAll);
   //   List<SiRemotionemOutput?> lsro = [];
   //   lsr
   //       .map((msr) => msr.interioreSiRemotionem.siRemotionemOutput)
@@ -1093,9 +1070,9 @@ class Obstructionum {
 
   static Future removereUltimumObstructionum(Directory directorium) async {
     Obstructionum prioro = await Obstructionum.acciperePrior(directorium);
-    if (prioro.interioreObstructionum.obstructionumNumerus
+    if (prioro.interiore.obstructionumNumerus
         .any((aon) => aon == 0)) {
-      File('${directorium.path}/${Constantes.caudices}${prioro.interioreObstructionum.obstructionumNumerus.length - 1}.txt')
+      File('${directorium.path}/${Constantes.caudices}${prioro.interiore.obstructionumNumerus.length - 1}.txt')
           .deleteSync();
     } else {
       File f = File(
@@ -1110,44 +1087,54 @@ class Obstructionum {
       s.close();
     }
   }
-
+  
+  Future<bool> convalidandumRationibus(List<Obstructionum> lo) async {
+    List<Propter> lnp = [];
+    interiore.gladiator.interiore.outputs.map((e) => e.rationibus).forEach(lnp.addAll);
+    for (Propter p in lnp) {
+      if (await Pera.isPublicaClavisDefended(p.interiore.publicaClavis, lo)) {
+        Print.nota(nuntius: 'clausus publicas claves iam defendi conatur defendere', message: 'block tries to defend public keys that already are defended');
+        return false;
+      }
+    }
+    return true;
+  }
 
   bool convalidandumExpressiMoles() {
     List<Iterable<Transactio>> lllt = [];
     List<String> lltiti = [];
     int counter = 0;
-    for (Transactio t in interioreObstructionum.liberTransactions.reversed.where((wlt) => wlt.interioreTransactio.transactioSignificatio == TransactioSignificatio.regularis && !lltiti.contains(wlt.interioreTransactio.identitatis))) {
+    for (Transactio t in interiore.liberTransactions.reversed.where((wlt) => wlt.interiore.transactioSignificatio == TransactioSignificatio.regularis && !lltiti.contains(wlt.interiore.identitatis))) {
       List<Transactio> llt = [];
       llt.add(t);
-      lltiti.add(t.interioreTransactio.identitatis);
-      Transactio? rt = interioreObstructionum.liberTransactions.singleWhereOrNull((swonlt) => t.interioreTransactio.inputs.any((ai) => ai.transactioIdentitatis == swonlt.interioreTransactio.identitatis));
+      lltiti.add(t.interiore.identitatis);
+      Transactio? rt = interiore.liberTransactions.singleWhereOrNull((swonlt) => t.interiore.inputs.any((ai) => ai.transactioIdentitatis == swonlt.interiore.identitatis));
       counter++;
       while (rt != null) {
         counter++;
         llt.add(rt);
-        lltiti.add(rt.interioreTransactio.identitatis);
-        rt = interioreObstructionum.liberTransactions.singleWhereOrNull((swonlt) => rt!.interioreTransactio.inputs.any((ai) => ai.transactioIdentitatis == swonlt.interioreTransactio.identitatis));
+        lltiti.add(rt.interiore.identitatis);
+        rt = interiore.liberTransactions.singleWhereOrNull((swonlt) => rt!.interiore.inputs.any((ai) => ai.transactioIdentitatis == swonlt.interiore.identitatis));
       }
       lllt.add(llt.reversed);
     }
     List<TransactioInput> leti = [];
-    interioreObstructionum.expressiTransactions.map((met) => met.interioreTransactio.inputs).forEach(leti.addAll);
-    print('wtffff\n');
-    print('counter $counter');
-    print('expressilength ${interioreObstructionum.expressiTransactions.length}');
-    print('leti ${leti.map((e) => e.toJson())}');
-    // if (counter != interioreObstructionum.expressiTransactions.length || !leti.every((eeti) => interioreObstructionum.liberTransactions.map((mlt) => mlt.interioreTransactio.identitatis).contains(eeti.transactioIdentitatis) || interioreObstructionum.expressiTransactions.any((aet) => aet.interioreTransactio.identitatis == eeti.transactioIdentitatis))) {
-    //     Print.nota(nuntius: 'transactions expressi possunt solum ad current liber transactions', message: 'expressi transactions may only refer to current liber transactions');
-    //   return false;
-    // }
+    interiore.expressiTransactions.map((met) => met.interiore.inputs).forEach(leti.addAll);
+    if (
+      counter != interiore.expressiTransactions.length || 
+      !leti.every((eeti) => interiore.liberTransactions.map((mlt) => mlt.interiore.identitatis).contains(eeti.transactioIdentitatis) || 
+      interiore.expressiTransactions.any((aet) => aet.interiore.identitatis == eeti.transactioIdentitatis))) {
+        Print.nota(nuntius: 'transactions expressi possunt solum ad current liber transactions', message: 'expressi transactions may only refer to current liber transactions');
+      return false;
+    }
     for (List<Transactio> llt in lllt.map((e) => e.toList())) {
       BigInt olpod = BigInt.zero;
-      for (TransactioOutput lto in llt.last.interioreTransactio.outputs.where((wo) => wo.publicaClavis != llt.last.interioreTransactio.dominus)) {
+      for (TransactioOutput lto in llt.last.interiore.outputs.where((wo) => wo.publicaClavis != llt.last.interiore.dominus)) {
         olpod += lto.pod;
       }
-      Transactio? et = interioreObstructionum.expressiTransactions.singleWhere((wet) => wet.interioreTransactio.inputs.any((ai) => ai.transactioIdentitatis == llt.last.interioreTransactio.identitatis));
+      Transactio? et = interiore.expressiTransactions.singleWhere((wet) => wet.interiore.inputs.any((ai) => ai.transactioIdentitatis == llt.last.interiore.identitatis));
       BigInt oepod = BigInt.zero;
-      for (TransactioOutput eto in et.interioreTransactio.outputs.where((wo) => wo.publicaClavis != et!.interioreTransactio.dominus)) {
+      for (TransactioOutput eto in et.interiore.outputs.where((wo) => wo.publicaClavis != et!.interiore.dominus)) {
         oepod += eto.pod;
       }
       if (olpod != oepod) {
@@ -1156,12 +1143,12 @@ class Obstructionum {
       }
       for (int i = llt.length-2; i >= 0; i--) {
         BigInt lpod = BigInt.zero;
-        for (TransactioOutput lto in llt[i].interioreTransactio.outputs.where((wo) => wo.publicaClavis != llt[i].interioreTransactio.dominus)) {
+        for (TransactioOutput lto in llt[i].interiore.outputs.where((wo) => wo.publicaClavis != llt[i].interiore.dominus)) {
           lpod += lto.pod;
         }
-        et = interioreObstructionum.expressiTransactions.singleWhereOrNull((swonet) => swonet.interioreTransactio.inputs.any((ai) => ai.transactioIdentitatis == et!.interioreTransactio.identitatis));
+        et = interiore.expressiTransactions.singleWhereOrNull((swonet) => swonet.interiore.inputs.any((ai) => ai.transactioIdentitatis == et!.interiore.identitatis));
         BigInt epod = BigInt.zero; 
-        for (TransactioOutput eto in et!.interioreTransactio.outputs.where((wo) => wo.publicaClavis != et!.interioreTransactio.dominus)) {
+        for (TransactioOutput eto in et!.interiore.outputs.where((wo) => wo.publicaClavis != et!.interiore.dominus)) {
           epod += eto.pod;
         }
         if (lpod != epod) {

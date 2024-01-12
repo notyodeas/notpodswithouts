@@ -1,12 +1,12 @@
 import 'constantes.dart';
 
 class ObstructionumArma {
-  String defensio;
-  String impetum;
-  ObstructionumArma(this.defensio, this.impetum);
+  List<String> defensio;
+  List<String> impetus;
+  ObstructionumArma(this.defensio, this.impetus);
   Map<String, dynamic> toJson() =>
-      {JSON.defensio: defensio, JSON.impetum: impetum};
+      {JSON.defensio: defensio, JSON.impetus: impetus};
   ObstructionumArma.fromJson(Map<String, dynamic> jsoschon)
-      : defensio = jsoschon[JSON.defensio],
-        impetum = jsoschon[JSON.impetum];
+      : defensio = List<String>.from(jsoschon[JSON.defensio]),
+        impetus = List<String>.from(jsoschon[JSON.impetus]);
 }

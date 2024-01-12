@@ -22,6 +22,14 @@ class InterioreInterioreSolucionisPropter {
   InterioreInterioreSolucionisPropter.fromJson(Map<String, dynamic> map):
   solucionis = map[JSON.solucionis],
   accipientis = map[JSON.accipientis];
+
+  bool nonAccipitEtMittente() {
+    if (accipientis == solucionis) {
+      Print.nota(nuntius: 'accipientium publica clavis idem est ac mittentes publici clavis', message: 'receivers public key is the same as the senders public key');
+      return false;
+    } 
+    return true;
+  }
 }
 class InterioreSolucionisPropter {
   BigInt nonce;
@@ -51,7 +59,7 @@ class InterioreSolucionisPropter {
   }
   bool estValidus(List<Obstructionum> lo) {
     List<SolucionisPropter> lsp = [];
-    lo.map((mo) => mo.interioreObstructionum.solucionisRationibus).forEach(lsp.addAll);
+    lo.map((mo) => mo.interiore.solucionisRationibus).forEach(lsp.addAll);
     if (lsp.any((asp) => asp.interioreSolucionisPropter.interioreInterioreSolucionisPropter.solucionis == interioreInterioreSolucionisPropter.solucionis)) {
       Print.nota(nuntius: 'publica clavem iam usus est ad mercedem rationem', message: 'public key is already used for a payment account');
       return false;
@@ -61,7 +69,7 @@ class InterioreSolucionisPropter {
       return false;
     }
     List<FissileSolucionisPropter> lfsp = [];
-    lo.map((mo) => mo.interioreObstructionum.fissileSolucionisRationibus).forEach(lfsp.addAll);
+    lo.map((mo) => mo.interiore.fissileSolucionisRationibus).forEach(lfsp.addAll);
     if (lfsp.any((afsp) => afsp.interioreFissileSolucionisPropter.interioreInterioreFissileSolucionisPropter.solucionis == interioreInterioreSolucionisPropter.solucionis)) {
       Print.nota(nuntius: 'publica clavem iam usus est ad mercedem rationem', message: 'public key is already used for a payment account');
       return false;
@@ -111,47 +119,57 @@ class SolucionisPropter {
         probationem = HEX.encode(
             sha512.convert(utf8.encode(json.encode(interiore.toJson()))).bytes);
       } while (!probationem.startsWith('0' * zeros));
+      for (int i = zeros + 1; i < probationem.length; i++) {
+        if (probationem.substring(0, i) == ('0' * i)) {
+          zeros += 1;          
+        } else {
+          break;
+        }
+      }
       zeros += 1;
       mitte.send(SolucionisPropter(probationem, interiore));
     }
   }
   static SolucionisPropter accipere(String publica, List<Obstructionum> lo) {
     List<SolucionisPropter> lsp = [];
-    lo.map((mo) => mo.interioreObstructionum.solucionisRationibus).forEach(lsp.addAll);
+    lo.map((mo) => mo.interiore.solucionisRationibus).forEach(lsp.addAll);
     return lsp.singleWhere((swsp) => swsp.interioreSolucionisPropter.interioreInterioreSolucionisPropter.solucionis == publica);
   } 
 }
 class Fixus {
-  bool reliquiae;
-  BigInt? pod;
+  BigInt pod;
   String accipientis;
-  Fixus(this.reliquiae, this.pod, this.accipientis);
+  Fixus(this.pod, this.accipientis);
   Map<String, dynamic> toJson() => {
-    JSON.reliquiae: reliquiae,
-    JSON.pod: pod,
+    JSON.pod: pod.toString(),
     JSON.accipientis: accipientis
-  };
+  }..removeWhere((key, value) => value == null);
   Fixus.fromJson(Map<String, dynamic> map):
-    reliquiae = bool.parse(map[JSON.reliquiae].toString()),
-    pod = map[JSON.pod].toString() == 'null' ? null : BigInt.parse(map[JSON.pod].toString()),
+    pod = BigInt.parse(map[JSON.pod].toString()),
     accipientis = map[JSON.accipientis];
 }
 class InterioreInterioreFissileSolucionisPropter {
   String solucionis;
+  String reliquiae;
   List<Fixus> fixs;
-  BigInt nonce;
-  InterioreInterioreFissileSolucionisPropter(this.solucionis, this.fixs): nonce = BigInt.zero;
+  InterioreInterioreFissileSolucionisPropter(this.solucionis, this.reliquiae, this.fixs);
   Map<String, dynamic> toJson() => {
     JSON.solucionis: solucionis,
-    JSON.fixs: fixs,
-    JSON.nonce: nonce
+    JSON.reliquiae: reliquiae,
+    JSON.fixs: fixs.map((mf) => mf.toJson()).toList()
   };
   InterioreInterioreFissileSolucionisPropter.fromJson(Map<String, dynamic> map):
     solucionis = map[JSON.solucionis],
-    fixs = List<Fixus>.from((map[JSON.fixs] as List<dynamic>).map((f) => Fixus.fromJson(f as Map<String, dynamic>))),
-    nonce = BigInt.parse(map[JSON.nonce].toString());
+    reliquiae = map[JSON.reliquiae],
+    fixs = List<Fixus>.from((map[JSON.fixs] as List<dynamic>).map((f) => Fixus.fromJson(f as Map<String, dynamic>)));
 
-  
+  bool nonAccipitEtMittente() {
+    if (fixs.any((af) => af.accipientis == solucionis) || solucionis == reliquiae) {
+      Print.nota(nuntius: 'accipientium publica clavis idem est ac mittentes publici clavis', message: 'receivers public key is the same as the senders public key');
+      return false;
+    }
+    return true;
+  }
 }
 class InterioreFissileSolucionisPropter {
   BigInt nonce;
@@ -159,7 +177,7 @@ class InterioreFissileSolucionisPropter {
   InterioreInterioreFissileSolucionisPropter interioreInterioreFissileSolucionisPropter;
   InterioreFissileSolucionisPropter(PrivateKey privatus, this.interioreInterioreFissileSolucionisPropter): nonce = BigInt.zero, signature = Utils.signum(privatus, interioreInterioreFissileSolucionisPropter);
   Map<String, dynamic> toJson() => {
-    JSON.nonce: nonce,
+    JSON.nonce: nonce.toString(),
     JSON.signature: signature,
     JSON.interioreInterioreFissileSolucionisPropter: interioreInterioreFissileSolucionisPropter.toJson()
   };
@@ -178,7 +196,7 @@ class InterioreFissileSolucionisPropter {
 
   bool estValidus(List<Obstructionum> lo) {
     List<SolucionisPropter> lsp = [];
-    lo.map((mo) => mo.interioreObstructionum.solucionisRationibus).forEach(lsp.addAll);
+    lo.map((mo) => mo.interiore.solucionisRationibus).forEach(lsp.addAll);
     if (lsp.any((asp) => asp.interioreSolucionisPropter.interioreInterioreSolucionisPropter.solucionis == interioreInterioreFissileSolucionisPropter.solucionis)) {
       Print.nota(nuntius: 'publica clavem iam usus est ad mercedem rationem', message: 'public key is already used for a payment account');
       return false;
@@ -188,7 +206,7 @@ class InterioreFissileSolucionisPropter {
       return false;
     }
     List<FissileSolucionisPropter> lfsp = [];
-    lo.map((mo) => mo.interioreObstructionum.fissileSolucionisRationibus).forEach(lfsp.addAll);
+    lo.map((mo) => mo.interiore.fissileSolucionisRationibus).forEach(lfsp.addAll);
     if (lfsp.any((afsp) => afsp.interioreFissileSolucionisPropter.interioreInterioreFissileSolucionisPropter.solucionis == interioreInterioreFissileSolucionisPropter.solucionis)) {
       Print.nota(nuntius: 'publica clavem iam usus est ad mercedem rationem', message: 'public key is already used for a payment account');
       return false;
@@ -283,8 +301,20 @@ class FissileSolucionisPropter {
         probationem = HEX.encode(
             sha512.convert(utf8.encode(json.encode(interiore.toJson()))).bytes);
       } while (!probationem.startsWith('0' * zeros));
+      for (int i = zeros + 1; i < probationem.length; i++) {
+        if (probationem.substring(0, i) == ('0' * i)) {
+          zeros += 1;          
+        } else {
+          break;
+        }
+      }
       zeros += 1;
       mitte.send(FissileSolucionisPropter(probationem, interiore));
     }
   }
+  static FissileSolucionisPropter accipere(String publica, List<Obstructionum> lo) {
+    List<FissileSolucionisPropter> lfsp = [];
+    lo.map((mo) => mo.interiore.fissileSolucionisRationibus).forEach(lfsp.addAll);
+    return lfsp.singleWhere((swsp) => swsp.interioreFissileSolucionisPropter.interioreInterioreFissileSolucionisPropter.solucionis == publica);
+  } 
 }

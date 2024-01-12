@@ -363,3 +363,26 @@ if the fissile paymnt account referes a payment account could it bypass a limit 
 
 
 expressi block miner should throw error if the block is not mined on top of an efectus
+
+
+het is van belang bij het submitten van een si remotionem om te kijken of er geen iritatransactio of id in the pool alleen is
+ipv alleen in het blok voor dat je een tx zijn proof opnieuw kunt gebruiken ofjja zijn siremotionem
+
+
+alle interiore blabla inaar alleen interiore
+
+check for each regularis tx if it aint a solucionus account
+
+
+how about submmitting 4 txs and only the first one has searched for leading zeros and the other 3 will be ignored? aint no problem tho
+and solucionis doesnt require signature from receiver
+
+valideer aantal defences per block check ook ff het kopen van een confussus en of expressi defence en of alles werkt
+
+
+
+maxime aantal objecten in blok misschien per output van tx -1 ipv gehele tx -1
+
+worden bij confussus en expressi wel op attacks and defences gecontroleerd
+
+als je forkt staat est-furca vaak op true hoe weet je dat jij het blok hebt vervangen en dat je est furca terug moet naar false

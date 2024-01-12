@@ -1,21 +1,18 @@
 import '../constantes.dart';
 
-class InimicusVelVictima {
-  bool? primis;
-  String? gladiatorIdentitatis;
-  InimicusVelVictima.fromJson(Map<String, dynamic> map)
+class Victima {
+  bool primis;
+  String identitatis;
+  Victima.fromJson(Map<String, dynamic> map)
       : primis = bool.parse(map[JSON.primis].toString()),
-        gladiatorIdentitatis = map[JSON.gladiatorIdentitatis];
+        identitatis = map[JSON.identitatis];
 }
 
 class IncipitPugna {
-  InimicusVelVictima? inimicus;
-  InimicusVelVictima? victima;
-  String? privatusClavis;
+  String ex;
+  Victima victima;
   IncipitPugna.fromJson(Map<String, dynamic> map)
-      : inimicus = InimicusVelVictima.fromJson(
-            map[JSON.inimicus] as Map<String, dynamic>),
-        victima = InimicusVelVictima.fromJson(
-            map[JSON.victima] as Map<String, dynamic>),
-        privatusClavis = map[JSON.privatusClavis];
+      : ex = map[JSON.ex],
+        victima = Victima.fromJson(
+            map[JSON.victima] as Map<String, dynamic>);
 }

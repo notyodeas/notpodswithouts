@@ -5,6 +5,7 @@ import 'dart:isolate';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 
+import '../exempla/constantes.dart';
 import '../exempla/errors.dart';
 import '../exempla/obstructionum.dart';
 import '../exempla/pera.dart';
@@ -21,35 +22,40 @@ Future<Response> profundumRetribuere(Request req) async {
     List<Obstructionum> lo = await Obstructionum.getBlocks(
         Directory('vincula/${argumentis!.obstructionumDirectorium}'));
     List<SiRemotionem> lsr = [];
-    lo.map((mo) => mo.interioreObstructionum.siRemotiones).forEach(lsr.addAll);
+    lo.map((mo) => mo.interiore.siRemotiones).forEach(lsr.addAll);
     SiRemotionem sr = lsr.singleWhere((swsr) =>
-        swsr.interioreSiRemotionem.identitatisInterioreSiRemotionem ==
-        rp.identitatis);
-    if (!await Pera.isPublicaClavisDefended(sr.interioreSiRemotionem.siRemotionemOutput!.habereIus, lo)) {
+        swsr.interiore.signatureInterioreSiRemotionem ==
+        rp.signature);
+    if (!await Pera.isPublicaClavisDefended(sr.interiore.siRemotionemOutput!.habereIus, lo)) {
       return Response.badRequest(
           body: json.encode(BadRequest(
                   code: 1,
-                  nuntius: 'accipientis non defenditur',
-                  message: 'public key is not defended')
+                  nuntius: 'clavem publicam quae inscribitur non defenditur',
+                  message: 'public key of the entitled is not defended')
               .toJson()));
     }
-    List<Transactio> stagnum = par!.liberTransactions;
+    PrivateKey pk = PrivateKey.fromHex(Pera.curve(), rp.ex);
+    PublicKey publica = PublicKey.fromHex(Pera.curve(), pk.publicKey.toHex());
+    BigInt limit = Pera.habetBid(true, publica.toHex(), lo);
+    if (sr.interiore.siRemotionemOutput!.pod > limit) {
+      return Response.badRequest(body: json.encode(BadRequest(code: 2, nuntius: 'non plus pecuniae tum modus $limit POD', message: 'can not spend more money then your limit of $limit POD')));
+    }
     SiRemotionemInput sri = SiRemotionemInput(
-        Utils.signum(PrivateKey.fromHex(Pera.curve(), rp.ex!), sr.interioreSiRemotionem),
-        rp.identitatis!,
+        Utils.signum(PrivateKey.fromHex(Pera.curve(), rp.ex), sr.interiore),
+        rp.signature,
         await Pera.novamRem(
             necessitudo: false,
-            liber: sr.interioreSiRemotionem.siRemotionemOutput!.liber,
+            liber: sr.interiore.siRemotionemOutput!.liber,
             twice: true,
             ts: TransactioSignificatio.refugium,
-            ex: rp.ex!,
-            value: sr.interioreSiRemotionem.siRemotionemOutput!.pod,
-            to: sr.interioreSiRemotionem.siRemotionemOutput!.habereIus,
-            transactioStagnum: stagnum,
+            ex: rp.ex,
+            value: sr.interiore.siRemotionemOutput!.pod,
+            to: sr.interiore.siRemotionemOutput!.habereIus,
+            transactioStagnum: [],
             lo: lo));
     ReceivePort receivePort = ReceivePort();
     isolates.siRemotionemIsolates[
-            sr.interioreSiRemotionem.identitatisInterioreSiRemotionem] =
+            sr.interiore.signatureInterioreSiRemotionem!] =
         await Isolate.spawn(
             SiRemotionem.quaestum,
             List<dynamic>.from(
@@ -66,8 +72,21 @@ Future<Response> profundumRetribuere(Request req) async {
   }
 }
 
-Future<Response> profundumDebita(Request req) async {
-  return Response.ok({});
+Future<Response> profundumDebitaHabereIus(Request req) async {
+  bool debita = bool.parse(req.params['debita']!);
+  String ex = req.params['ex']!;
+  Directory directorium = Directory('${Constantes.vincula}/${argumentis!.obstructionumDirectorium}');
+  List<Obstructionum> lo = await Obstructionum.getBlocks(directorium);
+  Iterable<SiRemotionem> lsr = SiRemotionem.debitaHabereIus(debita, ex, lo);
+  return Response.ok(json.encode(lsr.map((mlsr) => mlsr.toJson()).toList()));
+}
+
+Future<Response> profundumProfundis(Request req) async {
+  Directory directorium = Directory('${Constantes.vincula}/${argumentis!.obstructionumDirectorium}');
+  List<Obstructionum> lo = await Obstructionum.getBlocks(directorium);
+  List<SiRemotionemOutput> lsr = [];
+  lo.map((mlo) => mlo.interiore.siRemotiones.where((wsr) => wsr.interiore.siRemotionemOutput != null).map((msr) => msr.interiore.siRemotionemOutput!)).forEach(lsr.addAll);
+  return Response.ok(json.encode(lsr.map((e) => e.toJson()).toList()));
 }
 
 // Future<Response> profundumProfundums(Request req) async {

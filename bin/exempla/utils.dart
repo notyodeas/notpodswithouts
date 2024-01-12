@@ -6,9 +6,6 @@ import './gladiator.dart';
 import 'package:elliptic/elliptic.dart';
 import './transactio.dart';
 import 'package:ecdsa/ecdsa.dart';
-import './constantes.dart';
-import './obstructionum.dart';
-import './errors.dart';
 import 'connexa_liber_expressi.dart';
 import 'solucionis_propter.dart';
 
@@ -27,6 +24,8 @@ class Utils {
       signature(privateKey, utf8.encode(json.encode(output.toJson())))
           .toASN1Hex();
 
+  static String signumIdentitatis(PrivateKey privateKey, String identitatis) => 
+      signature(privateKey, utf8.encode(identitatis)).toASN1Hex();
   static bool cognoscereVictusGladiator(PublicKey publicaClavis,
           Signature signature, GladiatorOutput gladiatorOutput) =>
       verify(publicaClavis, utf8.encode(json.encode(gladiatorOutput.toJson())),
@@ -39,6 +38,9 @@ class Utils {
   static bool cognoscereConnexaLiberExpressi(PublicKey publicaClavis,
           Signature signature, InterioreConnexaLiberExpressi icle) =>
       verify(publicaClavis, utf8.encode(json.encode(icle.toJson())), signature);
+
+  static bool cognoscereIdentitatis(PublicKey publicaClavis, Signature signature, String identitatis) => 
+      verify(publicaClavis, utf8.encode(identitatis), signature);
   static bool cognoscereTransform(
           PublicKey publicaClavis, Signature signature, TransactioInput ti) =>
       verify(publicaClavis, utf8.encode(json.encode(ti.toJson())), signature);

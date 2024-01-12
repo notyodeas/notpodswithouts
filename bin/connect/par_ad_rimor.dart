@@ -8,6 +8,7 @@ import 'package:hex/hex.dart';
 import '../auxiliatores/print.dart';
 import '../exempla/connexa_liber_expressi.dart';
 import '../exempla/constantes.dart';
+import '../exempla/errors.dart';
 import '../exempla/gladiator.dart';
 import '../exempla/obstructionum.dart';
 import '../exempla/pera.dart';
@@ -300,28 +301,55 @@ class RemoveByIdentitatumPervideasNuntius extends PervideasNuntius {
         PervideasNuntiusCasibus.accepit: accepit
   };
 }
-class RemoveTransactionsPervideasNuntius extends PervideasNuntius {
-  TransactioGenus transactioGenus;
-  List<String> identitatum;
-  RemoveTransactionsPervideasNuntius(
-      this.transactioGenus, this.identitatum, String titulust, List<String> accepit)
-      : super(titulust, accepit);
-  RemoveTransactionsPervideasNuntius.ex(Map<String, dynamic> nuntius)
-      : transactioGenus =
-            TransactioGenusFromJson.fromJson(nuntius[PervideasNuntiusCasibus.transactioGenus])
-                as TransactioGenus,
-        identitatum = List<String>.from(
-            nuntius[PervideasNuntiusCasibus.identitatum] as List<dynamic>),
-        super.ex(nuntius);
+// class RemoveTransactionsPervideasNuntius extends PervideasNuntius {
+//   TransactioGenus transactioGenus;
+//   List<String> identitatum;
+//   RemoveTransactionsPervideasNuntius(
+//       this.transactioGenus, this.identitatum, String titulust, List<String> accepit)
+//       : super(titulust, accepit);
+//   RemoveTransactionsPervideasNuntius.ex(Map<String, dynamic> nuntius)
+//       : transactioGenus =
+//             TransactioGenusFromJson.fromJson(nuntius[PervideasNuntiusCasibus.transactioGenus])
+//                 as TransactioGenus,
+//         identitatum = List<String>.from(
+//             nuntius[PervideasNuntiusCasibus.identitatum] as List<dynamic>),
+//         super.ex(nuntius);
+//   @override
+//   Map<String, dynamic> indu() => {
+//     PervideasNuntiusCasibus.transactioGenus: transactioGenus.name.toString(),
+//     PervideasNuntiusCasibus.identitatum: identitatum,
+//     PervideasNuntiusCasibus.titulus: titulus,
+//     PervideasNuntiusCasibus.accepit: accepit
+//   };
+// }
+
+class InritaTransactioPervideasNuntius extends PervideasNuntius {
+  InterioreInritaTransactio interiore;
+  InritaTransactioPervideasNuntius(this.interiore, String titulus, List<String> accepit): super(titulus, accepit);
+  
+  InritaTransactioPervideasNuntius.ex(Map<String, dynamic> nuntius): interiore = InterioreInritaTransactio.fromJson(nuntius[PervideasNuntiusCasibus.interiore]), super.ex(nuntius);
+  
   @override
   Map<String, dynamic> indu() => {
-    PervideasNuntiusCasibus.transactioGenus: transactioGenus.name.toString(),
-    PervideasNuntiusCasibus.identitatum: identitatum,
+    PervideasNuntiusCasibus.interiore: interiore.toJson(),
     PervideasNuntiusCasibus.titulus: titulus,
     PervideasNuntiusCasibus.accepit: accepit
   };
 }
+class NeTransactioPervideasNuntius extends PervideasNuntius {
+  InritaTransactio it;
+  NeTransactioPervideasNuntius(this.it, String titulus, List<String> accepit): super(titulus, accepit);
 
+  NeTransactioPervideasNuntius.ex(Map<String, dynamic> nuntius):
+    it = InritaTransactio.fromJson(nuntius[PervideasNuntiusCasibus.it] as Map<String, dynamic>), super.ex(nuntius);
+  
+  @override
+  Map<String, dynamic> indu() => {
+    PervideasNuntiusCasibus.it: it.toJson(),
+    PervideasNuntiusCasibus.titulus: titulus,
+    PervideasNuntiusCasibus.accepit: accepit
+  };
+}
 class SumoTransactionsPervideasNuntius extends PervideasNuntius {
   TransactioGenus transactioGenus;
   List<String> identitatum;
@@ -368,7 +396,7 @@ class PetitioObstructionumPervideasNuntius extends PervideasNuntius {
         super.ex(nuntius);
   @override
   Map<String, dynamic> indu() => {
-        PervideasNuntiusCasibus.numerus: probationem,
+        PervideasNuntiusCasibus.probationem: probationem,
         PervideasNuntiusCasibus.titulus: titulus,
         PervideasNuntiusCasibus.accepit: accepit,
       };
@@ -499,6 +527,12 @@ class SatusFurcaPropagationemPervideasNuntius extends PervideasNuntius {
       };
 }
 
+class QueueItem  {
+  Socket clientis;
+  String msg;
+  QueueItem(this.clientis, this.msg);
+}
+
 class ParAdRimor {
   bool isSalvare = false;
   bool isRemove = false;
@@ -517,6 +551,7 @@ class ParAdRimor {
   List<Transactio> liberTransactions = [];
   List<Transactio> fixumTransactions = [];
   List<Transactio> expressiTransactions = [];
+  List<InritaTransactio> inritaTransactions = [];
   List<SiRemotionem> siRemotiones = [];
   List<ConnexaLiberExpressi> connexiaLiberExpressis = [];
   List<SolucionisPropter> solucionisRationibus = [];
@@ -525,7 +560,7 @@ class ParAdRimor {
   List<Obstructionum> tridentes = [];
   List<Isolate> syncBlocks = [];
 
-  List<String> epistulae = [];
+  List<QueueItem> epistulae = [];
   bool occupatus = false;
   ParAdRimor(this.maxPares, this.ip, this.directorium);
 
@@ -534,29 +569,37 @@ class ParAdRimor {
     ServerSocket serverNervum =
         await ServerSocket.bind(sip[0], int.parse(sip[1]));
     serverNervum.listen((clientis) {
-      utf8.decoder.bind(clientis).listen((nuntius) async {
+      utf8.decoder.bind(clientis).listen((eventus) async {
         Print.nota(
             nuntius: 'pervideas ut pari servo suscepit nuntium on $ip',
             message: 'peer to peer server recieved a message on $ip');
-        epistulae.add(nuntius);
-        print('contentofmsginpool $nuntius');
-        print('fifo ${epistulae.first}');
-        while (occupatus || isSalvare) {
+        print('with msg \n $eventus');
+        epistulae.add(QueueItem(clientis, eventus));
+        bool pass = false;
+        while(!occupatus) {
+          while (occupatus) {
+            await Future.delayed(Duration(seconds: 1));
+          }        
+          if (!pass)  {
+            pass = true;
+            break;
+          } 
+        }
+        while (isSalvare) {
           await Future.delayed(Duration(seconds: 1));
         }
         occupatus = true;
-        String eventus = epistulae.removeAt(0);
+        QueueItem qi = epistulae.removeAt(0);
+        print('\n okey lets work on this message \n \n ${qi.msg} ');
+        // print('nextmsg \n $eventus');
         PervideasNuntius pn =
-            PervideasNuntius.ex(json.decode(eventus) as Map<String, dynamic>);
-        // while (isSalvare) {
-        //   await Future.delayed(Duration(milliseconds: 100));
-        // }
+            PervideasNuntius.ex(json.decode(qi.msg) as Map<String, dynamic>);
         switch (pn.titulus) {
           case PervideasNuntiusTitulus.connectTaberNodi: {
             UnaBasesSingulasPervideasNuntius ubs =
               UnaBasesSingulasPervideasNuntius.ex(
-                  json.decode(eventus) as Map<String, dynamic>);
-            clientis.write(json.encode(InConnectPervideasNuntius(
+                  json.decode(qi.msg) as Map<String, dynamic>);
+            qi.clientis.write(json.encode(InConnectPervideasNuntius(
                 bases: bases,
                 rationibus: rationibus,
                 liberTansactions: liberTransactions,
@@ -579,13 +622,13 @@ class ParAdRimor {
                 ip != ubs.nervus) {
               bases.add(ubs.nervus);
             }
-            clientis.destroy();
+            qi.clientis.destroy();
             break;
           }
           case PervideasNuntiusTitulus.singleSocket: {
             UnaBasesSingulasPervideasNuntius ubs =
               UnaBasesSingulasPervideasNuntius.ex(
-                  json.decode(eventus) as Map<String, dynamic>);
+                  json.decode(qi.msg) as Map<String, dynamic>);
             if (bases.length < maxPares && ubs.nervus != ip) {
               bases.add(ubs.nervus);
             }
@@ -600,18 +643,18 @@ class ParAdRimor {
                       nervuss, PervideasNuntiusTitulus.singleSocket, ubs.accepit)
                   .indu()));
             }
-            clientis.destroy();
+            qi.clientis.destroy();
             break;
           }
           case PervideasNuntiusTitulus.petitioObstructionumIncipio: {
             PetitioObstructionumIncipioPervideasNuntius poipn =
               PetitioObstructionumIncipioPervideasNuntius.ex(
-                  json.decode(eventus) as Map<String, dynamic>);
+                  json.decode(qi.msg) as Map<String, dynamic>);
             List<Obstructionum> obss = await Obstructionum.getBlocks(directorium);
             if (!poipn.accepit.contains(ip)) {
               poipn.accepit.add(ip);
             }
-            clientis.write(json.encode(ObstructionumReponereUnaPervideasNuntius(
+            qi.clientis.write(json.encode(ObstructionumReponereUnaPervideasNuntius(
                     obss[0],
                     PervideasNuntiusTitulus.obstructionumReponereUna,
                     poipn.accepit)
@@ -622,20 +665,20 @@ class ParAdRimor {
           case PervideasNuntiusTitulus.petitioObstructionum: {
             PetitioObstructionumPervideasNuntius popn =
               PetitioObstructionumPervideasNuntius.ex(
-                  json.decode(eventus) as Map<String, dynamic>);
+                  json.decode(qi.msg) as Map<String, dynamic>);
             List<Obstructionum> obss = await Obstructionum.getBlocks(directorium);
             Obstructionum? obs = obss.singleWhereOrNull((element) =>
-                element.interioreObstructionum.priorProbationem ==
+                element.interiore.priorProbationem ==
                 popn.probationem);
             if (obs == null) {
               Obstructionum obsr = await Obstructionum.acciperePrior(directorium);
-              clientis.write(json.encode(SummaScandalumExNodoPervideasNuntius(
-                  obsr.interioreObstructionum.obstructionumNumerus,
+              qi.clientis.write(json.encode(SummaScandalumExNodoPervideasNuntius(
+                  obsr.interiore.obstructionumNumerus,
                   PervideasNuntiusTitulus.summaScandalumExNodo, []).indu()));
-              clientis.destroy();
+              qi.clientis.destroy();
               print('ididdestroymyclient!');
             } else {
-              clientis.write(json.encode(ObstructionumReponereUnaPervideasNuntius(
+              qi.clientis.write(json.encode(ObstructionumReponereUnaPervideasNuntius(
                       obs, PervideasNuntiusTitulus.obstructionumReponereUna, [])
                   .indu()));
             }
@@ -643,18 +686,41 @@ class ParAdRimor {
           }
           case PervideasNuntiusTitulus.propter: {
             PropterPervideasNuntius ppn = PropterPervideasNuntius.ex(
-              json.decode(eventus) as Map<String, dynamic>);
+              json.decode(qi.msg) as Map<String, dynamic>);
+            List<Obstructionum> lo = await Obstructionum.getBlocks(directorium);
+            if (await Pera.isPublicaClavisDefended(ppn.propter.interiore.publicaClavis, lo)) {
+              print('wrotehere');
+              Print.nota(nuntius: 'Publica clavis iam defendi', message: 'Public key  already defended');
+              break;
+            }
             if (ppn.propter.probationem ==
                 HEX.encode(sha512
                     .convert(utf8.encode(
-                        json.encode(ppn.propter.interiorePropter.toJson())))
+                        json.encode(ppn.propter.interiore.toJson())))
                     .bytes)) {
               if (rationibus.any((p) =>
-                  p.interiorePropter.identitatis ==
-                  ppn.propter.interiorePropter.identitatis)) {
+                  p.interiore.publicaClavis ==
+                  ppn.propter.interiore.publicaClavis)) {
+                Propter p = rationibus.singleWhere((swp) => swp.interiore.publicaClavis == ppn.propter.interiore.publicaClavis);
+                int zerosOld = 0;
+                for (int i = 1; i < p.probationem.length; i++) {
+                  if (p.probationem.substring(0, i) == ('0' * i)) {
+                    zerosOld += 1;
+                  }
+                }
+                int zerosNew = 0;
+                for (int i = 1; i < ppn.propter.probationem.length; i++) {
+                  if (ppn.propter.probationem.substring(0, i) == ('0' * i)) {
+                    zerosNew += 1;
+                  }
+                }
+                if (zerosNew <= zerosOld) {
+                  Print.nota(nuntius: 'ius non habes hanc rationem reponere in rationibus piscinae', message: 'you do not have the right to replace this account in the accounts pool');
+                  break;
+                }
                 rationibus.removeWhere((p) =>
-                    p.interiorePropter.identitatis ==
-                    ppn.propter.interiorePropter.identitatis);
+                    p.interiore.publicaClavis ==
+                    ppn.propter.interiore.publicaClavis);
               }
               rationibus.add(ppn.propter);
               if (!ppn.accepit.contains(ip)) {
@@ -669,37 +735,53 @@ class ParAdRimor {
                         ppn.propter, PervideasNuntiusTitulus.propter, ppn.accepit)
                     .indu()));
               }
-              clientis.destroy();
+              qi.clientis.destroy();
             }
             break;
           }
           case PervideasNuntiusTitulus.prepareObstructionumSync: {
             List<String> albumBases = bases;
             albumBases.removeWhere((lb) => pn.accepit.contains(lb));
-            clientis.write(json.encode(PrepareObstructionumAnswerPervideasNuntius(
+            qi.clientis.write(json.encode(PrepareObstructionumAnswerPervideasNuntius(
                 albumBases,
                 PervideasNuntiusTitulus.prepareObstructionumAnswer, [])));
-            clientis.destroy();
+            qi.clientis.destroy();
             break;
           }
           case PervideasNuntiusTitulus.liberTransactio: {
             LiberTransactioPervideasNuntius ltpn =
               LiberTransactioPervideasNuntius.ex(
-                  json.decode(eventus) as Map<String, dynamic>);
+                  json.decode(qi.msg) as Map<String, dynamic>);
             List<Obstructionum> lo = await Obstructionum.getBlocks(directorium);
             List<Transactio> ltc = List<Transactio>.from(liberTransactions.map((mlt) => Transactio.fromJson(mlt.toJson())));
             ltc.add(ltpn.transactio);
             if (await convalidandumLiber(ltc, lo)) {
               if (liberTransactions.any((alt) =>
-                  alt.interioreTransactio.identitatis ==
-                  ltpn.transactio.interioreTransactio.identitatis)) {
-                print('didhadtoremove');
+                  alt.interiore.identitatis ==
+                  ltpn.transactio.interiore.identitatis)) {
+                Transactio lt = liberTransactions.singleWhere((swlt) => swlt.interiore.identitatis == ltpn.transactio.interiore.identitatis);
+                int zerosOld = 0;
+                for (int i = 1; i < lt.probationem.length; i++) {
+                  if (lt.probationem.substring(0, i) == ('0' * i)) {
+                    zerosOld += 1;
+                  }
+                }
+                int zerosNew = 0;
+                for (int i = 1; i < ltpn.transactio.probationem.length; i++) {
+                  if (ltpn.transactio.probationem.substring(0, i) == ('0' * i)) {
+                    zerosNew += 1;
+                  }
+                }
+                if (zerosNew <= zerosOld) {
+                  Print.nota(nuntius: 'non habes ius pro hac re in transactione piscinae', message: 'you do not have the right to replace this transaction in the transaction pool');
+                  break;
+                }
                 liberTransactions.removeWhere((rwlt) =>
-                    rwlt.interioreTransactio.identitatis ==
-                    ltpn.transactio.interioreTransactio.identitatis);
+                    rwlt.interiore.identitatis ==
+                    ltpn.transactio.interiore.identitatis);
               }
               liberTransactions.add(ltpn.transactio);
-              // if (!expressiTransactions.any((aet) => aet.interioreTransactio.inputs.any((ei) => ei.transactioIdentitatis == ltpn.transactio.interioreTransactio.identitatis) && (ltpn.transactio.interioreTransactio.transactioSignificatio == TransactioSignificatio.regularis || ltpn.transactio.interioreTransactio.transactioSignificatio == TransactioSignificatio.refugium))) {
+              // if (!expressiTransactions.any((aet) => aet.interiore.inputs.any((ei) => ei.transactioIdentitatis == ltpn.transactio.interiore.identitatis) && (ltpn.transactio.interiore.transactioSignificatio == TransactioSignificatio.regularis || ltpn.transactio.interiore.transactioSignificatio == TransactioSignificatio.refugium))) {
               //   print('ithinkiwrote');
               //   clientis.write(json.encode(PetitioExpressiTransactioPervideasNuntius(PervideasNuntiusTitulus.petitioExpressiTransactio, pn.accepit).indu()));
               // }
@@ -707,6 +789,9 @@ class ParAdRimor {
                 pn.accepit.add(ip);
               }
               syncThrough(TransactioGenus.liber, ltpn.transactio, pn.accepit);
+            } else {
+              Print.nota(nuntius: 'transactionis relativus inventus non est sic, haec transactio ad tergum queue movebitur et postea convalescit', message: 'the refered transaction was not found so this transaction will move to the back of the queue and will be validated later');
+              epistulae.add(QueueItem(qi.clientis, qi.msg));
             }
             break;
           }
@@ -720,11 +805,11 @@ class ParAdRimor {
             //     ftpn.transactio.isFurantur() &&
             //     !ftpn.transactio.validateProbationem() && ftpn.transactio.minusQuamBidInProbationibus(fixumTransactions, lo)) {
             //   if (fixumTransactions.any((aft) =>
-            //       aft.interioreTransactio.identitatis ==
-            //       ftpn.transactio.interioreTransactio.identitatis)) {
+            //       aft.interiore.identitatis ==
+            //       ftpn.transactio.interiore.identitatis)) {
             //     fixumTransactions.removeWhere((rwft) =>
-            //         rwft.interioreTransactio.identitatis ==
-            //         ftpn.transactio.interioreTransactio.identitatis);
+            //         rwft.interiore.identitatis ==
+            //         ftpn.transactio.interiore.identitatis);
             //   }
             //   fixumTransactions.add(ftpn.transactio);
             //   if (!pn.accepit.contains(ip)) {
@@ -735,22 +820,25 @@ class ParAdRimor {
             // break;
           }
           case PervideasNuntiusTitulus.expressiTransactio: {
-        
             ExpressiTransactioPervideasNuntius etpn =
                 ExpressiTransactioPervideasNuntius.ex(
-                    json.decode(eventus) as Map<String, dynamic>);
-            
+                    json.decode(qi.msg) as Map<String, dynamic>);
             List<Obstructionum> lo = await Obstructionum.getBlocks(directorium);
             List<Transactio> stagnum = [];
             stagnum.addAll(liberTransactions);
             stagnum.addAll(expressiTransactions);
             if (await convalidandumLiber(stagnum, lo)) {
               if (expressiTransactions.any((aet) =>
-                  aet.interioreTransactio.identitatis ==
-                  etpn.transactio.interioreTransactio.identitatis)) {
+                  aet.interiore.identitatis ==
+                  etpn.transactio.interiore.identitatis)) {
+                  Transactio tr = expressiTransactions.singleWhere((swet) => swet.interiore.identitatis == etpn.transactio.interiore.identitatis);
+                if (!Utils.cognoscereIdentitatis(PublicKey.fromHex(Pera.curve(), etpn.transactio.interiore.recipiens), Signature.fromASN1Hex(etpn.transactio.interiore.certitudo!), etpn.transactio.interiore.identitatis) && tr.interiore.certitudo == null) {
+                  Print.nota(nuntius: 'Missor huius expressi transactionis ius non habuit in reponendo expressi transactionis nostrae', message: 'the sender of this expressi transaction did not have the right to replace our expressi transaction');
+                  break;
+                }
                 expressiTransactions.removeWhere((rwet) =>
-                    rwet.interioreTransactio.identitatis ==
-                    etpn.transactio.interioreTransactio.identitatis);
+                    rwet.interiore.identitatis ==
+                    etpn.transactio.interiore.identitatis);
               }
               expressiTransactions.add(etpn.transactio);
               if (!pn.accepit.contains(ip)) {
@@ -763,7 +851,7 @@ class ParAdRimor {
           case PervideasNuntiusTitulus.connexaLiberExpressi: {
             ConnexaLiberExpressiPervideasNuntius clepn =
               ConnexaLiberExpressiPervideasNuntius.ex(
-                  json.decode(eventus) as Map<String, dynamic>);
+                  json.decode(qi.msg) as Map<String, dynamic>);
             if (!Utils.cognoscereConnexaLiberExpressi(
                 PublicKey.fromHex(Pera.curve(), clepn.cle.dominus),
                 Signature.fromASN1Hex(clepn.cle.signature),
@@ -789,45 +877,65 @@ class ParAdRimor {
           }
           case PervideasNuntiusTitulus.siRemotionem: {
             SiRemotionemPervideasNuntius srpn = SiRemotionemPervideasNuntius.ex(
-              json.decode(eventus) as Map<String, dynamic>);
-            if (srpn.siRemotionem.interioreSiRemotionem.siRemotionemInput ==
+              json.decode(qi.msg) as Map<String, dynamic>);
+            List<Obstructionum> lo = await Obstructionum.getBlocks(directorium);
+            if (srpn.siRemotionem.interiore.siRemotionemInput ==
                 null) {
               if (srpn.siRemotionem.validateProbationem() &&
-                  srpn.siRemotionem.interioreSiRemotionem.cognoscereOutput() &&
+                  srpn.siRemotionem.interiore.cognoscereOutput() &&
                   await srpn.siRemotionem.remotumEst() &&
-                  await srpn.siRemotionem.nonHabetInitus()) {
+                  await srpn.siRemotionem.nonHabetInitus() &&
+                  srpn.siRemotionem.interiore.siRemotionemOutput!.estTransactionIdentitatisAdhucPraesto(lo, null) &&
+                  !inritaTransactions.any((ait) => ait.interiore.identitatis == srpn.siRemotionem.interiore.siRemotionemOutput!.transactioIdentitatis)) {
                 await siRemotionemSyncThrough(srpn);
                 print('ifvalidated');
-                clientis.destroy();
+                qi.clientis.destroy();
               } else {
                 Print.nota(
                     nuntius:
-                        'Mittens huius obstructionum continet rem probationem turpis rommovetur',
+                        'si remotionem corruptam accepit',
                     message:
-                        'The sender of this contains proof of the fact that it will be removed');
+                        'received corrupt si remotionem');
               }
             } else {
               List<Obstructionum> lo = await Obstructionum.getBlocks(directorium);
               if (
-                srpn.siRemotionem.interioreSiRemotionem.siRemotionemInput!.cognoscere(lo) && 
-              lo.any((ao) => ao.interioreObstructionum.siRemotiones.any((asr) => asr.interioreSiRemotionem.identitatisInterioreSiRemotionem == srpn.siRemotionem.interioreSiRemotionem.siRemotionemInput!.siRemotionemIdentiatis)) &&
-              srpn.siRemotionem.interioreSiRemotionem.siRemotionemInput!.solvitStagnum(srpn.siRemotionem.interioreSiRemotionem.siRemotionemInput!.interioreTransactio!, lo)
+                srpn.siRemotionem.interiore.siRemotionemInput!.cognoscere(lo) && 
+              lo.any((ao) => ao.interiore.siRemotiones.any((asr) => asr.interiore.signatureInterioreSiRemotionem == srpn.siRemotionem.interiore.siRemotionemInput!.siRemotionemSignature)) &&
+              srpn.siRemotionem.interiore.siRemotionemInput!.solvitStagnum(srpn.siRemotionem.interiore.siRemotionemInput!.interioreTransactio!, lo)
               ) {
                 await siRemotionemSyncThrough(srpn);
-                clientis.destroy();
+                qi.clientis.destroy();
 
               }
             }
             break;
           }
           case PervideasNuntiusTitulus.solucionisPropter: {
-            SolucionisPropterPervideasNuntius sppn = SolucionisPropterPervideasNuntius.ex(json.decode(eventus) as Map<String, dynamic>);
+            SolucionisPropterPervideasNuntius sppn = SolucionisPropterPervideasNuntius.ex(json.decode(qi.msg) as Map<String, dynamic>);
             List<Obstructionum> lo = await Obstructionum.getBlocks(directorium);
-            if (!sppn.solucionisPropter.interioreSolucionisPropter.estValidus(lo)) {
-              return;
+            if (!sppn.solucionisPropter.interioreSolucionisPropter.estValidus(lo) || !sppn.solucionisPropter.interioreSolucionisPropter.interioreInterioreSolucionisPropter.nonAccipitEtMittente()) {
+              break;
             }
             if (solucionisRationibus.any((asr) => asr.interioreSolucionisPropter.interioreInterioreSolucionisPropter.solucionis == sppn.solucionisPropter.interioreSolucionisPropter.interioreInterioreSolucionisPropter.solucionis)) {
-              solucionisRationibus.removeWhere((rwsr) => rwsr.interioreSolucionisPropter.interioreInterioreSolucionisPropter.solucionis == sppn.solucionisPropter.interioreSolucionisPropter.interioreInterioreSolucionisPropter.solucionis); 
+                SolucionisPropter sp = solucionisRationibus.singleWhere((swsp) => swsp.interioreSolucionisPropter.interioreInterioreSolucionisPropter.solucionis == sppn.solucionisPropter.interioreSolucionisPropter.interioreInterioreSolucionisPropter.solucionis);
+                int zerosOld = 0;
+                for (int i = 1; i < sp.probationem.length; i++) {
+                  if (sp.probationem.substring(0, i) == ('0' * i)) {
+                    zerosOld += 1;
+                  }
+                }
+                int zerosNew = 0;
+                for (int i = 1; i < sppn.solucionisPropter.probationem.length; i++) {
+                  if (sppn.solucionisPropter.probationem.substring(0, i) == ('0' * i)) {
+                    zerosNew += 1;
+                  }
+                }
+                if (zerosNew <= zerosOld) {
+                  Print.nota(nuntius: 'non habes ius pro hac solutionis ratione in solutione rationum piscinae', message: 'you do not have the right to replace this pament account n the payment accounts pool');
+                  return;
+                }
+                solucionisRationibus.removeWhere((rwsr) => rwsr.interioreSolucionisPropter.interioreInterioreSolucionisPropter.solucionis == sppn.solucionisPropter.interioreSolucionisPropter.interioreInterioreSolucionisPropter.solucionis); 
             }
             solucionisRationibus.add(sppn.solucionisPropter);
             if (!sppn.accepit.contains(ip)) {
@@ -841,10 +949,37 @@ class ParAdRimor {
             break;
           }
           case PervideasNuntiusTitulus.fissileSolucionisPropter: {
-            FissileSolucionisPropterPervideasNuntius fsppn = FissileSolucionisPropterPervideasNuntius.ex(json.decode(eventus) as Map<String, dynamic>);
+            FissileSolucionisPropterPervideasNuntius fsppn = FissileSolucionisPropterPervideasNuntius.ex(json.decode(qi.msg) as Map<String, dynamic>);
             List<Obstructionum> lo = await Obstructionum.getBlocks(directorium);
             if (!fsppn.fissileSolucionisPropter.interioreFissileSolucionisPropter.estValidus(lo)) {
-              return;
+              break;
+            }
+            if (!fsppn.fissileSolucionisPropter.interioreFissileSolucionisPropter.interioreInterioreFissileSolucionisPropter.nonAccipitEtMittente()) {
+              break;
+            }
+            if (fsppn.fissileSolucionisPropter.interioreFissileSolucionisPropter.interioreInterioreFissileSolucionisPropter.fixs.isEmpty) {
+              Print.nota(nuntius: 'certa pecunia ratio saltem certa', message: 'a fixed payment account should have at least one fixed amount');
+              break;
+            }
+            if (fissileSolucionisRationibus.any((afsr) => afsr.interioreFissileSolucionisPropter.interioreInterioreFissileSolucionisPropter.solucionis == fsppn.fissileSolucionisPropter.interioreFissileSolucionisPropter.interioreInterioreFissileSolucionisPropter.solucionis)) {
+              FissileSolucionisPropter fsp = fissileSolucionisRationibus.singleWhere((swfsp) => swfsp.interioreFissileSolucionisPropter.interioreInterioreFissileSolucionisPropter.solucionis == fsppn.fissileSolucionisPropter.interioreFissileSolucionisPropter.interioreInterioreFissileSolucionisPropter.solucionis);
+              int zerosOld = 0;
+              for (int i = 1; i < fsp.probationem.length; i++) {
+                if (fsp.probationem.substring(0, i) == ('0' * i)) {
+                  zerosOld += 1;
+                }
+              }
+              int zerosNew = 0;
+              for (int i = 1; i < fsppn.fissileSolucionisPropter.probationem.length; i++) {
+                if (fsppn.fissileSolucionisPropter.probationem.substring(0, i) == ('0' * i)) {
+                  zerosNew += 1;
+                }
+              }
+              if (zerosNew <= zerosOld) {
+                Print.nota(nuntius: 'non habes ius repone certam solutionis rationem in certa solutione rationum piscinae', message: 'you do not have the right to replace this fixed payment account n the fixed payment accounts pool');
+                break;
+              }
+              fissileSolucionisRationibus.removeWhere((rwsr) => rwsr.interioreFissileSolucionisPropter.interioreInterioreFissileSolucionisPropter.solucionis == fsppn.fissileSolucionisPropter.interioreFissileSolucionisPropter.interioreInterioreFissileSolucionisPropter.solucionis); 
             }
             fissileSolucionisRationibus.add(fsppn.fissileSolucionisPropter);
             if (!fsppn.accepit.contains(ip)) {
@@ -857,124 +992,10 @@ class ParAdRimor {
             }
             break;
           }
-          case PervideasNuntiusTitulus.removeTransactions: {
-            isRemove = true;
-          RemoveTransactionsPervideasNuntius rtpn =
-              RemoveTransactionsPervideasNuntius.ex(
-                  json.decode(eventus) as Map<String, dynamic>);
-          List<Obstructionum> lo = await Obstructionum.getBlocks(directorium);
-          if (!await Transactio.inObstructionumCatenae(
-              rtpn.transactioGenus, rtpn.identitatum, lo) && 
-              !rtpn.identitatum.every((ei) => liberTransactions.any((alt) => alt.interioreTransactio.identitatis == ei)) && 
-              !rtpn.identitatum.every((ei) => fixumTransactions.any((alt) => alt.interioreTransactio.identitatis == ei)) &&
-              !rtpn.identitatum.every((ei) => expressiTransactions.any((alt) => alt.interioreTransactio.identitatis == ei))) {
-
-            print('theidentitatums ${rtpn.identitatum}');
-            print('andthefullmsg\n');
-            print(rtpn.indu());
-            print('whatsuplistofblocks\n');
-            print(lo.map((e) => e.toJson()));
-
-            print('lastforno\n');
-            print(lo.last.toJson());
-            Print.nota(
-                nuntius: 'transaction non est inventus in aliquo, caudices',
-                message: 'transaction is not found in any of the blocks');
-            return;
-          }
-          switch (rtpn.transactioGenus) {
-            case TransactioGenus.liber: {
-              liberTransactions.removeWhere((lt) => rtpn.identitatum.any(
-              (identitatis) =>
-                  identitatis == lt.interioreTransactio.identitatis));
-              break;
-            }
-            case TransactioGenus.fixum: {
-              fixumTransactions.removeWhere((ft) => rtpn.identitatum.any(
-              (identitatis) =>
-                  identitatis == ft.interioreTransactio.identitatis));
-              break;
-            }
-            case TransactioGenus.expressi: {
-              expressiTransactions.removeWhere((et) => rtpn.identitatum.any(
-              (identitatis) =>
-                  identitatis == et.interioreTransactio.identitatis));
-              break;
-            }
-          }
-          if (!rtpn.accepit.contains(ip)) {
-              rtpn.accepit.add(ip);
-          }
-          for (String nervusFilim
-              in bases.where((n) => !rtpn.accepit.contains(n))) {
-            List<String> fissile = nervusFilim.split(':');
-            Socket nervus =
-                await Socket.connect(fissile[0], int.parse(fissile[1]));
-            nervus.write(json.encode(rtpn.indu()));
-          }
-          isRemove = false;
-          clientis.destroy();
-          break;
-          }
-          // case PervideasNuntiusTitulus.sumoTransactions: {
-          //   while (isRemove) {
-          //   await Future.delayed(Duration(milliseconds:  100));
-          //   }
-          //   SumoTransactionsPervideasNuntius stpn = SumoTransactionsPervideasNuntius.ex(json.decode(eventus) as Map<String, dynamic>);
-          //   switch (stpn.transactioGenus) {
-          //     case TransactioGenus.liber: {
-          //       for (Transactio t in liberTransactions.where((wlt) => !wlt.capta && stpn.identitatum.any((ai) => ai == wlt.interioreTransactio.identitatis))) {
-          //         t.capta = true;
-          //       }
-          //       break;
-          //     }
-          //     case TransactioGenus.fixum: {
-          //       for (Transactio t in fixumTransactions.where((wlt) => !wlt.capta && stpn.identitatum.any((ai) => ai == wlt.interioreTransactio.identitatis))) {
-          //         t.capta = true;
-          //       }
-          //       break;
-          //     }
-          //     case TransactioGenus.expressi: {
-          //       for (Transactio t in expressiTransactions.where((wlt) => !wlt.capta && stpn.identitatum.any((ai) => ai == wlt.interioreTransactio.identitatis))) {
-          //         t.capta = true;
-          //       }
-          //       break;
-          //     }
-          //   }
-          //   if (!stpn.accepit.contains(ip)) {
-          //     stpn.accepit.add(ip);
-          //   }
-          //   for (String nervuss
-          //       in bases.where((s) => !stpn.accepit.contains(s))) {
-          //     Socket nervus = await Socket.connect(
-          //         nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));
-          //     nervus.write(json.encode(stpn.indu()));
-          //   }
-          //   clientis.destroy();
-          //   break;
-          // }
-          case PervideasNuntiusTitulus.removePropters: {
-            RemoveByIdentitatumPervideasNuntius rbipn =
-              RemoveByIdentitatumPervideasNuntius.ex(
-                  json.decode(eventus) as Map<String, dynamic>);
-            rationibus.removeWhere((p) => rbipn.identitatum.any(
-                (identiatis) => identiatis == p.interiorePropter.identitatis));
-            if (!rbipn.accepit.contains(ip)) {
-              rbipn.accepit.add(ip);
-            }
-            for (String nervuss
-                in bases.where((s) => !rbipn.accepit.contains(s))) {
-              Socket nervus = await Socket.connect(
-                  nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));
-              nervus.write(json.encode(rbipn.indu()));
-            }
-            clientis.destroy();
-            break;
-          }
           case PervideasNuntiusTitulus.removeConnexaLiberExpressis: {
             RemoveByIdentitatumPervideasNuntius rbipn =
                 RemoveByIdentitatumPervideasNuntius.ex(
-                    json.decode(eventus) as Map<String, dynamic>);
+                    json.decode(qi.msg) as Map<String, dynamic>);
             connexiaLiberExpressis.removeWhere((cle) => rbipn.identitatum.any(
                 (identitatis) =>
                     identitatis ==
@@ -988,95 +1009,78 @@ class ParAdRimor {
                   nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));
               nervus.write(json.encode(rbipn.indu()));
             }
-            clientis.destroy();
+            qi.clientis.destroy();
             break;
           }
-          case PervideasNuntiusTitulus.removeSiRemotionems: {
-            RemoveByIdentitatumPervideasNuntius rbipn =
-                RemoveByIdentitatumPervideasNuntius.ex(
-                    json.decode(eventus) as Map<String, dynamic>);
-            siRemotiones.removeWhere((rwsr) => rbipn.identitatum.any((ai) =>
-                ai ==
-                rwsr.interioreSiRemotionem.identitatisInterioreSiRemotionem));
-            if (!rbipn.accepit.contains(ip)) {
-              rbipn.accepit.add(ip);
+          case PervideasNuntiusTitulus.inritaTransactio: {
+            InritaTransactioPervideasNuntius itpn = InritaTransactioPervideasNuntius.ex(json.decode(qi.msg) as Map<String, dynamic>);
+            Transactio? ttr = 
+            itpn.interiore.liber ? 
+            liberTransactions.singleWhereOrNull(
+              (swonlt) => swonlt.interiore.identitatis == itpn.interiore.identitatis) : 
+            fixumTransactions.singleWhereOrNull((swonft) => swonft.interiore.identitatis == itpn.interiore.identitatis);
+            if (ttr == null) {
+              Print.nota(nuntius: 'negotium ad removendum non est inventus', message: 'transaction to remove is not found');
+              break;
+            }
+            if (ttr.interiore.certitudo != null) {
+              Print.nota(nuntius: 'non potest removere transactionis quia iam ab ipso signatur', message: 'can not remove transaction because it is already signed by the receiver');
+              break;
+            }
+            if (!Utils.cognoscereIdentitatis(PublicKey.fromHex(Pera.curve(), ttr.interiore.dominus), Signature.fromASN1Hex(itpn.interiore.signature), ttr.interiore.identitatis)) {
+              Print.nota(nuntius: 'nuntius non habet ius removendi rem', message: 'message does not have the right to remove the transaction');
+              break;
+            }
+            itpn.interiore.liber ? liberTransactions.remove(ttr) : fixumTransactions.remove(ttr);
+            if (!itpn.accepit.contains(ip)) {
+              itpn.accepit.add(ip);
             }
             for (String nervuss
-                in bases.where((s) => !rbipn.accepit.contains(s))) {
+                in bases.where((s) => !itpn.accepit.contains(s))) {
               Socket nervus = await Socket.connect(
                   nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));
-              nervus.write(json.encode(rbipn.indu()));
+              nervus.write(json.encode(itpn.indu()));
             }
-            clientis.destroy();
-            break;
-          }           
-          case PervideasNuntiusTitulus.removeSolucionisRationibus: {
-            RemoveByIdentitatumPervideasNuntius rbipn = RemoveByIdentitatumPervideasNuntius.ex(json.decode(eventus) as Map<String, dynamic>);
-            solucionisRationibus.removeWhere((rwsr) => rbipn.identitatum.any((ai) => ai == rwsr.interioreSolucionisPropter.interioreInterioreSolucionisPropter.solucionis));
-            if (!rbipn.accepit.contains(ip)) {
-              rbipn.accepit.add(ip);
-            }
-            for (String nervuss
-                in bases.where((s) => !rbipn.accepit.contains(s))) {
-              Socket nervus = await Socket.connect(
-                  nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));
-              nervus.write(json.encode(rbipn.indu()));
-            }
-            clientis.destroy();
-            break;
-          }
-          case PervideasNuntiusTitulus.removeFissileSolucionisRationibus: {
-            RemoveByIdentitatumPervideasNuntius rbipn = RemoveByIdentitatumPervideasNuntius.ex(json.decode(eventus) as Map<String, dynamic>);
-            fissileSolucionisRationibus.removeWhere((rwsr) => rbipn.identitatum.any((ai) => ai ==rwsr.interioreFissileSolucionisPropter.interioreInterioreFissileSolucionisPropter.solucionis));
-            if (!rbipn.accepit.contains(ip)) {
-              rbipn.accepit.add(ip);
-            }
-            for (String nervuss
-                in bases.where((s) => !rbipn.accepit.contains(s))) {
-              Socket nervus = await Socket.connect(
-                  nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));
-              nervus.write(json.encode(rbipn.indu()));
-            }
-            clientis.destroy();
+            qi.clientis.destroy();
             break;
           }
           case PervideasNuntiusTitulus.accipreObstructionum: {
             ObstructionumPervideasNuntius opn = ObstructionumPervideasNuntius.ex(
-              json.decode(eventus) as Map<String, dynamic>);
+              json.decode(qi.msg) as Map<String, dynamic>);
             Obstructionum prioro = await Obstructionum.acciperePrior(directorium);
             List<Obstructionum> lo = await Obstructionum.getBlocks(directorium);
-            print('accipereobstructionum with priorprob ${opn.obstructionum.interioreObstructionum.priorProbationem} and highest block ${prioro.toJson()}');
+            print('accipereobstructionum with priorprob ${opn.obstructionum.interiore.priorProbationem} and highest block ${prioro.toJson()}');
             print('whydidlonothaveit ordidithaveitthough and is it some weird removal \n ${lo.last.toJson()}');
-            if (opn.obstructionum.interioreObstructionum.priorProbationem !=
+            if (opn.obstructionum.interiore.priorProbationem !=
                 prioro.probationem) {
               print('wasnotpreviousprobationemno');
               if (!lo.map((mo) => mo.probationem).contains(opn
-                      .obstructionum.interioreObstructionum.priorProbationem) &&
-                  !opn.obstructionum.interioreObstructionum.estFurca) {
+                      .obstructionum.interiore.priorProbationem) &&
+                  !opn.obstructionum.interiore.estFurca) {
                 Print.nota(
                     nuntius: 'ignotus obstructionum intra album omnium caudices',
                     message: 'unknown block inside of the list of all blocks');
-                return;
-              } else if (opn.obstructionum.interioreObstructionum.estFurca &&
+                break;
+              } else if (opn.obstructionum.interiore.estFurca &&
                   foramenFurca.map((mff) => mff.probationem).contains(opn
-                      .obstructionum.interioreObstructionum.priorProbationem)) {
+                      .obstructionum.interiore.priorProbationem)) {
                 print('wwentintofurcatrueandforamenfurcacontains');
                 Obstructionum ffi = foramenFurca.singleWhere((swff) =>
                     swff.probationem ==
-                    opn.obstructionum.interioreObstructionum.priorProbationem);
+                    opn.obstructionum.interiore.priorProbationem);
                 do {
                   lo.removeLast();
                 } while (lo.last.probationem !=
-                    ffi.interioreObstructionum.priorProbationem);
+                    ffi.interiore.priorProbationem);
                 lo.add(ffi);
                 if (await validateObstructionum(
-                    clientis, lo, opn.obstructionum)) {
+                    qi.clientis, lo, opn.obstructionum)) {
                   tridentes.add(opn.obstructionum);
-                  if (opn.obstructionum.interioreObstructionum.divisa <
-                          prioro.interioreObstructionum.divisa &&
-                      opn.obstructionum.interioreObstructionum
+                  if (opn.obstructionum.interiore.divisa <
+                          prioro.interiore.divisa &&
+                      opn.obstructionum.interiore
                               .summaObstructionumDifficultas >
-                          prioro.interioreObstructionum
+                          prioro.interiore
                               .summaObstructionumDifficultas) {
                     await Obstructionum.removereUsqueAd(ffi, directorium);
                     await ffi.salvare(directorium);
@@ -1085,30 +1089,30 @@ class ParAdRimor {
                   if (!opn.accepit.contains(ip)) {
                     opn.accepit.add(ip);
                   }
-                  clientis.write(json.encode(ObstructionumSalvarePervideasNuntius(
+                  qi.clientis.write(json.encode(ObstructionumSalvarePervideasNuntius(
                           opn.obstructionum,
                           PervideasNuntiusTitulus.obstructionumIsSalvare,
                           opn.accepit)
                       .indu()));
                 }
-                clientis.destroy();
-              } else if (opn.obstructionum.interioreObstructionum.estFurca &&
+                qi.clientis.destroy();
+              } else if (opn.obstructionum.interiore.estFurca &&
                   !foramenFurca.map((mff) => mff.probationem).contains(opn
-                      .obstructionum.interioreObstructionum.priorProbationem)) {
+                      .obstructionum.interiore.priorProbationem)) {
                 if (tridentes.map((mt) => mt.probationem).any((ap) =>
                     ap ==
-                    opn.obstructionum.interioreObstructionum.priorProbationem)) {
+                    opn.obstructionum.interiore.priorProbationem)) {
                   print(
                       'isloindeedalreadyfiuckedup ${lo.map((e) => e.toJson())}');
                   Obstructionum? fton = tridentes.singleWhere((swt) =>
                       swt.probationem ==
-                      opn.obstructionum.interioreObstructionum.priorProbationem);
+                      opn.obstructionum.interiore.priorProbationem);
                   List<Obstructionum> lof = [];
                   do {
                     lof.add(fton!);
                     fton = tridentes.singleWhereOrNull((swt) =>
                         swt.probationem ==
-                        fton?.interioreObstructionum.priorProbationem);
+                        fton?.interiore.priorProbationem);
                     print('ftonloop');
                     print(fton?.toJson());
                   } while (fton != null);
@@ -1118,14 +1122,14 @@ class ParAdRimor {
                   //this conddintion is never true it grabbed al the blocks instead of a couple
                   Obstructionum foramen = foramenFurca.singleWhere((swf) =>
                       swf.probationem ==
-                      lof.last.interioreObstructionum.priorProbationem);
+                      lof.last.interiore.priorProbationem);
                   lov.addAll(lo.takeWhile((two) =>
                       two.probationem !=
-                      foramen.interioreObstructionum.priorProbationem));
+                      foramen.interiore.priorProbationem));
                   print('didlochange ${lo.map((e) => e.toJson())}');
                   lov.add(lo.singleWhere((swo) =>
                       swo.probationem ==
-                      foramen.interioreObstructionum.priorProbationem));
+                      foramen.interiore.priorProbationem));
                   lov.add(foramen);
                   lov.addAll(lof.reversed);
                   print('thiscorruptchainofblocksdownhere');
@@ -1134,15 +1138,15 @@ class ParAdRimor {
                     print('\n');
                   }
                   if (!await validateObstructionum(
-                      clientis, lov, opn.obstructionum)) {
-                    return;
+                      qi.clientis, lov, opn.obstructionum)) {
+                    break;
                   }
                   tridentes.add(opn.obstructionum);
-                  if (opn.obstructionum.interioreObstructionum.divisa <
-                          prioro.interioreObstructionum.divisa &&
-                      opn.obstructionum.interioreObstructionum
+                  if (opn.obstructionum.interiore.divisa <
+                          prioro.interiore.divisa &&
+                      opn.obstructionum.interiore
                               .summaObstructionumDifficultas >
-                          prioro.interioreObstructionum
+                          prioro.interiore
                               .summaObstructionumDifficultas) {
                     print('okeletsreplace');
                     await Obstructionum.removereUsqueAd(foramen, directorium);
@@ -1153,49 +1157,51 @@ class ParAdRimor {
                       print('${o.toJson()}\n');
                       print('\n');
                     }
-
+                    par!.foramenFurca.remove(foramen);
                     await foramen.salvare(directorium);
                     for (Obstructionum o in lof.reversed) {
                       await o.salvare(directorium);
                     }
                     await opn.obstructionum.salvare(directorium);
                   }
-                  clientis.write(json.encode(ObstructionumSalvarePervideasNuntius(
+                  qi.clientis.write(json.encode(ObstructionumSalvarePervideasNuntius(
                           opn.obstructionum,
                           PervideasNuntiusTitulus.obstructionumIsSalvare,
                           opn.accepit)
                       .indu()));
-                  clientis.destroy();
+                  qi.clientis.destroy();
                 } else {
                   Print.nota(nuntius: 'invalidum furca', message: 'invalid fork');
-                  return;
+                  break;
                 }
               } else if (lo
                       .map((mo) => mo.probationem)
                       .contains(opn.obstructionum.probationem) &&
-                  !opn.obstructionum.interioreObstructionum.estFurca) {
+                  !opn.obstructionum.interiore.estFurca) {
                 print('gotinunused');
                 List<Obstructionum> loc = lo
                     .takeWhile((two) =>
-                        two.interioreObstructionum.priorProbationem !=
+                        two.interiore.priorProbationem !=
                         opn.obstructionum.probationem)
                     .toList();
                 loc.removeLast();
                 // Obstructionum o = loc.removeLast();
                 print(loc.map((e) => e.toJson()));
                 if (await validateObstructionum(
-                    clientis, loc, opn.obstructionum)) {
-                  clientis.write(json.encode(ObstructionumSalvarePervideasNuntius(
+                    qi.clientis, loc, opn.obstructionum)) {
+                  qi.clientis.write(json.encode(ObstructionumSalvarePervideasNuntius(
                           opn.obstructionum,
                           PervideasNuntiusTitulus.obstructionumIsSalvare,
                           opn.accepit)
                       .indu()));
-                  clientis.destroy();
+                  print('wewrotebacktosaveto ${clientis.address}:${clientis.port}');
+                  qi.clientis.destroy();
+                  break;
                 }
                 // loc.add(o);
               } else if (lo.map((mo) => mo.probationem).contains(opn
-                      .obstructionum.interioreObstructionum.priorProbationem) &&
-                  !opn.obstructionum.interioreObstructionum.estFurca) {
+                      .obstructionum.interiore.priorProbationem) &&
+                  !opn.obstructionum.interiore.estFurca) {
                 print('howaboutlo');
                 print(lo.map((e) => e.toJson()));
                 // List<Obstructionum> lot = [lo.first];
@@ -1205,19 +1211,19 @@ class ParAdRimor {
                 List<Obstructionum> lov = [];
                 lov.addAll(lo.takeWhile((two) =>
                     two.probationem !=
-                    opn.obstructionum.interioreObstructionum.priorProbationem));
+                    opn.obstructionum.interiore.priorProbationem));
                 print('isprobwrong');
                 lov.add(lo.singleWhere((swo) =>
                     swo.probationem ==
-                    opn.obstructionum.interioreObstructionum.priorProbationem));
+                    opn.obstructionum.interiore.priorProbationem));
                 print(lo.map((e) => e.toJson()));
                 if (await validateObstructionum(
-                    clientis, lov, opn.obstructionum)) {
-                  if (opn.obstructionum.interioreObstructionum.divisa <
-                          prioro.interioreObstructionum.divisa &&
-                      opn.obstructionum.interioreObstructionum
+                    qi.clientis, lov, opn.obstructionum)) {
+                  if (opn.obstructionum.interiore.divisa <
+                          prioro.interiore.divisa &&
+                      opn.obstructionum.interiore
                               .summaObstructionumDifficultas >
-                          prioro.interioreObstructionum
+                          prioro.interiore
                               .summaObstructionumDifficultas) {
                     print('divisa was lower in probwrong');
                     await Obstructionum.removereUsqueAd(
@@ -1228,27 +1234,27 @@ class ParAdRimor {
                     foramenFurca.add(opn.obstructionum);
                   }
                   print('didwegetpassedhere');
-                  clientis.write(json.encode(ObstructionumSalvarePervideasNuntius(
+                  qi.clientis.write(json.encode(ObstructionumSalvarePervideasNuntius(
                           opn.obstructionum,
                           PervideasNuntiusTitulus.obstructionumIsSalvare,
                           opn.accepit)
                       .indu()));
-                  clientis.destroy();
+                  qi.clientis.destroy();
                 }
               } else {
                 print('notyethere');
                 List<Obstructionum> loc = lo
                     .takeWhile((fwo) =>
                         fwo.probationem ==
-                        opn.obstructionum.interioreObstructionum.priorProbationem)
+                        opn.obstructionum.interiore.priorProbationem)
                     .toList();
                 loc.add(lo.singleWhere((swo) =>
                     loc.last.probationem ==
-                    swo.interioreObstructionum.priorProbationem));
+                    swo.interiore.priorProbationem));
 
                 if (!await validateObstructionum(
-                    clientis, loc, opn.obstructionum)) {
-                  return;
+                    qi.clientis, loc, opn.obstructionum)) {
+                  break;
                 }
                 foramenFurca.add(opn.obstructionum);
                 if (!opn.accepit.contains(ip)) {
@@ -1267,10 +1273,10 @@ class ParAdRimor {
                 }
               }
             } else {
-              if (!await validateObstructionum(clientis, lo, opn.obstructionum)) {
-                return;
+              if (!await validateObstructionum(qi.clientis, lo, opn.obstructionum)) {
+                break;
               }
-              clientis.write(json.encode(ObstructionumSalvarePervideasNuntius(
+              qi.clientis.write(json.encode(ObstructionumSalvarePervideasNuntius(
                       opn.obstructionum,
                       PervideasNuntiusTitulus.obstructionumIsSalvare,
                       opn.accepit)
@@ -1293,17 +1299,19 @@ class ParAdRimor {
                         ObstructionumSalvarePervideasNuntius.ex(
                             json.decode(String.fromCharCodes(convalescit).trim())
                                 as Map<String, dynamic>);
+                    Obstructionum prior = await Obstructionum.acciperePrior(directorium);
                     isSalvare = true;
                     await ospn.obstructionum.salvare(directorium);
                     isSalvare = false;
+                    removerePropterNovumObstructionum(prior, ospn.obstructionum);
                   });
                 }
                 // lets add blockproducer to the message and else if if aint blockproducer so a boolean so a ip
-              } else if(opn.obstructionum.interioreObstructionum.producentis != argumentis!.publicaClavis) {
+              } else if(opn.obstructionum.interiore.producentis != argumentis!.publicaClavis) {
                 print('willsearchforrandomnodetovalidateblockagains');
                 final random = Random();
-                String nervuss = bases[random.nextInt(bases.length)];
-                // opn.accepit.add(ip);
+                List<String> lbu = bases.where((wb) => wb != ip).toList();
+                String nervuss = lbu[random.nextInt(lbu.length)];
                 Socket nervus = await Socket.connect(
                     nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));
                 nervus.write(json.encode(ObstructionumPervideasNuntius(
@@ -1316,10 +1324,13 @@ class ParAdRimor {
                       ObstructionumSalvarePervideasNuntius.ex(
                           json.decode(String.fromCharCodes(convalescit).trim())
                               as Map<String, dynamic>);
+                  Obstructionum prior = await Obstructionum.acciperePrior(directorium);
                   print('recievedpermissiontosalvare');
                   isSalvare = true;
                   await ospn.obstructionum.salvare(directorium);
                   isSalvare = false;
+                  removerePropterNovumObstructionum(prior, ospn.obstructionum);
+                  // nervus.destroy();
                 });
               }
             }
@@ -1328,7 +1339,7 @@ class ParAdRimor {
           case PervideasNuntiusTitulus.addereForamenFurca: {
             SatusFurcaPropagationemPervideasNuntius sfppn =
               SatusFurcaPropagationemPervideasNuntius.ex(
-                  json.decode(eventus) as Map<String, dynamic>);
+                  json.decode(qi.msg) as Map<String, dynamic>);
             List<Obstructionum> lo = await Obstructionum.getBlocks(directorium);
             if (!lo
                 .map((mo) => mo.probationem)
@@ -1354,6 +1365,7 @@ class ParAdRimor {
             break;
           }
         }
+        pass = true;
         occupatus = false;
       });
     });
@@ -1402,7 +1414,7 @@ class ParAdRimor {
                       as Map<String, dynamic>);
           print('orupn\n');
           print(orupn.indu());
-          if (orupn.obstructionum.interioreObstructionum.generare ==
+          if (orupn.obstructionum.interiore.generare ==
               Generare.incipio) {
             print('nowiwillsalvare');
             await orupn.obstructionum.salvareIncipio(directorium);
@@ -1412,9 +1424,9 @@ class ParAdRimor {
           } else {
             print('nowiwillsalvare');
             await orupn.obstructionum.salvare(directorium);
-            nervus.write(PetitioObstructionumPervideasNuntius(
+            nervus.write(json.encode(PetitioObstructionumPervideasNuntius(
                 orupn.obstructionum.probationem,
-                PervideasNuntiusTitulus.petitioObstructionum, []).indu());
+                PervideasNuntiusTitulus.petitioObstructionum, []).indu()));
           }
         } else if (pn.titulus == PervideasNuntiusTitulus.summaScandalumExNodo) {
           SummaScandalumExNodoPervideasNuntius scenpn =
@@ -1434,29 +1446,48 @@ class ParAdRimor {
       String nervuss = bases[random.nextInt(bases.length)];
       Socket nervus = await Socket.connect(
           nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));
-      nervus.write(PetitioObstructionumPervideasNuntius(prior.probationem,
-          PervideasNuntiusTitulus.petitioObstructionum, []).indu());
+      nervus.write(json.encode(PetitioObstructionumPervideasNuntius(prior.probationem,
+          PervideasNuntiusTitulus.petitioObstructionum, []).indu()));
       nervus.listen((eventus) async {
-        ObstructionumReponereUnaPervideasNuntius orupn =
+        PervideasNuntius pn = PervideasNuntius.ex(
+            json.decode(String.fromCharCodes(eventus)) as Map<String, dynamic>);
+        switch(pn.titulus) {
+          case PervideasNuntiusTitulus.summaScandalumExNodo: {
+            SummaScandalumExNodoPervideasNuntius scenpn =
+              SummaScandalumExNodoPervideasNuntius.ex(
+                  json.decode(String.fromCharCodes(eventus).trim())
+                      as Map<String, dynamic>);
+            Print.nota(
+                nuntius:
+                    'ad summum impedimentum perveneris cum numero ${scenpn.numerus} nodi hodiernae adhuc sync ulteriore si novus clausus additur catenae',
+                message:
+                    'you have reached the highest block with number ${scenpn.numerus} the current node you will still sync further if a new block is added to the chain');
+            nervus.destroy();
+            break;
+          }
+          case PervideasNuntiusTitulus.obstructionumReponereUna: {
+            ObstructionumReponereUnaPervideasNuntius orupn =
             ObstructionumReponereUnaPervideasNuntius.ex(
                 json.decode(String.fromCharCodes(eventus).trim())
                     as Map<String, dynamic>);
-        print('nowiwillsalvare');
-        await orupn.obstructionum.salvare(directorium);
-        nervus.write(PetitioObstructionumPervideasNuntius(
-            orupn.obstructionum.probationem,
-            PervideasNuntiusTitulus.petitioObstructionum, []).indu());
+            print('nowiwillsalvare');
+            await orupn.obstructionum.salvare(directorium);
+            nervus.write(json.encode(PetitioObstructionumPervideasNuntius(
+                orupn.obstructionum.probationem,
+                PervideasNuntiusTitulus.petitioObstructionum, []).indu()));
+          }
+        }
       });
     }
   }
 
   Future syncPropter(Propter propter) async {
     if (rationibus.any((p) =>
-        p.interiorePropter.identitatis ==
-        propter.interiorePropter.identitatis)) {
+        p.interiore.publicaClavis ==
+        propter.interiore.publicaClavis)) {
       rationibus.removeWhere((p) =>
-          p.interiorePropter.identitatis ==
-          propter.interiorePropter.identitatis);
+          p.interiore.publicaClavis ==
+          propter.interiore.publicaClavis);
     }
     rationibus.add(propter);
     for (String nervusString in bases) {
@@ -1471,12 +1502,12 @@ class ParAdRimor {
 
   Future syncLiberTransaction(Transactio ltx) async {
     if (liberTransactions.any((alt) =>
-        alt.interioreTransactio.identitatis ==
-        ltx.interioreTransactio.identitatis)) {
+        alt.interiore.identitatis ==
+        ltx.interiore.identitatis)) {
       print('removedonsendernode');
       liberTransactions.removeWhere((rwlt) =>
-          rwlt.interioreTransactio.identitatis ==
-          ltx.interioreTransactio.identitatis);
+          rwlt.interiore.identitatis ==
+          ltx.interiore.identitatis);
     }
     liberTransactions.add(ltx);
     for (String nervuss in bases.where((b) => b != ip)) {
@@ -1490,11 +1521,11 @@ class ParAdRimor {
 
   Future syncFixumTransaction(Transactio tx) async {
     if (fixumTransactions.any((t) =>
-        t.interioreTransactio.identitatis ==
-        tx.interioreTransactio.identitatis)) {
+        t.interiore.identitatis ==
+        tx.interiore.identitatis)) {
       fixumTransactions.removeWhere((t) =>
-          t.interioreTransactio.identitatis ==
-          tx.interioreTransactio.identitatis);
+          t.interiore.identitatis ==
+          tx.interiore.identitatis);
     }
     fixumTransactions.add(tx);
     for (String nervuss in bases.where((b) => b != ip)) {
@@ -1508,11 +1539,11 @@ class ParAdRimor {
 
   Future syncExpressiTransaction(Transactio tx) async {
     if (expressiTransactions.any((t) =>
-        t.interioreTransactio.identitatis ==
-        tx.interioreTransactio.identitatis)) {
+        t.interiore.identitatis ==
+        tx.interiore.identitatis)) {
       expressiTransactions.removeWhere((t) =>
-          t.interioreTransactio.identitatis ==
-          tx.interioreTransactio.identitatis);
+          t.interiore.identitatis ==
+          tx.interiore.identitatis);
     }
     expressiTransactions.add(tx);
     for (String nervuss in bases.where((b) => b != ip)) {
@@ -1524,6 +1555,12 @@ class ParAdRimor {
     }
   }
 
+  Future syncInritaTransaction(InritaTransactio it) async {
+    if (inritaTransactions.any((ait) => ait.interiore.identitatis == it.interiore.identitatis)) {
+      inritaTransactions.removeWhere((rwit) => rwit.interiore.identitatis == it.interiore.identitatis);
+    }
+    inritaTransactions.add(it);
+  }
   // maby avoid checking just check if any and skippi syncing if already is in the list
   Future syncConnexaLiberExpressi(ConnexaLiberExpressi clep) async {
     connexiaLiberExpressis.add(clep);
@@ -1538,11 +1575,11 @@ class ParAdRimor {
 
   Future syncSiRemotiones(SiRemotionem sr) async {
     if (siRemotiones.any((asr) =>
-        asr.interioreSiRemotionem.identitatisInterioreSiRemotionem ==
-        sr.interioreSiRemotionem.identitatisInterioreSiRemotionem)) {
+        asr.interiore.signatureInterioreSiRemotionem ==
+        sr.interiore.signatureInterioreSiRemotionem)) {
       siRemotiones.removeWhere((rwsr) =>
-          rwsr.interioreSiRemotionem.identitatisInterioreSiRemotionem ==
-          sr.interioreSiRemotionem.identitatisInterioreSiRemotionem);
+          rwsr.interiore.signatureInterioreSiRemotionem ==
+          sr.interiore.signatureInterioreSiRemotionem);
     }
     siRemotiones.add(sr);
     for (String nervuss in bases.where((b) => b != ip)) {
@@ -1569,7 +1606,7 @@ class ParAdRimor {
   }
   Future syncFissileSolucionisPropter(FissileSolucionisPropter fsr) async {
     if (fissileSolucionisRationibus.any((afsr) => afsr.interioreFissileSolucionisPropter.interioreInterioreFissileSolucionisPropter.solucionis == fsr.interioreFissileSolucionisPropter.interioreInterioreFissileSolucionisPropter.solucionis)) {
-      solucionisRationibus.removeWhere((rwfsr) => rwfsr.interioreSolucionisPropter.interioreInterioreSolucionisPropter.solucionis == fsr.interioreFissileSolucionisPropter.interioreInterioreFissileSolucionisPropter.solucionis);
+      fissileSolucionisRationibus.removeWhere((rwfsr) => rwfsr.interioreFissileSolucionisPropter.interioreInterioreFissileSolucionisPropter.solucionis == fsr.interioreFissileSolucionisPropter.interioreInterioreFissileSolucionisPropter.solucionis);
     }
     fissileSolucionisRationibus.add(fsr);
     for (String nervuss in bases.where((b) => b != ip)) {
@@ -1580,66 +1617,23 @@ class ParAdRimor {
       nervus.destroy();
     }
   }
-  //todpop hier 1 pervideasnutniusmessage for all these removals and ids
-  Future removePropters(List<String> ids) async {
-    rationibus.removeWhere(
-        (p) => ids.any((i) => i == p.interiorePropter.identitatis));
-    for (String nervus in bases.where((wb) => wb != ip)) {
-      Socket soschock = await Socket.connect(
-          nervus.split(':')[0], int.parse(nervus.split(':')[1]));
-      soschock.write(json.encode(RemoveByIdentitatumPervideasNuntius(
-          ids, PervideasNuntiusTitulus.removePropters, [ip]).indu()));
-      soschock.destroy();
-    }
-  }
-
-  Future removeLiberTransactions(List<String> identitatum) async {
-    isRemove = true;
-    liberTransactions.removeWhere(
-        (l) => identitatum.any((i) => i == l.interioreTransactio.identitatis));
-    for (String nervuss in bases.where((wb) => wb != ip)) {
-      Socket nervus = await Socket.connect(
-          nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));
-      nervus.write(json.encode(RemoveTransactionsPervideasNuntius(
-          TransactioGenus.liber,
-          identitatum,
-          PervideasNuntiusTitulus.removeTransactions,
-          [ip]).indu()));
-      nervus.destroy();
-    }
-    isRemove = false;
-  }
-
-  Future removeFixumTransactions(List<String> identitatum) async {
-    fixumTransactions.removeWhere(
-        (l) => identitatum.any((i) => i == l.interioreTransactio.identitatis));
-    for (String nervuss in bases.where((wb) => wb != ip)) {
-      Socket nervus = await Socket.connect(
-          nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));
-      nervus.write(json.encode(RemoveTransactionsPervideasNuntius(
-          TransactioGenus.fixum,
-          identitatum,
-          PervideasNuntiusTitulus.removeTransactions,
-          [ip]).indu()));
-      nervus.destroy();
-    }
-  }
-
+  
+  // proof you are the owner
   Future removeExpressiTransactions(List<String> identitatum) async {
     expressiTransactions.removeWhere(
-        (l) => identitatum.any((i) => i == l.interioreTransactio.identitatis));
+        (l) => identitatum.any((i) => i == l.interiore.identitatis));
     for (String nervuss in bases.where((wb) => wb != ip)) {
       Socket nervus = await Socket.connect(
           nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));
-      nervus.write(json.encode(RemoveTransactionsPervideasNuntius(
-          TransactioGenus.expressi,
-          identitatum,
-          PervideasNuntiusTitulus.removeTransactions,
-          [ip]).indu()));
+      // nervus.write(json.encode(RemoveTransactionsPervideasNuntius(
+      //     TransactioGenus.expressi,
+      //     identitatum,
+      //     PervideasNuntiusTitulus.removeTransactions,
+      //     [ip]).indu()));
       nervus.destroy();
     }
   }
-
+  // proof you are the owner too
   Future removeConnexaLiberExpressis(List<String> identitatum) async {
     connexiaLiberExpressis.removeWhere((cle) => identitatum.any((identitatis) =>
         identitatis == cle.interioreConnexaLiberExpressi.identitatis));
@@ -1654,88 +1648,21 @@ class ParAdRimor {
     }
   }
 
-  Future removeSiRemotionems(List<String> identitatum) async {
-    siRemotiones.removeWhere((rwsr) => identitatum.any((ai) =>
-        ai == rwsr.interioreSiRemotionem.identitatisInterioreSiRemotionem));
+  Future inritaTransactio(InterioreInritaTransactio it) async {
+    Transactio? t = it.liber ? 
+    liberTransactions.singleWhereOrNull((swonlt) => swonlt.interiore.identitatis == it.identitatis) :
+    fixumTransactions.singleWhereOrNull((swonft) => swonft.interiore.identitatis == it.identitatis);
+    if (t == null) {
+      throw BadRequest(code: 0, nuntius: 'transaction invenire non voluisti ut removere', message: 'could not find transaction you wanted to remove');      
+    }
+    it.liber ? liberTransactions.remove(t) : fixumTransactions.remove(t);
     for (String nervuss in bases.where((wb) => wb != ip)) {
-      Socket nervus = await Socket.connect(
-          nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));
-      nervus.write(json.encode(RemoveByIdentitatumPervideasNuntius(
-              identitatum, PervideasNuntiusTitulus.removeSiRemotionems, [ip])
-          .indu()));
+      Socket nervus = await Socket.connect(nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));
+      nervus.write(json.encode(InritaTransactioPervideasNuntius(it, PervideasNuntiusTitulus.inritaTransactio, [ip]).indu()));
       nervus.destroy();
     }
   }
 
-  Future removeSolucionisPropter(List<String> claves) async {
-    solucionisRationibus.removeWhere((rwsr) => claves.any((ai) => ai == rwsr.interioreSolucionisPropter.interioreInterioreSolucionisPropter.solucionis));
-    for (String nervus in bases.where((wb) => wb != ip)) {
-      Socket soschock = await Socket.connect(
-          nervus.split(':')[0], int.parse(nervus.split(':')[1]));
-      soschock.write(json.encode(RemoveByIdentitatumPervideasNuntius(
-         claves, PervideasNuntiusTitulus.removeSolucionisRationibus, [ip]).indu()));
-      soschock.destroy();
-    }
-  }
-  Future removeFissileSolucionisPropter(List<String> claves) async {
-    fissileSolucionisRationibus.removeWhere((rwsr) => claves.any((ai) => ai == rwsr.interioreFissileSolucionisPropter.interioreInterioreFissileSolucionisPropter.solucionis));
-    for (String nervus in bases.where((wb) => wb != ip)) {
-      Socket soschock = await Socket.connect(
-          nervus.split(':')[0], int.parse(nervus.split(':')[1]));
-      soschock.write(json.encode(RemoveByIdentitatumPervideasNuntius(
-          claves, PervideasNuntiusTitulus.removeFissileSolucionisRationibus, [ip]).indu()));
-      soschock.destroy();
-    }
-  }
-
-  // Future sumoLiberTransactions(List<String> identitatum) async {
-  //   while(isRemove) {
-  //     await Future.delayed(Duration(milliseconds: 100));
-  //   }    
-  //   for (Transactio t in liberTransactions.where((wlt) => !wlt.capta && identitatum.any((ai) => ai == wlt.interioreTransactio.identitatis))) {
-  //     t.capta = true;
-  //   }
-  //   for (String nervuss in bases.where((wb) => wb != ip)) {
-  //     Socket nervus = await Socket.connect(
-  //         nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));
-  //     nervus.write(json.encode(SumoTransactionsPervideasNuntius(
-  //         TransactioGenus.liber,
-  //         identitatum,
-  //         PervideasNuntiusTitulus.sumoTransactions,
-  //         [ip]).indu()));
-  //     nervus.destroy();
-  //   }
-  // }
-  // Future sumoFixumTransactions(List<String> identitatum) async {
-  //   for (Transactio t in fixumTransactions.where((wlt) => !wlt.capta && identitatum.any((ai) => ai == wlt.interioreTransactio.identitatis))) {
-  //     t.capta = true;
-  //   }
-  //   for (String nervuss in bases.where((wb) => wb != ip)) {
-  //     Socket nervus = await Socket.connect(
-  //         nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));
-  //     nervus.write(json.encode(SumoTransactionsPervideasNuntius(
-  //         TransactioGenus.fixum,
-  //         identitatum,
-  //         PervideasNuntiusTitulus.sumoTransactions,
-  //         [ip]).indu()));
-  //     nervus.destroy();
-  //   }
-  // }
-  // Future sumoExpressiTransactions(List<String> identitatum) async {
-  //   for (Transactio t in expressiTransactions.where((wlt) => !wlt.capta && identitatum.any((ai) => ai == wlt.interioreTransactio.identitatis))) {
-  //     t.capta = true;
-  //   }
-  //   for (String nervuss in bases.where((wb) => wb != ip)) {
-  //     Socket nervus = await Socket.connect(
-  //         nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));
-  //     nervus.write(json.encode(SumoTransactionsPervideasNuntius(
-  //         TransactioGenus.expressi,
-  //         identitatum,
-  //         PervideasNuntiusTitulus.sumoTransactions,
-  //         [ip]).indu()));
-  //     nervus.destroy();
-  //   }
-  // }
 
   Future syncBlock(Obstructionum o) async {
     List<String> accepit = bases;
@@ -1752,10 +1679,9 @@ class ParAdRimor {
       lsn.add(nervus);
       Print.nota(
           message:
-              'sended block with number: ${o.interioreObstructionum.obstructionumNumerus} across the network',
+              'sended block with number: ${o.interiore.obstructionumNumerus} across the network',
           nuntius:
-              'misit obstructionum cum numero: ${o.interioreObstructionum.obstructionumNumerus} per network');
-
+              'misit obstructionum cum numero: ${o.interiore.obstructionumNumerus} per network');
       nervus.listen((eventus) async {
         print('passedallvalidations');
         PervideasNuntius pn = PervideasNuntius.ex(
@@ -1768,38 +1694,11 @@ class ParAdRimor {
                   json.decode(String.fromCharCodes(eventus).trim())
                       as Map<String, dynamic>);
           print('nowiwillsalvare');
+          Obstructionum prior = await Obstructionum.acciperePrior(directorium);
           isSalvare = true;          
           await oispn.obstructionum.salvare(directorium);
           isSalvare = false;
-          InFieriObstructionum ifo = oispn.obstructionum.inFieriObstructionum();
-          ifo.gladiatorIdentitatum.forEach((gi) =>
-              isolates.propterIsolates[gi]?.kill(priority: Isolate.immediate));
-          ifo.liberTransactions.forEach((lt) =>
-              isolates.liberTxIsolates[lt]?.kill(priority: Isolate.immediate));
-          ifo.fixumTransactions.forEach((ft) =>
-              isolates.fixumTxIsolates[ft]?.kill(priority: Isolate.immediate));
-          ifo.expressiTransactions.forEach((et) =>
-              isolates.expressiTxIsolates[et]?.kill(priority: Isolate.immediate));
-          ifo.connexaLiberExpressis.forEach((cle) {
-            isolates.connexaLiberExpressiIsolates[cle]
-                ?.kill(priority: Isolate.immediate);
-          });
-          ifo.siRemotionems.forEach((sr) =>
-              isolates.siRemotionemIsolates[sr]?.kill(priority: Isolate.immediate));
-          ifo.solucionisRationibus.forEach((sr) => isolates.solocionisRationem[sr]?.kill(priority: Isolate.immediate));
-          ifo.fissileSolucionisRationibus.forEach((fsr) => isolates.fissileSolocionisRationem[fsr]?.kill(priority: Isolate.immediate));
-          await par!.removePropters(ifo.gladiatorIdentitatum);
-          await par!.removeLiberTransactions(ifo.liberTransactions);
-          await par!.removeFixumTransactions(ifo.fixumTransactions);
-          await par!.removeExpressiTransactions(ifo.expressiTransactions);
-          await par!.removeConnexaLiberExpressis(ifo.connexaLiberExpressis);
-          await par!.removeSiRemotionems(ifo.siRemotionems);
-          await par!.removeSolucionisPropter(ifo.solucionisRationibus);
-          await par!.removeFissileSolucionisPropter(ifo.fissileSolucionisRationibus);
-          // await par!.sumoLiberTransactions(ifo.liberTransactions);
-          // await par!.sumoFixumTransactions(ifo.fixumTransactions);
-          // await par!.sumoExpressiTransactions(ifo.expressiTransactions);          
-          
+          removerePropterNovumObstructionum(prior, oispn.obstructionum);    
           print('savedforsure');
           for (Socket td in lsn) {
             td.destroy();
@@ -1851,7 +1750,7 @@ class ParAdRimor {
               PetitioExpressiTransactioPervideasNuntius petpn =
               PetitioExpressiTransactioPervideasNuntius.ex(
                   json.decode(String.fromCharCodes(eventus).trim()));
-              Transactio? t = expressiTransactions.singleWhereOrNull((swet) => swet.interioreTransactio.inputs.any((ai) => ai.transactioIdentitatis == transactio.interioreTransactio.identitatis));
+              Transactio? t = expressiTransactions.singleWhereOrNull((swet) => swet.interiore.inputs.any((ai) => ai.transactioIdentitatis == transactio.interiore.identitatis));
               if (t != null) {
                 nervus.write(json.encode(DareExpressiTransactioPervideasNuntius(t, PervideasNuntiusTitulus.expressiTransactio, petpn.accepit).indu()));              
               }
@@ -1873,7 +1772,7 @@ class ParAdRimor {
       Iterable<String> liberIdentitatum) {
     return connexiaLiberExpressis
         .where((cle) => liberIdentitatum.any(
-            (li) => li == cle.interioreConnexaLiberExpressi.liberIdentitatis));
+            (li) => li == cle.interioreConnexaLiberExpressi.identitatis));
   }
 
   Future<bool> validateObstructionum(Socket clientis, List<Obstructionum> lo,
@@ -1886,17 +1785,20 @@ class ParAdRimor {
               'Hashing in obstructionum non propono in probationem vel obstructionum Nullam',
           message:
               'Hashing the block does not resolve into the proof or block hash');
+      Print.obstructionumReprobatus();
       return false;
     }
     if (!obstructionum.transactionsIncluduntur(lo)) {
-        Print.nota(nuntius: 'refered gestum obstructionum non est inventus', message: 'refered transaction of block is not found');
+      Print.nota(nuntius: 'refered gestum obstructionum non est inventus', message: 'refered transaction of block is not found');
+      Print.obstructionumReprobatus();
       return false;
     }
-    if (!await convalidandumLiber(obstructionum.interioreObstructionum.liberTransactions, lo)) {
+    if (!await convalidandumLiber(obstructionum.interiore.liberTransactions, lo)) {
       Print.nota(
         nuntius:
             'obstructionum ineuntes continet vestra corrumpere transactions',
         message: 'your incoming block contains corrupt transactions');
+      Print.obstructionumReprobatus();
       return false;
     }
     List<Transactio> ltltet = [];
@@ -1907,85 +1809,110 @@ class ParAdRimor {
             nuntius:
                 'obstructionum ineuntes continet vestra corrumpere transactions',
             message: 'your incoming block contains corrupt transactions');
+      Print.obstructionumReprobatus();
         return false;
     }
-    for (SiRemotionem sr in obstructionum.interioreObstructionum.siRemotiones.where((wsr) => wsr.interioreSiRemotionem.siRemotionemOutput != null)) {
-      if (!sr.interioreSiRemotionem.cognoscereOutput()) {
+    for (SiRemotionem sr in obstructionum.interiore.siRemotiones.where((wsr) => wsr.interiore.siRemotionemOutput != null)) {
+      if (!sr.interiore.cognoscereOutput()) {
         Print.nota(nuntius: 'corrumpere si remotionem output signature', message: 'corrupt si remotionem output signature');
+        Print.obstructionumReprobatus();
         return false;
       }
-      if (lo.any((ao) => sr.interioreSiRemotionem.siRemotionemOutput!.liber ? ao.interioreObstructionum.liberTransactions.any((alt) => alt.interioreTransactio.identitatis == sr.interioreSiRemotionem.siRemotionemOutput!.transactioIdentitatis) : ao.interioreObstructionum.fixumTransactions.any((aft) => aft.interioreTransactio.identitatis == sr.interioreSiRemotionem.siRemotionemOutput!.transactioIdentitatis))) {
+      if (lo.any((ao) => sr.interiore.siRemotionemOutput!.liber ? ao.interiore.liberTransactions.any((alt) => alt.interiore.identitatis == sr.interiore.siRemotionemOutput!.transactioIdentitatis) : ao.interiore.fixumTransactions.any((aft) => aft.interiore.identitatis == sr.interiore.siRemotionemOutput!.transactioIdentitatis))) {
         Print.nota(nuntius: 'rem numquam removeri non potuit altius', message: 'transaction was never removed so could not create depth');
+        Print.obstructionumReprobatus();
+        return false;
+      }
+      if (!sr.interiore.siRemotionemOutput!.estTransactionIdentitatisAdhucPraesto(lo, obstructionum)) {
+        Print.obstructionumReprobatus();
         return false;
       }
     }
-    for (SiRemotionem sr in obstructionum.interioreObstructionum.siRemotiones.where((wsr) => wsr.interioreSiRemotionem.siRemotionemInput != null)) {
-      if (!sr.interioreSiRemotionem.siRemotionemInput!.cognoscere(lo)) {
+    for (SiRemotionem sr in obstructionum.interiore.siRemotiones.where((wsr) => wsr.interiore.siRemotionemInput != null)) {
+      if (!sr.interiore.siRemotionemInput!.cognoscere(lo)) {
         Print.nota(nuntius: 'corrumpere si remotionem input signature', message: 'corrupt si remotionem input signature');
+        Print.obstructionumReprobatus();
         return false;
       }
-      if (!lo.any((ao) => ao.interioreObstructionum.siRemotiones.any((asr) => asr.interioreSiRemotionem.identitatisInterioreSiRemotionem == sr.interioreSiRemotionem.siRemotionemInput!.siRemotionemIdentiatis))) {
+      if (!lo.any((ao) => ao.interiore.siRemotiones.any((asr) => asr.interiore.signatureInterioreSiRemotionem == sr.interiore.siRemotionemInput!.siRemotionemSignature))) {
         Print.nota(nuntius: 'non inveniret profundum ut stipendium', message: 'could not find depth to pay ');
+        Print.obstructionumReprobatus();
         return false;
       }
-      if (!obstructionum.interioreObstructionum.liberTransactions.any((alt) => alt.interioreTransactio.identitatis == sr.interioreSiRemotionem.siRemotionemInput!.transactioIdentitatis) && !obstructionum.interioreObstructionum.fixumTransactions.any((aft) => aft.interioreTransactio.identitatis == sr.interioreSiRemotionem.siRemotionemInput!.transactioIdentitatis)) {
+      if (!obstructionum.interiore.liberTransactions.any((alt) => alt.interiore.identitatis == sr.interiore.siRemotionemInput!.transactioIdentitatis) && !obstructionum.interiore.fixumTransactions.any((aft) => aft.interiore.identitatis == sr.interiore.siRemotionemInput!.transactioIdentitatis)) {
         Print.nota(nuntius: 'rem invenire non potuit reddere profundum', message: 'could not find transaction that would pay the depth');
+        Print.obstructionumReprobatus();
         return false;
       }
-      if (!sr.interioreSiRemotionem.siRemotionemInput!.solvit(obstructionum, lo)) {
-        return false;
-      }
-    }
-    for (SolucionisPropter sp in obstructionum.interioreObstructionum.solucionisRationibus) {
-      if (!sp.interioreSolucionisPropter.estValidus(lo) || !sp.estProbationem() || !sp.interioreSolucionisPropter.quinSignature()) {
+      if (!sr.interiore.siRemotionemInput!.solvit(obstructionum, lo)) {
+        Print.obstructionumReprobatus();
         return false;
       }
     }
-    for (FissileSolucionisPropter fsp in obstructionum.interioreObstructionum.fissileSolucionisRationibus) {
-      if (!fsp.interioreFissileSolucionisPropter.estValidus(lo) || !fsp.estProbationem() || !fsp.interioreFissileSolucionisPropter.quinSignature()) {
+    for (SolucionisPropter sp in obstructionum.interiore.solucionisRationibus) {
+      if (!sp.interioreSolucionisPropter.estValidus(lo) || !sp.estProbationem() || !sp.interioreSolucionisPropter.quinSignature() || !sp.interioreSolucionisPropter.interioreInterioreSolucionisPropter.nonAccipitEtMittente()) {
+        Print.obstructionumReprobatus();
         return false;
       }
     }
-    switch (obstructionum.interioreObstructionum.generare) {
+    for (FissileSolucionisPropter fsp in obstructionum.interiore.fissileSolucionisRationibus) {
+      if (fsp.interioreFissileSolucionisPropter.interioreInterioreFissileSolucionisPropter.fixs.isEmpty) {
+        Print.nota(nuntius: 'certa pecunia ratio saltem certa', message: 'a fixed payment account should have at least one fixed amount');
+        Print.obstructionumReprobatus();
+        return false;
+      }
+      if (!fsp.interioreFissileSolucionisPropter.estValidus(lo) || !fsp.estProbationem() || !fsp.interioreFissileSolucionisPropter.quinSignature() || !fsp.interioreFissileSolucionisPropter.interioreInterioreFissileSolucionisPropter.nonAccipitEtMittente()) {
+        Print.obstructionumReprobatus();
+        return false;
+      }
+    }
+    switch (obstructionum.interiore.generare) {
       case Generare.incipio:
         {
           Print.nota(
               nuntius: 'Ineuntes scandalum non attigit hanc',
               message: 'the incoming block should not have reached this state');
+          Print.obstructionumReprobatus();
           return false;
         }
       case Generare.expressi: {
-        if (lo.last.interioreObstructionum.generare != Generare.efectus) {
+        if (lo.last.interiore.generare != Generare.efectus) {
           Print.nota(nuntius: 'an expressi scandalum fieri potest nisi super efectus scandalum', message: 'an expressi block can only occur on top of an efectus block');
+          Print.obstructionumReprobatus();
           return false;
         }
       }
       case Generare.confussus:
         {
           if (await Obstructionum.gladiatorConfodiantur(
-              obstructionum.interioreObstructionum.gladiator.interioreGladiator
-                  .input!.victima.gladiatorIdentitatis,
-              obstructionum.interioreObstructionum.producentis,
+              obstructionum.interiore.gladiator.interiore.input!.victima.primis,
+              obstructionum.interiore.gladiator.interiore
+                  .input!.victima.identitatis,
+              obstructionum.interiore.producentis,
               lo)) {
             Print.nota(
                 nuntius: 'clausus potest non oppugnare publica clavem',
                 message: 'block can not attack the same public key');
+            Print.obstructionumReprobatus();
             return false;
           }
           if (!await obstructionum.convalidandumTransform(lo)) {
             Print.nota(
                 nuntius: 'licet transformatio liber ad fixum',
                 message: 'illegal transform of liber to fixum');
+            Print.obstructionumReprobatus();
             return false;
           }
           if (!await obstructionum.vicit(lo)) {
             Print.nota(
                 nuntius: 'nullum signum gladiatorium pugnae',
                 message: 'invalid signature of gladiator battle');
+            Print.obstructionumReprobatus();
             return false;
           }
           if (!await obstructionum.convalidandumPerdita(lo)) {
             Print.nota(nuntius: 'invalidum perdita', message: 'invalidum perdita');
+            Print.obstructionumReprobatus();
             return false;
           }
 
@@ -1997,6 +1924,7 @@ class ParAdRimor {
                     'Mittens huius obstructionum conatur cibum usque ad numerum obstructionum',
                 message:
                     'the sender of this block is trying to mess up the block number');
+            Print.obstructionumReprobatus();
             return false;
           }
           break;
@@ -2007,6 +1935,7 @@ class ParAdRimor {
               nuntius:
                   'hoc est Mittens obstructionum praemia corrupta est obstructionum',
               message: 'the sender of this block has corrupted block rewards');
+          Print.obstructionumReprobatus();
           return false;
         }
         if (!await obstructionum.convalidandumObsturcutionumNumerus(
@@ -2016,9 +1945,15 @@ class ParAdRimor {
                   'Mittens huius obstructionum conatur cibum usque ad numerum obstructionum',
               message:
                   'the sender of this block is trying to mess up the block number');
+          Print.obstructionumReprobatus();
           return false;
         }
         if (!obstructionum.convalidandumExpressiMoles()) {
+          Print.obstructionumReprobatus();
+          return false;
+        }
+        if (!await obstructionum.convalidandumRationibus(lo)) {
+          Print.obstructionumReprobatus();
           return false;
         }
         default:
@@ -2028,17 +1963,19 @@ class ParAdRimor {
                   'in ineuntes obstructionum conatur facere aliquid illicitum',
               message:
                   'in ineuntes obstructionum conatur facere aliquid illicitum');
+          Print.obstructionumReprobatus();
           return false;
         }
     }
     switch (await Obstructionum.estVerum(
-        obstructionum.interioreObstructionum, lo)) {
+        obstructionum.interiore, lo)) {
       case Corrumpo.forumCap:
         {
           Print.nota(
               nuntius: 'pecunia corrumpitur a mittente hoc scandalum',
               message:
                   'total amount of money is corrupt from the sender of this block');
+          Print.obstructionumReprobatus();
           return false;
         }
       case Corrumpo.summaDifficultas:
@@ -2046,6 +1983,7 @@ class ParAdRimor {
           Print.nota(
               nuntius: 'tota difficultas corrumpitur a mittente hoc scandalum',
               message: 'tota difficultas corrumpitur a mittente hoc scandalum');
+          Print.obstructionumReprobatus();
           return false;
         }
       case Corrumpo.numerus:
@@ -2054,40 +1992,44 @@ class ParAdRimor {
                 'scandalum numerus est corruptus ab mittente hoc scandalum',
             message:
                 'the block number is corrupt from the sender of this block');
+        Print.obstructionumReprobatus();
         return false;
       case Corrumpo.divisa:
         Print.nota(
             nuntius: 'corrupta est divisio a mittente hoc scandalum',
             message: 'the division is corrupt from the sender of this block');
+        Print.obstructionumReprobatus();
         return false;
       case Corrumpo.legalis:
+        Print.obstructionumReprobatus();
         break;
     }
     switch (Obstructionum.fortiorEst(
-        obstructionum.interioreObstructionum, lo.last)) {
+        obstructionum.interiore, lo.last)) {
       case QuidFacere.solitum:
         {
           if (!Obstructionum.nonFortum(
-                  obstructionum.interioreObstructionum.liberTransactions) &&
+                  obstructionum.interiore.liberTransactions) &&
               !Obstructionum.nonFortum(
-                  obstructionum.interioreObstructionum.fixumTransactions)) {
+                  obstructionum.interiore.fixumTransactions)) {
             Print.nota(
                 nuntius: 'producens ad vos suscepit conatur furantur pecuniam',
                 message:
                     'the producer of the block you recieved is trying to steal money');
+            Print.obstructionumReprobatus();
             return false;
           }
           List<TransactioInput> lti = [];
-          obstructionum.interioreObstructionum.liberTransactions.map((mlt) => mlt.interioreTransactio.inputs).forEach(lti.addAll);
+          obstructionum.interiore.liberTransactions.map((mlt) => mlt.interiore.inputs).forEach(lti.addAll);
           List<TransactioOutput> outputs = [];
-          obstructionum.interioreObstructionum.liberTransactions
+          obstructionum.interiore.liberTransactions
               .where((wlt) =>
-                  wlt.interioreTransactio.transactioSignificatio !=
+                  wlt.interiore.transactioSignificatio !=
                       TransactioSignificatio.praemium &&
-                  wlt.interioreTransactio.transactioSignificatio !=
+                  wlt.interiore.transactioSignificatio !=
                       TransactioSignificatio.ardeat &&
-                  lti.any((ati) => ati.transactioIdentitatis == wlt.interioreTransactio.identitatis))
-              .map((mlt) => mlt.interioreTransactio.outputs)
+                  lti.any((ati) => ati.transactioIdentitatis == wlt.interiore.identitatis))
+              .map((mlt) => mlt.interiore.outputs)
               .forEach(outputs.addAll);
 
               // we need to remove these outputs if one of the txs of the current block reference a tx of this block
@@ -2096,23 +2038,25 @@ class ParAdRimor {
             Print.nota(
                 nuntius: 'non omnes claves publicae defenduntur',
                 message: 'not all public keys are defended');
+            Print.obstructionumReprobatus();
             return false;
           }
-          if (obstructionum.interioreObstructionum.generare ==
+          if (obstructionum.interiore.generare ==
                   Generare.confussus ||
-              obstructionum.interioreObstructionum.generare ==
+              obstructionum.interiore.generare ==
                   Generare.expressi) {
             List<TransactioInput> tis = [];
-            obstructionum.interioreObstructionum.liberTransactions
+            obstructionum.interiore.liberTransactions
                 .where((lt) =>
-                    lt.interioreTransactio.transactioSignificatio ==
+                    lt.interiore.transactioSignificatio ==
                     TransactioSignificatio.ardeat)
-                .map((lt) => lt.interioreTransactio.inputs)
+                .map((lt) => lt.interiore.inputs)
                 .forEach(tis.addAll);
             if (!await Transactio.validateArdeat(tis, lo)) {
               Print.nota(
                   nuntius: 'corrumpere ardeat victos',
                   message: 'corrupt burn of the losers');
+              Print.obstructionumReprobatus();
               return false;
             }
           }
@@ -2142,13 +2086,30 @@ class ParAdRimor {
 
   Future siRemotionemSyncThrough(SiRemotionemPervideasNuntius srpn) async {
     if (siRemotiones.any((asr) =>
-        asr.interioreSiRemotionem.identitatisInterioreSiRemotionem ==
-        srpn.siRemotionem.interioreSiRemotionem
-            .identitatisInterioreSiRemotionem)) {
+        asr.interiore.signatureInterioreSiRemotionem ==
+        srpn.siRemotionem.interiore
+            .signatureInterioreSiRemotionem)) {
+      SiRemotionem sr = siRemotiones.singleWhere((swsr) => swsr.interiore.signatureInterioreSiRemotionem == srpn.siRemotionem.interiore.signatureInterioreSiRemotionem);
+      int zerosOld = 0;
+      for (int i = 1; i < sr.probationem.length; i++) {
+        if (sr.probationem.substring(0, i) == ('0' * i)) {
+          zerosOld += 1;
+        }
+      }
+      int zerosNew = 0;
+      for (int i = 1; i < srpn.siRemotionem.probationem.length; i++) {
+        if (srpn.siRemotionem.probationem.substring(0, i) == ('0' * i)) {
+          zerosNew += 1;
+        }
+      }
+      if (zerosNew <= zerosOld) {
+        Print.nota(nuntius: 'hoc si remotionem in si remotionems piscinae ius non habes', message: 'you do not have the right to replace this si remotionem in the si remotionems pool');
+        return;
+      }
       siRemotiones.removeWhere((rwsr) =>
-          rwsr.interioreSiRemotionem.identitatisInterioreSiRemotionem ==
-          srpn.siRemotionem.interioreSiRemotionem
-              .identitatisInterioreSiRemotionem);
+          rwsr.interiore.signatureInterioreSiRemotionem ==
+          srpn.siRemotionem.interiore
+              .signatureInterioreSiRemotionem);
     }
     siRemotiones.add(srpn.siRemotionem);
     for (String nervuss in bases.where((s) => !srpn.accepit.contains(s))) {
@@ -2161,15 +2122,15 @@ class ParAdRimor {
 
   Future<bool> convalidandumLiber(Iterable<Transactio> llt, List<Obstructionum> lo) async {
     // ltttip.addAll(liberTransactions);
-    // ltttip.addAll(lo.last.interioreObstructionum.expressiTransactions);
+    // ltttip.addAll(lo.last.interiore.expressiTransactions);
     for (Transactio lt in llt) {
-      switch(lt.interioreTransactio.transactioSignificatio) {
-        case TransactioSignificatio.regularis:
+      switch(lt.interiore.transactioSignificatio) {
+        case TransactioSignificatio.regularis: 
         case TransactioSignificatio.expressi:
         case TransactioSignificatio.refugium: {
           if (lt.minusQuamBidInProbationibus(llt, lo)) {
-            if (lt.interioreTransactio.liber) {
-              for (TransactioOutput to in lt.interioreTransactio.outputs) {
+            if (lt.interiore.liber) {
+              for (TransactioOutput to in lt.interiore.outputs) {
                 if (!await Pera.isPublicaClavisDefended(to.publicaClavis, lo)) {
                   Print.nota(nuntius: 'non potest mittere pecuniam publicam clavem indefensam', message: 'can not send money to undefended public key');
                   return false;
@@ -2181,22 +2142,100 @@ class ParAdRimor {
             return false;
           } 
           if (lt.solucionis(lo)){
-            Print.nota(nuntius: 'iusto negotio non potest esse solutio ratio', message: 'regular transaction can not be a payment account');
+            Print.nota(nuntius: 'iustam rem non ex pretio ratio', message: 'regular transaction can not come from a payment account');
             return false;
           } 
         }
         case TransactioSignificatio.ardeat:
         case TransactioSignificatio.perdita: {
-          if (!lt.estDominus(llt, lo) || lt.isFurantur() || lt.habetProfundum(lo) || !lt.verumMoles(llt, lo) || !lt.validateProbationem()) {
+          if (!lt.estDominus(llt, lo) || lt.isFurantur() || !lt.verumMoles(llt, lo) || !lt.validateProbationem()) {
             print('bailedliberconv');
             return false;
           }
           break;
         }
-        default: break;
+        case TransactioSignificatio.solucionis:  
+          if (!lt.convalidandumSolucionis(lo)) {
+            print('solucioniserr');
+            return false;
+          } 
+          continue sol;
+        case TransactioSignificatio.fissile: {
+          if (!lt.convalidandumSolucionisFissile(lo)) {
+            print('fissileerr');
+            return false;
+          }
+          continue sol;
+        }
+        case TransactioSignificatio.reliquiae: {
+         if (!lt.convalidandumSolucionisReliquiae(lo)) {
+            print('reliquiaeeerr');
+            return false;
+         } 
+         continue sol;
+        }
+        case TransactioSignificatio.praemium: {
+          Obstructionum incipio = await Obstructionum.accipereIncipio(directorium);
+          if (!lt.validateBlockreward(incipio)) {
+            return false;
+          }
+          if (!await Pera.isPublicaClavisDefended(lt.interiore.dominus, lo)) {
+            Print.nota(nuntius: 'non potest habere obstructionum merces cum clavis publica indefensa', message: 'can not have a block reward with a undefended public key');
+            return false;
+          }
+          break;
+        }
+        case TransactioSignificatio.transform: {
+          break;
+        }
+        sol:
+        default: {
+          if (!lt.verumMoles(llt, lo)) {
+            print('upferum');
+            return false;
+          }
+          for (TransactioOutput to in lt.interiore.outputs) {
+            if (!await Pera.isPublicaClavisDefended(to.publicaClavis, lo)) {
+              Print.nota(nuntius: 'non potest mittere pecuniam publicam clavem indefensam', message: 'can not send money to undefended public key');
+              return false;
+            }
+          }
+          break;
+        }
       }
     }
 
     return true;    
   }
+
+  void removerePropterNovumObstructionum(Obstructionum prior, Obstructionum novus) {
+  InFieriObstructionum ifo = novus.inFieriObstructionum();
+  ifo.gladiatorIdentitatum.forEach((gi) =>
+        isolates.propterIsolates[gi]?.kill(priority: Isolate.immediate));
+    ifo.liberTransactions.forEach((lt) =>
+        isolates.liberTxIsolates[lt]?.kill(priority: Isolate.immediate));
+    ifo.fixumTransactions.forEach((ft) =>
+        isolates.fixumTxIsolates[ft]?.kill(priority: Isolate.immediate));
+    ifo.expressiTransactions.forEach((et) =>
+        isolates.expressiTxIsolates[et]?.kill(priority: Isolate.immediate));
+    ifo.connexaLiberExpressis.forEach((cle) {
+      isolates.connexaLiberExpressiIsolates[cle]
+          ?.kill(priority: Isolate.immediate);
+    });
+    ifo.siRemotionems.forEach((sr) =>
+        isolates.siRemotionemIsolates[sr]?.kill(priority: Isolate.immediate));
+    ifo.solucionisRationibus.forEach((sr) => isolates.solocionisRationem[sr]?.kill(priority: Isolate.immediate));
+    ifo.fissileSolucionisRationibus.forEach((fsr) => isolates.fissileSolocionisRationem[fsr]?.kill(priority: Isolate.immediate));
+    rationibus.removeWhere((rwr) => ifo.gladiatorIdentitatum.any((agi) => agi == rwr.interiore.publicaClavis));
+    liberTransactions.removeWhere((rwlt) => ifo.liberTransactions.any((alt) => alt == rwlt.interiore.identitatis));
+    fixumTransactions.removeWhere((rwft) => ifo.fixumTransactions.any((aft) => aft == rwft.interiore.identitatis));
+    expressiTransactions.removeWhere((rwet) => ifo.expressiTransactions.any((aet) => aet == rwet.interiore.identitatis));
+    siRemotiones.removeWhere((rwsr) => ifo.siRemotionems.any((asr) => asr == rwsr.interiore.signatureInterioreSiRemotionem));
+    solucionisRationibus.removeWhere((rwsp) => ifo.solucionisRationibus.any((asp) => asp == rwsp.interioreSolucionisPropter.interioreInterioreSolucionisPropter.solucionis));
+    fissileSolucionisRationibus.removeWhere((rwfsp) => ifo.fissileSolucionisRationibus.any((afsp) => afsp == rwfsp.interioreFissileSolucionisPropter.interioreInterioreFissileSolucionisPropter.solucionis));
+    if ((prior.interiore.generare == Generare.efectus && novus.interiore.generare != Generare.efectus)) {
+      par!.expressiTransactions = [];
+    }
+  }
 }
+

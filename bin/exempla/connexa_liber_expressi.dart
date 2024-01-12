@@ -1,27 +1,21 @@
-import 'dart:convert';
-import 'package:crypto/crypto.dart';
 import 'package:elliptic/elliptic.dart';
-import 'package:hex/hex.dart';
 import 'constantes.dart';
 import 'pera.dart';
 import 'utils.dart';
 
 class InterioreConnexaLiberExpressi {
-  String liberIdentitatis;
-  List<String> expressiIdentitatum;
   String identitatis;
+  List<String> identitatum;
+  // String identitatis;
   InterioreConnexaLiberExpressi(
-      {required this.liberIdentitatis, required this.expressiIdentitatum})
-      : identitatis = Utils.randomHex(64);
+      {required this.identitatis, required this.identitatum});
   Map<String, dynamic> toJson() => {
-        JSON.liberIdentitatis: liberIdentitatis,
-        JSON.expressiIdentitatum: expressiIdentitatum,
         JSON.identitatis: identitatis,
+        JSON.identitatum: identitatum,
       };
   InterioreConnexaLiberExpressi.fromJson(Map<String, dynamic> map)
-      : liberIdentitatis = map[JSON.liberIdentitatis],
-        expressiIdentitatum = List<String>.from(map[JSON.expressiIdentitatum] as List<dynamic>),
-        identitatis = map[JSON.identitatis];
+      : identitatis = map[JSON.identitatis],
+        identitatum = List<String>.from(map[JSON.identitatum] as List<dynamic>);
 }
 
 class ConnexaLiberExpressi {

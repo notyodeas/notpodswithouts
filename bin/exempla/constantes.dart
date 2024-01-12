@@ -1,17 +1,16 @@
-import 'obstructionum.dart';
+
 
 class Constantes {
-  static BigInt obstructionumPraemium = BigInt.parse(
-      '7630000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000');
+  // static BigInt obstructionumPraemium = BigInt.parse('763000000000000000000');
 
   // static int maximeCaudicesFile = 1000000000000000000;
 
-  static int maximeCaudicesFile = 7637637637637637637;
+  static int maximeCaudicesFile = 763;
   // static int maximeCaudicesFile = 1;
 
-  static int perRationesObstructionum = 368;
+  // static int perRationesObstructionum = 368;
 
-  static int txCaudice = 368;
+  // static int txCaudice = 368;
 
   static String caudices = "/caudices_";
 
@@ -67,6 +66,7 @@ class JSON {
   static String telum = 'telum';
   static String arma = 'arma`';
   static String impetum = 'impetum';
+  static String impetus = 'impetus';
   static String includi = 'includi';
   static String rationemIdentitatis = 'rationemIdentitatis';
   static String priorTransactioIdentitatum = 'priorTransactioIdentitatum';
@@ -144,6 +144,16 @@ class JSON {
   static String interioreInterioreFissileSolucionisPropter = 'interiore-interiore-fissile-solucionis-propter';
   static String interioreSubmittereSiRemotionem = 'interiore-submittere-si-remotionem';
   static String interioreInterioreTransactio = 'interiore-interiore-transactio';
+  static String recipiens = 'recipiens';
+  static String interiore = 'interiore';
+  static String certitudo = 'certitudo';
+  static String inritaTransactions = 'inrita-transactions';
+  static String fixusIndex = 'fixus-index';
+  static String praemium = 'praemium';
+  static String bigas = 'bigas';
+  static String vos = 'vos';
+  static String novissime = 'novissime';
+  static String siRemotionemSignature = 'si-remotionem-signature';
 }
 
 class PervideasNuntiusCasibus {
@@ -199,6 +209,8 @@ class PervideasNuntiusCasibus {
   static String propter = 'propter';
   static String expressiTransactio = 'expressi-transactio';
   static String pervideasNuntius = 'pervideas-nuntius';
+  static String interiore = 'interiore';
+  static String it = 'it';
 }
 
 class PervideasNuntiusTitulus {
@@ -234,6 +246,7 @@ class PervideasNuntiusTitulus {
   static const String removeFissileSolucionisRationibus = 'remove-fissile-solucionis-rationibus';
   static const String removeConnexaLiberExpressis = 'remove-connexa-liber-expressis';
   static const String centumPercentAccepit = 'centum-percent-accepit';
-
+  static const String inritaTransactio = 'inrita-transactio';
+  static const String neTransactio = 'ne-transactio';
 
 }
