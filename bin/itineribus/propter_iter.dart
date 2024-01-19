@@ -3,6 +3,7 @@ import 'dart:isolate';
 
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
+import 'package:elliptic/elliptic.dart';
 
 import '../exempla/constantes.dart';
 import '../exempla/errors.dart';
@@ -10,17 +11,19 @@ import '../exempla/gladiator.dart';
 import '../exempla/obstructionum.dart';
 import '../exempla/pera.dart';
 import '../exempla/petitio/clavis_par.dart';
+import '../exempla/petitio/submittere_propter.dart';
 import '../exempla/responsio/propter_notitia.dart';
 import '../exempla/utils.dart';
 import 'dart:io';
 import '../server.dart';
 
 Future<Response> propterSubmittere(Request req) async {
-  String publica = req.params['publica-clavis']!;
+  SubmitterePropter sp = SubmitterePropter.fromJson(json.decode(await req.readAsString()));
   Directory directorium =
-      Directory('vincula/${argumentis!.obstructionumDirectorium}');
+      Directory('vincula/${argumentis!.obstructionumDirectorium}${Constantes.principalis}');
   List<Obstructionum> lo = await Obstructionum.getBlocks(directorium);
-  if (await Pera.isPublicaClavisDefended(publica, lo)) {
+  PrivateKey privatus = PrivateKey.fromHex(Pera.curve(), sp.ex);
+  if (await Pera.isPublicaClavisDefended(privatus.publicKey.toHex(), lo)) {
     return Response.badRequest(
         body: json.encode({
       "code": 0,
@@ -28,7 +31,7 @@ Future<Response> propterSubmittere(Request req) async {
       "message": "Public key  already defended"
     }));
   }
-  if (par!.rationibus.any((ap) => ap.interiore.publicaClavis == publica)) {
+  if (par!.rationibus.any((ap) => ap.interiore.publicaClavis == privatus.publicKey.toHex())) {
     return Response.badRequest(
           body: json.encode({
         "code": 1,
@@ -37,7 +40,11 @@ Future<Response> propterSubmittere(Request req) async {
     }));
   }
   ReceivePort acciperePortus = ReceivePort();
-  InteriorePropter interioreRationem = InteriorePropter(publica);
+  List<Quadrigis> lq = [];
+  for (String publicaClavis in sp.publicaClaves ?? []) {
+    lq.add(Quadrigis(sp.ex, publicaClavis));
+  }
+  InteriorePropter interioreRationem = InteriorePropter(privatus.toHex(), privatus.publicKey.toHex(), lq);
   isolates.propterIsolates[interioreRationem.publicaClavis] = await Isolate.spawn(
       Propter.quaestum,
       List<dynamic>.from([interioreRationem, acciperePortus.sendPort]));
@@ -52,21 +59,27 @@ Future<Response> propterSubmittere(Request req) async {
 
 
 Future<Response> propterSubmittereMulti(Request req) async {
-  List<String> lpc = List<String>.from(json.decode(await req.readAsString()));
+  List<SubmitterePropter> lsp = List<SubmitterePropter>.from(json.decode(await req.readAsString()));
   Directory directorium =
-      Directory('vincula/${argumentis!.obstructionumDirectorium}');
+      Directory('vincula/${argumentis!.obstructionumDirectorium}/${Constantes.principalis}');
   List<Obstructionum> lo = await Obstructionum.getBlocks(directorium);
-  for (String pc in lpc) {
-    if (await Pera.isPublicaClavisDefended(pc, lo)) {
-      return Response.badRequest(body: json.encode(BadRequest(code: 0, nuntius: 'the public key $pc iam defenditur', message: 'the public key $pc is already defended')));
+  for (SubmitterePropter sc in lsp) {
+    PrivateKey privatus = PrivateKey.fromHex(Pera.curve(), sc.ex);
+    if (await Pera.isPublicaClavisDefended(privatus.publicKey.toHex(), lo)) {
+      return Response.badRequest(body: json.encode(BadRequest(code: 0, nuntius: 'the public key ${privatus.publicKey.toHex()} iam defenditur', message: 'the public key ${privatus.publicKey.toHex()} is already defended')));
     }
-    if (par!.rationibus.any((ap) => ap.interiore.publicaClavis == pc)) {
-      return Response.badRequest(body: json.encode(BadRequest(code: 0, nuntius: 'clavis publica $pc iam in piscina defendi', message: 'the public key $pc is already in the pool to be defended')));
+    if (par!.rationibus.any((ap) => ap.interiore.publicaClavis == privatus.publicKey.toHex())) {
+      return Response.badRequest(body: json.encode(BadRequest(code: 0, nuntius: 'clavis publica ${privatus.publicKey.toHex()} iam in piscina defendi', message: 'the public key ${privatus.publicKey.toHex()} is already in the pool to be defended')));
     }
   }
   ReceivePort rp = ReceivePort();
-  for (String pc in lpc) {
-    InteriorePropter interiore = InteriorePropter(pc);
+  for (SubmitterePropter sp in lsp) {
+    PrivateKey privatus = PrivateKey.fromHex(Pera.curve(), sp.ex);
+    List<Quadrigis> lq = [];
+    for (String publicaClavis in sp.publicaClaves ?? []) {
+      lq.add(Quadrigis(sp.ex, publicaClavis));
+    }
+    InteriorePropter interiore = InteriorePropter(privatus.toHex(), privatus.publicKey.toHex(), lq);
     isolates.propterIsolates[interiore.publicaClavis] = await Isolate.spawn(Propter.quaestum, List<dynamic>.from([interiore, rp.sendPort]));
   }
   rp.listen((propter) {
@@ -80,7 +93,7 @@ Future<Response> propterSubmittereMulti(Request req) async {
 Future<Response> propterStatus(Request req) async {
   String publica = req.params['publica-clavis']!;
   Directory directory =
-      Directory('vincula/${argumentis!.obstructionumDirectorium}');
+      Directory('vincula/${argumentis!.obstructionumDirectorium}${Constantes.principalis}');
   List<Obstructionum> obs = [];
   for (int i = 0; i < directory.listSync().length; i++) {
     await for (String obstructionum in Utils.fileAmnis(
@@ -146,7 +159,7 @@ Future<Response> propterStagnum(Request req) async {
 Future<Response> propterHabetBid(Request req) async {
   final String publica = req.params['publica-clavis']!;
   Directory directorium =
-      Directory('vincula/${argumentis!.obstructionumDirectorium}');
+      Directory('vincula/${argumentis!.obstructionumDirectorium}${Constantes.principalis}');
   List<Obstructionum> lo = await Obstructionum.getBlocks(directorium);
   final BigInt liber = await Pera.habetBid(true, publica, lo);
   final BigInt fixum = await Pera.habetBid(false, publica, lo);
@@ -156,3 +169,12 @@ Future<Response> propterHabetBid(Request req) async {
   }));
 }
 
+Future<Response> propterStagnumRemove(Request req) async {
+  String ex = req.params['ex']!;
+  RemovePropterStagnum rps = RemovePropterStagnum(ex, PrivateKey.fromHex(Pera.curve(), ex).publicKey.toHex());
+  par!.removePropterStagnum(rps);
+  return Response.ok(json.encode({
+    "nuntius": "remota propter a piscinam",
+    "message": "removed propter from pool"
+  }));
+}

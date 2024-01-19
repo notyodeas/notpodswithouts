@@ -12,7 +12,7 @@ import '../server.dart';
 
 Future<Response> statera(Request req) async {
   Directory directory = Directory(
-      '${Constantes.vincula}/${argumentis!.obstructionumDirectorium}');
+      '${Constantes.vincula}/${argumentis!.obstructionumDirectorium}${Constantes.principalis}');
   String publicaClavis = req.params['publica-clavis']!;
   List<Obstructionum> lo = await Obstructionum.getBlocks(directory);
   BigInt stateraLiber = await Pera.statera(true, publicaClavis, lo);

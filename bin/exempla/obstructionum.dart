@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:ecdsa/ecdsa.dart';
 import '../auxiliatores/print.dart';
@@ -11,13 +10,16 @@ import 'package:hex/hex.dart';
 import 'dart:async';
 import 'dart:io';
 import 'dart:isolate';
+import 'dart:convert';
 import 'package:tuple/tuple.dart';
 import 'package:collection/collection.dart';
 import 'package:elliptic/elliptic.dart';
 
 import 'pera.dart';
+import 'si_remotionem.dart';
 import 'solucionis_propter.dart';
 import 'telum.dart';
+import '../server.dart';
 
 enum Generare { incipio, efectus, confussus, expressi }
 
@@ -96,7 +98,7 @@ class InterioreObstructionum {
       : indicatione = DateTime.now().microsecondsSinceEpoch,
         nonce = BigInt.zero;
 
-  InterioreObstructionum.incipio({required this.producentis, required BigInt praemium})
+  InterioreObstructionum.incipio({ required String ex, required this.producentis, required BigInt praemium})
       : generare = Generare.incipio,
         estFurca = false,
         numeruCuneosMaximumsOrdinata = 7637637637637637637,
@@ -113,7 +115,7 @@ class InterioreObstructionum {
         defensio = [],
         impetus = [],
         priorProbationem = '',
-        gladiator = Gladiator.nullam(InterioreGladiator.incipio(producentis)),
+        gladiator = Gladiator.nullam(InterioreGladiator.incipio(ex, producentis)),
         liberTransactions = List<Transactio>.from(
             [Transactio.nullam(InterioreTransactio.praemium(producentis, praemium))]),
         fixumTransactions = [],
@@ -307,7 +309,8 @@ class InFieriObstructionum {
   List<String> fixumTransactions = [];
   List<String> expressiTransactions = [];
   List<String> connexaLiberExpressis = [];
-  List<String> siRemotionems = [];
+  List<String> siRemotionemOutputs = [];
+  List<String> siRemotionemInputs = [];
   List<String> solucionisRationibus = [];
   List<String> fissileSolucionisRationibus = [];
   InFieriObstructionum({
@@ -316,7 +319,8 @@ class InFieriObstructionum {
       required this.fixumTransactions,
       required this.expressiTransactions,
       required this.connexaLiberExpressis,
-      required this.siRemotionems,
+      required this.siRemotionemInputs,
+      required this.siRemotionemOutputs,
       required this.solucionisRationibus,
       required this.fissileSolucionisRationibus 
   });
@@ -414,23 +418,38 @@ class Obstructionum {
   }
 
   Future salvareIncipio(Directory dir) async {
-    File file = await File('${dir.path}${Constantes.caudices}0.txt')
+    File file = await File('${Constantes.vincula}/${argumentis!.obstructionumDirectorium}${Constantes.principalis}${Constantes.caudices}0.txt')
         .create(recursive: true);
+    await File('${Constantes.vincula}/${argumentis!.obstructionumDirectorium}${Constantes.exitus}.txt').create(recursive: true);
+    await File('${Constantes.vincula}/${argumentis!.obstructionumDirectorium}${Constantes.latus}.txt').create(recursive: true);
+
     await interioreSalvare(file);
   }
 
   Future salvare(Directory dir) async {
     File file = await File(
-            '${dir.path}${Constantes.caudices}${(dir.listSync().length - 1)}.txt')
+            '${Constantes.vincula}/${argumentis!.obstructionumDirectorium}${Constantes.principalis}${Constantes.caudices}${(dir.listSync().length - 1)}.txt')
         .create(recursive: true);
     if (await Utils.fileAmnis(file).length > Constantes.maximeCaudicesFile) {
       file = await File(
-              '${dir.path}${Constantes.caudices}${(dir.listSync().length)}.txt')
+              '${Constantes.vincula}/${argumentis!.obstructionumDirectorium}${Constantes.principalis}${Constantes.caudices}${(dir.listSync().length)}.txt')
           .create(recursive: true);
       await interioreSalvare(file);
     } else {
       await interioreSalvare(file);
     }
+  }
+  Future salvareExitus(Directory dir) async {
+    File file = await File(
+            '${Constantes.vincula}/${argumentis!.obstructionumDirectorium}${Constantes.exitus}.txt')
+        .create(recursive: true);
+    await interioreSalvare(file);
+  }
+  Future salvareLatus(Directory dir) async {
+    File file = await File(
+            '${Constantes.vincula}/${argumentis!.obstructionumDirectorium}${Constantes.latus}.txt')
+        .create(recursive: true);
+    await interioreSalvare(file);
   }
 
   Future interioreSalvare(File file) async {
@@ -441,19 +460,19 @@ class Obstructionum {
 
   static Future<Obstructionum> accipereIncipio(Directory directorium) async {
     return Obstructionum.fromJson(json.decode(await Utils.fileAmnis(
-            File('${directorium.path}${Constantes.caudices}0.txt'))
+            File('${Constantes.vincula}/${argumentis!.obstructionumDirectorium}${Constantes.principalis}${Constantes.caudices}0.txt'))
         .first) as Map<String, dynamic>);
   }
 
   static Future<Obstructionum> acciperePrior(Directory directorium) async =>
       Obstructionum.fromJson(json.decode(await Utils.fileAmnis(File(
-              '${directorium.path}${Constantes.caudices}${(directorium.listSync().isNotEmpty ? directorium.listSync().length - 1 : 0)}.txt'))
+              '${Constantes.vincula}/${argumentis!.obstructionumDirectorium}${Constantes.principalis}${Constantes.caudices}${(directorium.listSync().isNotEmpty ? directorium.listSync().length - 1 : 0)}.txt'))
           .last) as Map<String, dynamic>);
 
   static Future<Obstructionum> accipereObstructionNumerus(
       List<int> numerus, Directory directory) async {
     File file =
-        File('${directory.path}/${Constantes.caudices}${numerus.length - 1}');
+        File('${Constantes.vincula}/${argumentis!.obstructionumDirectorium}${Constantes.principalis}${Constantes.caudices}${numerus.length - 1}');
     List<String> lines = await Utils.fileAmnis(file).toList();
     return Obstructionum.fromJson(
         json.decode(lines[numerus.last]) as Map<String, dynamic>);
@@ -492,7 +511,7 @@ class Obstructionum {
     List<Tuple3<String, GladiatorOutput, bool>> gladiatorOutputs = [];
     for (int i = 0; i < directory.listSync().length; i++) {
       caudices.addAll(await Utils.fileAmnis(
-              File('${directory.path}${Constantes.caudices}$i.txt'))
+              File('${Constantes.vincula}/${argumentis!.obstructionumDirectorium}${Constantes.principalis}${Constantes.caudices}$i.txt'))
           .map((b) =>
               Obstructionum.fromJson(json.decode(b) as Map<String, dynamic>))
           .toList());
@@ -523,14 +542,10 @@ class Obstructionum {
 
   static Future<BigInt> utSummaDifficultas(List<Obstructionum> lo) async {
     List<GladiatorOutput> lgo = await Obstructionum.utDifficultas([lo.first]);
-    print('lgolength \n ${lgo.length}');
     BigInt total = BigInt.from(lgo.length);
-    print('lohasduplicateforsure \n\n ${lo.map((e) => e.toJson())}');
     for (Obstructionum o in lo) {
-      print('okeyappend \n ${o.interiore.obstructionumDifficultas}');
       total += BigInt.from(o.interiore.obstructionumDifficultas);
     }
-    print('withtotal \n$total');
     return total;
   }
 
@@ -560,10 +575,27 @@ class Obstructionum {
     List<Obstructionum> obs = [];
     for (int i = 0; i < directory.listSync().length; i++) {
       await for (String line in Utils.fileAmnis(
-          File('${directory.path}${Constantes.caudices}$i.txt'))) {
+          File('${Constantes.vincula}/${argumentis!.obstructionumDirectorium}${Constantes.principalis}${Constantes.caudices}$i.txt'))) {
         obs.add(
             Obstructionum.fromJson(json.decode(line) as Map<String, dynamic>));
       }
+    }
+    return obs;
+  }
+  static Future<List<Obstructionum>> getExitusBlocks() async {
+    List<Obstructionum> obs = [];
+    await for (String line in Utils.fileAmnis(File('${Constantes.vincula}/${argumentis!.obstructionumDirectorium}${Constantes.exitus}.txt'))) {
+      obs.add(
+          Obstructionum.fromJson(json.decode(line) as Map<String, dynamic>));
+    }
+    return obs;
+  }
+  static Future<List<Obstructionum>> getLatusBlocks() async {
+    List<Obstructionum> obs = [];
+    await for (String line in Utils.fileAmnis(
+        File('${Constantes.vincula}/${argumentis!.obstructionumDirectorium}${Constantes.latus}.txt'))) {
+      obs.add(
+          Obstructionum.fromJson(json.decode(line) as Map<String, dynamic>));
     }
     return obs;
   }
@@ -676,10 +708,6 @@ class Obstructionum {
 
   static Future<Corrumpo> estVerum(
       InterioreObstructionum adventientis, List<Obstructionum> lo) async {
-    print('wehad');
-    print(adventientis.summaObstructionumDifficultas);
-    print('shouldhavebeen');
-    print(await Obstructionum.utSummaDifficultas(lo));
     if (adventientis.forumCap != await Obstructionum.accipereForumCap(lo)) {
       return Corrumpo.forumCap;
     } else if (adventientis.summaObstructionumDifficultas !=
@@ -711,7 +739,6 @@ class Obstructionum {
     if (interiore.fixumTransactions.any((ft) =>
         ft.interiore.transactioSignificatio ==
         TransactioSignificatio.praemium)) {
-      print('idkone');
       return false;
     }
     if (interiore.liberTransactions
@@ -720,7 +747,6 @@ class Obstructionum {
                 TransactioSignificatio.praemium)
             .length >
         1) {
-      print('idktwo');
       return false;
     }
     Transactio t = interiore.liberTransactions.singleWhere(
@@ -728,7 +754,6 @@ class Obstructionum {
             swlt.interiore.transactioSignificatio ==
             TransactioSignificatio.praemium);
     if (t.interiore.outputs.length > 1) {
-      print('idkthree');
       return false;
     }
     return t.interiore.outputs[0].pod ==
@@ -750,7 +775,7 @@ class Obstructionum {
       for (int i = 0;
           i < hNostrum.interiore.obstructionumNumerus.length;
           i++) {
-        File f = File('${directorium.path}${Constantes.caudices}$i.txt');
+        File f = File('${Constantes.vincula}/${argumentis!.obstructionumDirectorium}${Constantes.principalis}${Constantes.caudices}$i.txt');
         List<String> ss = await Utils.fileAmnis(f).toList();
         ss.removeRange(foramen.interiore.obstructionumNumerus.last,
             ss.length);
@@ -762,22 +787,13 @@ class Obstructionum {
         }
         await sink.close();
       }
-    } else {
-      //still
-      // for (int i =
-      //         adventientis.interiore.obstructionumNumerus.length;
-      //     i < hNostrum.interiore.obstructionumNumerus.length;
-      //     i--) {
-      //   File f = File('${directorium.path}${Constantes.caudices}$i.txt');
-      //   f.deleteSync();
-      //   List<String> ss = await Utils.fileAmnis(f).toList();
-      //   var sink = f.openWrite(mode: FileMode.append);
-      //   for (String jobs in ss) {
-      //     sink.write('$jobs\n');
-      //   }
-      //   sink.close();
-      // }
     }
+    //todo else 
+  }
+  static Future removereExitus(Obstructionum foramen, Directory directorium) async {
+    File f = File('${Constantes.vincula}/${argumentis!.obstructionumDirectorium}${Constantes.principalis}{Constantes.exitus}.txt');
+    List<String> ss = await Utils.fileAmnis(f).toList();
+    ss.removeAt(ss.indexOf(json.encode(foramen.toJson()))); 
   }
 
   InFieriObstructionum inFieriObstructionum() {
@@ -797,13 +813,15 @@ class Obstructionum {
     List<String> cles = interiore.connexaLiberExpressis
         .map((cle) => cle.interioreConnexaLiberExpressi.identitatis)
         .toList();
-    List<String> srs = interiore.siRemotiones
+    List<String> srsonn = interiore.siRemotiones.where((wsr) => wsr.interiore.siRemotionemOutput != null)
         .map(
             (msr) => msr.interiore.signatureInterioreSiRemotionem!)
         .toList();
+    List<String> srsinn = interiore.siRemotiones.where((wsr) => wsr.interiore.siRemotionemInput != null)
+        .map((msr) => msr.interiore.siRemotionemInput!.siRemotionemSignature).toList();
     List<String> sp = interiore.solucionisRationibus.map((msp) => msp.interioreSolucionisPropter.interioreInterioreSolucionisPropter.solucionis).toList();
     List<String> fsp = interiore.fissileSolucionisRationibus.map((mfsp) => mfsp.interioreFissileSolucionisPropter.interioreInterioreFissileSolucionisPropter.solucionis).toList();
-    return InFieriObstructionum(gladiatorIdentitatum: gladiatorIdentitatum, liberTransactions: lt, fixumTransactions: ft, expressiTransactions: et, connexaLiberExpressis: cles, siRemotionems: srs, solucionisRationibus: sp, fissileSolucionisRationibus: fsp);
+    return InFieriObstructionum(gladiatorIdentitatum: gladiatorIdentitatum, liberTransactions: lt, fixumTransactions: ft, expressiTransactions: et, connexaLiberExpressis: cles, siRemotionemInputs: srsinn, siRemotionemOutputs: srsonn, solucionisRationibus: sp, fissileSolucionisRationibus: fsp);
   }
 
   Future<bool> convalidandumTransform(List<Obstructionum> lo) async {
@@ -868,7 +886,6 @@ class Obstructionum {
     for (TransactioOutput to in ltoProducer) {
       rfixum += to.pod;
     }
-    print('fixum $fixum and $rfixum');
     return fixum == rfixum;
   }
   // mab y map and addal in inner for loop have conccerns
@@ -909,7 +926,6 @@ class Obstructionum {
     for (TransactioOutput to in ltoi) {
       conbusit += to.pod;
     }
-    print('comburantur $comburantur and conbusit $conbusit');
     return comburantur == conbusit;
   }
   Future<bool> vicit(List<Obstructionum> lo) async {
@@ -949,13 +965,8 @@ class Obstructionum {
         .map((mvdf) => mvdf.telum)
         .forEach(victimaDefensiones.addAll);
     List<String> requiritur = victimaDefensiones;
-    print('reqbefremv $requiritur');
-    print('impetusbefrem $inimicusImpetus');
     requiritur.removeWhere((rwr) => inimicusImpetus.any((aii) => aii == rwr));
-    print('requiritur $requiritur');
-    print('vicitprob $probationem');
     if (!requiritur.every((er) => probationem.contains(er))) {
-      print('itsamatterofattacksordefencesintheprobationem');
       return false;
     }
     List<GladiatorInput?> lgi = [];
@@ -977,7 +988,6 @@ class Obstructionum {
         PublicKey.fromHex(Pera.curve(), interiore.producentis),
         Signature.fromASN1Hex(gi.signature),
         go)) {
-      print('itsamatterofsignature');
       return false;
     }
     return true;
@@ -1072,11 +1082,11 @@ class Obstructionum {
     Obstructionum prioro = await Obstructionum.acciperePrior(directorium);
     if (prioro.interiore.obstructionumNumerus
         .any((aon) => aon == 0)) {
-      File('${directorium.path}/${Constantes.caudices}${prioro.interiore.obstructionumNumerus.length - 1}.txt')
+      File('${Constantes.vincula}/${argumentis!.obstructionumDirectorium}${Constantes.principalis}${Constantes.caudices}${prioro.interiore.obstructionumNumerus.length - 1}.txt')
           .deleteSync();
     } else {
       File f = File(
-          '${directorium.path}/${Constantes.caudices}${directorium.listSync().length - 1}.txt');
+          '${Constantes.vincula}/${argumentis!.obstructionumDirectorium}${Constantes.principalis}${Constantes.caudices}${directorium.listSync().length - 1}.txt');
       List<String> os = await Utils.fileAmnis(f).toList();
       os.removeLast();
       f.deleteSync();
@@ -1084,8 +1094,36 @@ class Obstructionum {
       for (String o in os) {
         s.write('$o\n');
       }
-      s.close();
+      await s.close();
     }
+  }
+  // [1] geeft length van 1
+  // [1, 1] geeft length van 2
+//  setl je voor prior heeft een numerus van [8, 8, 5];
+  // en donec heeft een numerus van [5] 
+//   
+  static Future removereAdProbationemObstructionum(String probationem, Directory directorium) async {
+    List<Obstructionum> lo = await Obstructionum.getBlocks(directorium);
+    Obstructionum prioro = await Obstructionum.acciperePrior(directorium);
+    Obstructionum donec = lo.singleWhere((swlo) => swlo.probationem == probationem);
+    print(' \n iamconf \n');
+    print(donec.toJson());
+    // int donecLength = donec.interiore.obstructionumNumerus.length;
+    if (prioro.interiore.obstructionumNumerus.length > donec.interiore.obstructionumNumerus.length) {
+      for (int i = prioro.interiore.obstructionumNumerus.length-1; i >= donec.interiore.obstructionumNumerus.length; i--) {
+        File('${Constantes.vincula}/${argumentis!.obstructionumDirectorium}${Constantes.principalis}${Constantes.caudices}$i.txt').deleteSync();
+        // prioro.interiore.obstructionumNumerus.removeAt(i);
+      }
+    }
+    File f = File('${Constantes.vincula}/${argumentis!.obstructionumDirectorium}${Constantes.principalis}${Constantes.caudices}${directorium.listSync().length - 1}.txt');
+    List<String> os = await Utils.fileAmnis(f).toList();
+    os.removeRange(donec.interiore.obstructionumNumerus.last+1, os.length);
+    f.deleteSync();
+    var s = f.openWrite(mode: FileMode.append);
+    for (String o in os) {
+      s.write('$o\n');
+    }
+    await s.close();
   }
   
   Future<bool> convalidandumRationibus(List<Obstructionum> lo) async {

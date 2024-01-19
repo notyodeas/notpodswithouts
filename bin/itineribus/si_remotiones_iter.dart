@@ -2,13 +2,16 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
 
+import 'package:ecdsa/ecdsa.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 import '../exempla/constantes.dart';
 import '../exempla/errors.dart';
 import '../exempla/obstructionum.dart';
 import '../exempla/pera.dart';
+import '../exempla/petitio/si_remotionem_remove.dart';
 import '../exempla/petitio/submittere_si_remotionem.dart';
+import '../exempla/si_remotionem.dart';
 import '../exempla/transactio.dart';
 import '../exempla/utils.dart';
 import '../server.dart';
@@ -42,6 +45,9 @@ Future<Response> siRemotionessubmittereProof(Request req) async {
       nuntius: 'Non es receptator negotii, scribe identitatem rerum cum accipientibus clavis privatis', 
       message: 'you are not the receiver of the transaction, please sign the transactions identity with the receivers private key').toJson()));
   }
+  if (lt.interiore.certitudo != null) {
+    return Response.badRequest(body: json.encode(BadRequest(code: 2, nuntius: 'transaction iam signatum per eum qui accipit', message: 'transaction is already signed by the receiver')));
+  }
   List<Transactio> lte = [];
   lt.interiore.certitudo = Utils.signumIdentitatis(PrivateKey.fromHex(Pera.curve(), ssr.ex), lt.interiore.identitatis);
   Transactio? et = par!.expressiTransactions.singleWhere((swet) => swet.interiore.inputs.any((ai) => ai.transactioIdentitatis == lt.interiore.identitatis));
@@ -69,7 +75,7 @@ Future<Response> siRemotionesreprehendoSiExistat(Request req) async {
   bool liber = bool.parse(req.params[JSON.liber]!);
   String identitatis = req.params[JSON.identitatis]!;
   Directory directorium = Directory(
-      '${Constantes.vincula}/${argumentis!.obstructionumDirectorium}');
+      '${Constantes.vincula}/${argumentis!.obstructionumDirectorium}${Constantes.principalis}');
   if (liber
       ? par!.liberTransactions
           .any((alt) => alt.interiore.identitatis == identitatis)
@@ -96,7 +102,7 @@ Future<Response> siRemotionesdenuoProponendam(Request req) async {
   InterioreSiRemotionem sr =
       InterioreSiRemotionem.fromJson(json.decode(await req.readAsString()));
   Directory directorium = Directory(
-      '${Constantes.vincula}/${argumentis!.obstructionumDirectorium}');
+      '${Constantes.vincula}/${argumentis!.obstructionumDirectorium}${Constantes.principalis}');
   List<Obstructionum> lo = await Obstructionum.getBlocks(directorium);
   if (!sr.siRemotionemOutput!.estTransactionIdentitatisAdhucPraesto(lo, null) || par!.inritaTransactions.any((ait) => ait.interiore.identitatis == sr.siRemotionemOutput!.transactioIdentitatis)) {
     return Response.badRequest(body: json.encode(BadRequest(code: 0, nuntius: 'rem tollitur rei ante susceptor signati dominus rei', message: 'transaction is removed by the owner of the transaction before the receiver signed it')));
@@ -133,4 +139,19 @@ Future<Response> siRemotionesdenuoProponendam(Request req) async {
 Future<Response> siRemotionesStagnum(Request req) async {
   return Response.ok(
       json.encode(par!.siRemotiones.map((e) => e.toJson()).toList()));
+}
+
+Future<Response> siRemotionemsRemove(Request req) async {
+  SiRemotionemRemove srr = SiRemotionemRemove.fromJson(json.decode(await req.readAsString()));
+  SiRemotionem sr = par!.siRemotiones.singleWhere((swlsr) => swlsr.interiore.signatureInterioreSiRemotionem == srr.signature);
+  SiRemotionemRemoveNuntius srrn = SiRemotionemRemoveNuntius(ex: srr.ex, transactioIdentitatis: sr.interiore.siRemotionemOutput!.transactioIdentitatis, signatureIdentitatis: srr.signature);
+  PrivateKey pk = PrivateKey.fromHex(Pera.curve(), srr.ex);
+  if (!Utils.cognoscereIdentitatis(PublicKey.fromHex(Pera.curve(), pk.publicKey.toHex()), Signature.fromASN1Hex(srrn.signature), srrn.transactioIdentitatis)) {
+    return Response.badRequest(body: json..encode(BadRequest(code: 0, nuntius: 'hoc removendi ius non habes', message: 'you dont have the right to remove this si remotionem')));
+  }
+  par!.removeSiRemotionem(srrn);
+  return Response.ok(json.encode({
+    "nuntius": "remota si remotionem a piscinam",
+    "message": "removed si remotionem from the pool"
+  }));
 }

@@ -9,6 +9,7 @@
 import 'dart:io';
 
 import 'package:shelf/shelf.dart';
+import 'package:shelf_router/shelf_router.dart';
 import 'dart:convert';
 import '../exempla/obstructionum.dart';
 import '../exempla/petitio/probationem_jugum.dart';
@@ -21,7 +22,7 @@ Future<Response> obstructionumPerNumerus(Request req) async {
   final List<int> on = List<int>.from(json.decode(await req.readAsString()));
   try {
     File file = File(
-        'vincula/${argumentis!.obstructionumDirectorium}/${Constantes.caudices}${(on.length - 1).toString()}.txt');
+        'vincula/${argumentis!.obstructionumDirectorium}${Constantes.principalis}/${Constantes.caudices}${(on.length - 1).toString()}.txt');
     return Response.ok(await Utils.fileAmnis(file)
         .elementAt(on[on.length - 1]));
   } catch (err) {
@@ -35,14 +36,14 @@ Future<Response> obstructionumPerNumerus(Request req) async {
 
 Future<Response> obstructionumPrior(Request req) async {
   Directory directorium = Directory(
-      '${Constantes.vincula}/${argumentis!.obstructionumDirectorium}');
+      '${Constantes.vincula}/${argumentis!.obstructionumDirectorium}${Constantes.principalis}');
   Obstructionum o = await Obstructionum.acciperePrior(directorium);
   return Response.ok(json.encode(o.toJson()));
 }
 
 Future<Response> obstructionumRemovereUltimum(Request req) async {
   Directory directorium =
-      Directory('vincula/${argumentis!.obstructionumDirectorium}');
+      Directory('vincula/${argumentis!.obstructionumDirectorium}${Constantes.principalis}');
   Obstructionum obs = await Obstructionum.acciperePrior(directorium);
   if (obs.interiore.generare == Generare.incipio) {
     return Response.badRequest(
@@ -63,10 +64,22 @@ Future<Response> obstructionumRemovereUltimum(Request req) async {
     "obstructionum": obs.toJson()
   }));
 }
+Future<Response> obstructionumRemovereAdProbationem(Request req) async {
+  String probationem = req.params['probationem']!;
+  Directory directorium =
+      Directory('vincula/${argumentis!.obstructionumDirectorium}${Constantes.principalis}');
+  await Obstructionum.removereAdProbationemObstructionum(probationem, directorium);
+  Obstructionum prior = await Obstructionum.acciperePrior(directorium);
+  return Response.ok(json.encode({
+    "nuntius": "removisti caudices usque ad ${prior.interiore.obstructionumNumerus} obstructionum infra est summum obstructionum nunc",
+    "message": "you have removed blocks untill ${prior.interiore.obstructionumNumerus} the block below is your highest block now",
+    "obstructionum": prior.toJson()
+  }));
+}
 
 Future<Response> obstructionumNumerus(Request req) async {
   Directory directorium = Directory(
-      '${Constantes.vincula}/${argumentis!.obstructionumDirectorium}');
+      '${Constantes.vincula}/${argumentis!.obstructionumDirectorium}${Constantes.principalis}');
   Obstructionum obs = await Obstructionum.acciperePrior(directorium);
   return Response.ok(json
       .encode({"numerus": obs.interiore.obstructionumNumerus}));
@@ -76,7 +89,7 @@ Future<Response> obstructionumProbationemJugum(Request req) async {
   ProbationemJugum pj =
       ProbationemJugum.fromJson(json.decode(await req.readAsString()));
   Directory directorium = Directory(
-      '${Constantes.vincula}/${argumentis!.obstructionumDirectorium}');
+      '${Constantes.vincula}/${argumentis!.obstructionumDirectorium}${Constantes.principalis}');
   List<Obstructionum> obs = await Obstructionum.getBlocks(directorium);
   if (obs.length == 1) return Response.ok([obs.first.probationem]);
   int start = 0;

@@ -12,7 +12,7 @@ import '../server.dart';
 
 Future<Response> submittereFixumTransaction(Request req) async {
   Directory directorium = Directory(
-      '${Constantes.vincula}/${argumentis!.obstructionumDirectorium}');
+      '${Constantes.vincula}/${argumentis!.obstructionumDirectorium}${Constantes.principalis}');
   SubmittereTransaction st = SubmittereTransaction.fromJson(
       await req.readAsString() as Map<String, dynamic>);
   List<Obstructionum> lo = await Obstructionum.getBlocks(directorium);

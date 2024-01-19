@@ -10,7 +10,9 @@ import '../exempla/constantes.dart';
 import '../exempla/gladiator.dart';
 import '../exempla/errors.dart';
 import 'obstructionum_arma.dart';
+import 'si_remotionem.dart';
 import 'telum.dart';
+import '../server.dart';
 
 import 'telum_exemplar.dart';
 
@@ -283,7 +285,7 @@ class Pera {
     List<Transactio> txs = [];
     for (int i = 0; i < directory.listSync().length; i++) {
       await for (var line in Utils.fileAmnis(
-          File('${directory.path}${Constantes.caudices}$i.txt'))) {
+          File('${Constantes.vincula}/${argumentis!.obstructionumDirectorium}${Constantes.principalis}${Constantes.caudices}$i.txt'))) {
         txs.addAll(liber
             ? Obstructionum.fromJson(json.decode(line) as Map<String, dynamic>)
                 .interiore

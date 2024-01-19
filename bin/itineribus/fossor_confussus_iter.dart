@@ -10,6 +10,7 @@ import '../exempla/gladiator.dart';
 import '../exempla/obstructionum.dart';
 import '../exempla/pera.dart';
 import '../exempla/petitio/incipit_pugna.dart';
+import '../exempla/si_remotionem.dart';
 import '../exempla/transactio.dart';
 import 'package:shelf/shelf.dart';
 import '../exempla/constantes.dart';
@@ -21,7 +22,7 @@ Future<Response> fossorConfussus(Request req) async {
     IncipitPugna ip =
     IncipitPugna.fromJson(json.decode(await req.readAsString()));
     Directory directorium =
-      Directory('vincula/${argumentis!.obstructionumDirectorium}');
+      Directory('${Constantes.vincula}/${argumentis!.obstructionumDirectorium}${Constantes.principalis}');
 
     Obstructionum prior = await Obstructionum.acciperePrior(directorium);
     List<Obstructionum> lo = await Obstructionum.getBlocks(directorium);
@@ -60,10 +61,10 @@ Future<Response> fossorConfussus(Request req) async {
     if (publica != argumentis!.publicaClavis) {
       return Response.badRequest(body: json.encode(BadRequest(code: 3, nuntius: 'doleo te solum posse meum confussum vel expressi cum clavis privatis quae ad argumentum producentis in nodi launch datam pertinet', message: 'sorry you can only mine a confussus or expressi with the private key that belongs to the argument of producentis given on node launch')));
     }
-    Iterable<Transactio> ltsr = par!.siRemotiones.where((wsr) => wsr.interiore.siRemotionemInput != null).map((msr) => Transactio.nullam(msr.interiore.siRemotionemInput!.interioreTransactio!));
-    List<Transactio> lt = par!.liberTransactions;
-    lt.addAll(ltsr);
-    COE coe = await COE.computo(100, prior, gladiator, ip, lt, lo);
+    List<Transactio> ltsr = [];
+    ltsr.addAll(par!.liberTransactions);
+    ltsr.addAll(par!.siRemotiones.where((wsr) => wsr.interiore.siRemotionemInput != null).map((msr) => Transactio.nullam(msr.interiore.siRemotionemInput!.interioreTransactio!)));
+    COE coe = await COE.computo(100, prior, gladiator, ip, ltsr, lo);
     FossorPraecipuus fp = FossorPraecipuus.coe(
       llttbi: coe.llt, 
       lfttbi: coe.lft
@@ -71,11 +72,11 @@ Future<Response> fossorConfussus(Request req) async {
     fp.accipere(
       efectus: false, 
       maxime: coe.maxime, 
-      llt: [], 
-      lft: [],
+      llt: ltsr, 
+      lft: par!.fixumTransactions,
       let: par!.expressiTransactions, 
       lcle: par!.connexiaLiberExpressis, 
-      lsr: [], 
+      lsr: par!.siRemotiones, 
       lp: par!.rationibus, 
       lsp: par!.solucionisRationibus, 
       lfsp: par!.fissileSolucionisRationibus, 

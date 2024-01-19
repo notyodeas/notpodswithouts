@@ -7,6 +7,7 @@ import '../exempla/gladiator.dart';
 import '../exempla/obstructionum.dart';
 import '../exempla/pera.dart';
 import '../exempla/petitio/incipit_pugna.dart';
+import '../exempla/si_remotionem.dart';
 import '../exempla/solucionis_propter.dart';
 import '../exempla/transactio.dart';
 import 'package:collection/collection.dart';
@@ -104,11 +105,13 @@ class FossorPraecipuus {
   List<Transactio> lfttbui = [];
   List<Transactio> lfttbi = [];
   List<String> lfti = [];
+  List<Propter> lptbit = [];
   List<Propter> lptbi = [];
   List<String> lpi = [];
   List<SiRemotionem> lsrtbi = [];
   List<String> lsrsoo = [];
   List<String> lsrsoi = [];
+  List<String> lsriti = [];
   List<SolucionisPropter> lsptbi = [];
   List<String> lspi = [];
   List<FissileSolucionisPropter> lfsptbi = [];
@@ -150,7 +153,7 @@ class FossorPraecipuus {
     llttm.map((mlt) => mlt.interiore.identitatis).forEach(referreDebetIdentitatumLiber.add);
     bool istxs = false;
     bool capta = false;
-    for (int i = 128; i > 0; i--) {
+    for (int i = 6; i > 0; i--) {
       capta = false;
       istxs = true;
       while ((maxime > 0 && !capta) || (istxs && !capta)) {
@@ -226,7 +229,8 @@ class FossorPraecipuus {
         lsrsoo.addAll(lsrtbi.where((wlsrtbi) => wlsrtbi.interiore.siRemotionemOutput != null && !lsrsoo.contains(wlsrtbi.interiore.signatureInterioreSiRemotionem) && wlsrtbi.interiore.siRemotionemOutput != null).map((msr) => msr.interiore.signatureInterioreSiRemotionem!));        
         maxime -= (lsrtbi.length - tssr);
         List<Transactio> lltrbsr = [];
-        lsrtbi.where((wsr) => wsr.interiore.siRemotionemInput != null && wsr.interiore.siRemotionemInput!.interioreTransactio!.liber && !lsrsoi.contains(wsr.interiore.siRemotionemInput!.siRemotionemSignature)).map((msr) => Transactio.nullam(msr.interiore.siRemotionemInput!.interioreTransactio!)).forEach(lltrbsr.add);
+        lsrtbi.where((wsr) => wsr.interiore.siRemotionemInput != null && wsr.interiore.siRemotionemInput!.interioreTransactio!.liber && !lsrsoi.contains(wsr.interiore.siRemotionemInput!.siRemotionemSignature) && lsriti.contains(wsr.interiore.siRemotionemInput!.interioreTransactio!.identitatis)).map((msr) => Transactio.nullam(msr.interiore.siRemotionemInput!.interioreTransactio!)).forEach(lltrbsr.add);
+        lsriti.addAll(lltrbsr.map((mlltrbsr) => mlltrbsr.interiore.identitatis));
         llttbi.insertAll(0, lltrbsr);
         maxime -= lltrbsr.length;
         List<Transactio> lftrbsr = [];
@@ -239,8 +243,55 @@ class FossorPraecipuus {
         
         istxs = false;
         int tslp = lptbi.length;
-        lptbi.addAll(lp.where((wp) => wp.probationem.startsWith('0' * i) && !lpi.contains(wp.interiore.publicaClavis)));
+        lptbi.addAll(lp.where((wp) => wp.probationem.startsWith('0' * i) && !lpi.contains(wp.interiore.publicaClavis) && wp.interiore.quadrigis.isEmpty));
         lpi.addAll(lptbi.where((wp) => !lpi.contains(wp.interiore.publicaClavis)).map((mp) => mp.interiore.publicaClavis));
+        List<Propter> lpta = [];
+        outer:  
+        for (Propter p in lp.where((wp) => wp.probationem.startsWith('0' * i) && !lpi.contains(wp.interiore.publicaClavis) && wp.interiore.quadrigis.isNotEmpty)) {
+          bool signatiAll = true;
+          List<Propter> ilpta = [];
+          for (Quadrigis q in p.interiore.quadrigis) {
+            if (Utils.cognoscereIdentitatis(PublicKey.fromHex(Pera.curve(), p.interiore.publicaClavis), Signature.fromASN1Hex(q.signature), q.publicaClavis)) {
+              // je gaat zoeken naar een account van q of die jou ook hebben gesigned
+              // misschien hier ook loopen over propter
+              Propter? pr = lp.singleWhereOrNull((swlp) => swlp.interiore.publicaClavis == q.publicaClavis);
+              // Propter? pro = ilpta.singleWhereOrNull((swonilpta) => swonilpta.interiore.publicaClavis == q.publicaClavis);
+
+              if (pr == null) {
+                // moet je er voor zorgen dat hij zelf niet meedoet
+                // maar we skippen ook helemaal omhoog naar de volgend p in lp
+                continue outer;
+
+              }
+              // hier uis je iemand erin en moet je die account niet stopepen
+              /// hier moet je eigenlijk loepen zijn al die van hem gereferenceerd dus loopen over hen dus ik denk zijn al die pooublic keys ge referentceerdt
+              /// je kijt hier is er eentje met je moet ook eerder terug schieten je moet nog checken of die propter somehow voor de derde maakt niet meer uit
+              /// want je schiet terug nog een keer continue outer als ze niet allemaal de pr.interiore.publicaclavis hebben
+              if (pr.interiore.quadrigis.any(
+                (aq) => Utils.cognoscereIdentitatis(PublicKey.fromHex(Pera.curve(), pr.interiore.publicaClavis), 
+                Signature.fromASN1Hex(aq.signature), p.interiore.publicaClavis))) {
+                  for (Quadrigis ffiiq in pr.interiore.quadrigis) {
+                    Propter? ffiifp = lp.singleWhereOrNull((swonlp) => swonlp.interiore.publicaClavis == ffiiq.publicaClavis);
+                    // Propter? ffiifpo = ilpta.singleWhereOrNull((swonilpta) => swonilpta.interiore.publicaClavis == ffiiq.publicaClavis);
+                    if (ffiifp == null) {
+                      continue outer;
+                    } 
+                  }
+                ilpta.add(pr);
+                maxime -= 1;
+              } else {
+                continue outer;
+              }
+            }
+          }
+          if (signatiAll) {
+            lpta.addAll(ilpta);
+            lpta.add(p);
+            lpi.addAll(ilpta.map((milpta) => milpta.interiore.publicaClavis));
+            lpi.add(p.interiore.publicaClavis);
+          }
+        }
+        lptbi.addAll(lpta);
         maxime -= (lp.length - tslp);
 
         int tssp = lsptbi.length;

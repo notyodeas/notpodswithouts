@@ -5,8 +5,10 @@ import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart';
 import 'package:shelf_router/shelf_router.dart';
 import 'package:args/args.dart';
+import 'package:elliptic/elliptic.dart';
 import 'connect/par_ad_rimor.dart';
 import 'exempla/constantes.dart';
+import 'exempla/pera.dart';
 import 'exempla/petitio/clavis_par.dart';
 import 'itineribus/furca_iter.dart';
 import 'itineribus/obstructionum_iter.dart';
@@ -41,6 +43,7 @@ final _router = Router()
   ..post('/obstructionum-probationem-jugum', obstructionumProbationemJugum)
   ..get('/obstructionum-prior', obstructionumPrior)
   ..delete('/obstructionum-removere-ultimum', obstructionumRemovereUltimum)
+  ..delete('/obstructionum-removere-ad-probationem/<probationem>', obstructionumRemovereAdProbationem)
   ..post('/fossor-efectus/<furca>/<privatus>', fossorEfectus)
   ..get('/fossor-efectus-threads', efectusThreads)
   ..delete('/prohibere-efectus-fossores', prohibereEfectus)
@@ -50,12 +53,13 @@ final _router = Router()
   ..post('/fossor-expressi/<furca>', fossorExpressi)
   ..get('/fossor-expressi-threads', expressiThreads)
   ..delete('/prohibere-expressi-fossores', prohibereExpressi)
-  ..post('/propter-submittere/<publica-clavis>', propterSubmittere)
+  ..post('/propter-submittere', propterSubmittere)
   ..post('/propter-submittere-multi', propterSubmittereMulti)
   ..get('/propter-status/<publica-clavis>', propterStatus)
   ..get('/propter-novus', propterNovus)
   ..get('/propter-habet-bid/<publica-clavis>', propterHabetBid)
   ..get('/propter-stagnum', propterStagnum)
+  ..delete('/propter-stagnum-remove/<ex>', propterStagnumRemove)
   ..get('/gladiator-invictos', gladiatorInvictos)
   ..get('/gladiator-defenditur/<publica-clavis>', gladiatorDefenditur)
   ..get('/gladiator-arma/<publica-clavis>', gladiatorArma)
@@ -74,12 +78,14 @@ final _router = Router()
   ..get('/si-remotiones-reprehendo-si-existat', siRemotionesreprehendoSiExistat)
   ..post('/si-remotiones-denuo-proponendam', siRemotionesdenuoProponendam)
   ..get('/si-remotiones-stagnum', siRemotionesStagnum)
+  ..delete('/si-remotiones-remove',siRemotionemsRemove)
   ..get('/profundum-profundis', profundumProfundis)
   ..get('/profundum-debita-habereius/<debita>/<ex>', profundumDebitaHabereIus)
   ..post('/profundum-retribuere', profundumRetribuere)
   // ..get('/profundum-profundums/<publica-clavis>', profundumProfundums)
   ..get('/furca-foramen', furcaForamen)
   ..get('/furca-tridentes', furcaTridentes)
+  ..get('/furca-quaerere', furcaQuaerere)
   ..post('/solucionis-submittere-solocionis-propter', solucionisSubmittereSolocionisPropter)
   ..get('/solucionis-stagnum', solucionisStagnum)
   ..post('/solucionis-cash-ex', solucionisCashEx)
@@ -153,10 +159,13 @@ void main(List<String> args) async {
   total.addOption('tabernus-nodi');
   total.addOption('producentis', mandatory: true);
   total.addOption('praemium', defaultsTo: '763000000000000000000');
+  total.addOption('furca');
   total.addFlag('partum-key-par');
   total.addFlag('novus-catena');
   total.addFlag('novus');
-  total.addFlag('sync');
+  total.addFlag('sync-novus');
+  total.addFlag('sync-pergo');
+  total.addFlag('sync-furca');
   var eventus = total.parse(args);
   if (eventus['partum-key-par']) {
     final kp = ClavisPar();
@@ -189,28 +198,32 @@ void main(List<String> args) async {
   String internumIp = eventus['internum-ip'];
   String praemium = eventus['praemium'];
   String? tabernusNodi = eventus['tabernus-nodi'];
+  String? furca = eventus['furca'];
   // String? externumIp = eventus['externum-ip'];
 
   bool novusCatena = eventus['novus-catena'];
-  bool novus = eventus['novus'];
-  bool sync = eventus['sync'];
+  bool syncNovus = eventus['sync-novus'];
+  bool syncPergo = eventus['sync-pergo'];
+  bool syncFurca = eventus['sync-furca'];
   int pervideasPort = int.parse(eventus['pervideas-portus']);
   Directory directory =
       await Directory('${Constantes.vincula}/$obstructionumDirectorium')
           .create(recursive: true);
   if (novusCatena && directory.listSync().isEmpty) {
+    Print.nota(nuntius: 'clavem privatam tuam nobis dare posses ut cum incipio scandalum creares?', message: 'could you give us your private key to create the incipio block with?');
+    String ex = stdin.readLineSync()!;
     Obstructionum obs = Obstructionum.incipio(
-        InterioreObstructionum.incipio(producentis: producentis, praemium: BigInt.parse(praemium)));
+        InterioreObstructionum.incipio(ex: ex, producentis: producentis, praemium: BigInt.parse(praemium)));
     await obs.salvareIncipio(directory);
     Print.nota(
         nuntius: 'Incipiens creatus obstructionum',
         message: 'Created Incipio block');
   }
-  if (!novus && directory.listSync().isEmpty) {
+  if (!syncNovus && directory.listSync().isEmpty) {
     Print.nota(nuntius: 'Quaeso addere novus vexillum ad imperium tuum lineam, quod tuum obstructionum directorium vacuum est', message: 'please add the novus flag to your command line because your block directory is empty');
     exit(0);
   }
-  if (novus && directory.listSync().isNotEmpty) {
+  if (syncNovus && directory.listSync().isNotEmpty) {
     Print.nota(nuntius: 'novam catenam incipere non potes si tuum directorium vacuum non est, elige directorium diversum vel novum flag removere', message: 'you can not start a new chain if your directory is not empty, please choose different directory or remove the novus flag');
     exit(0);
   }
@@ -218,13 +231,15 @@ void main(List<String> args) async {
       int.parse(eventus['max-pervideas']),
       '$internumIp:$pervideasPort',
       Directory(
-          '${Constantes.vincula}/${argumentis!.obstructionumDirectorium}'));
+          '${Constantes.vincula}/${argumentis!.obstructionumDirectorium}${Constantes.principalis}'));
   par!.audite();
-  if ((novus || sync) && tabernusNodi != null) {
+  if ((syncNovus || syncPergo || syncFurca) && tabernusNodi != null) {
     par!.connect(tabernusNodi);
-    if (sync) {
-      par!.sync(novus);
-    }
+    if (syncNovus) {
+      par!.sync(sync: Sync.novus);
+    } else if (syncPergo) {
+      par!.sync(sync: Sync.pergo);
+    } 
   } else if (!novusCatena && tabernusNodi == null) {
     Print.nota(
         nuntius: 'nodi noui noui et externum ip nouis ordiri noluisti',

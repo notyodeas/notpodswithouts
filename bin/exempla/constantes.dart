@@ -5,19 +5,24 @@ class Constantes {
 
   // static int maximeCaudicesFile = 1000000000000000000;
 
-  static int maximeCaudicesFile = 763;
+  static int maximeCaudicesFile = 70;
   // static int maximeCaudicesFile = 1;
 
   // static int perRationesObstructionum = 368;
 
   // static int txCaudice = 368;
 
+  static String principalis = '/principalis';
   static String caudices = "/caudices_";
 
   static String vincula = 'vincula';
+  static String latus = '/latus';
+  static String exitus = '/exitus';
 }
 
 class JSON {
+  static String quadrigis = 'quadrigis';
+  static String publicaClaves = 'publicaClaves';
   static String publicaClavis = 'publicaClavis';
   static String nonce = 'nonce';
   static String identitatis = 'identitatis';
@@ -154,9 +159,11 @@ class JSON {
   static String vos = 'vos';
   static String novissime = 'novissime';
   static String siRemotionemSignature = 'si-remotionem-signature';
+  static String signatureIdentitatis = 'signature-identitatis';
 }
 
 class PervideasNuntiusCasibus {
+  static String rps = 'rps';
   static String titulus = 'titulus';
   static String accepit = 'accepit';
   static String nervus = 'nervus';
@@ -211,6 +218,10 @@ class PervideasNuntiusCasibus {
   static String pervideasNuntius = 'pervideas-nuntius';
   static String interiore = 'interiore';
   static String it = 'it';
+  static String from = 'from';
+  static String srrn = 'srrn';
+  static String current = 'current';
+  static String lymphaticorum = 'lymphaticorum';
 }
 
 class PervideasNuntiusTitulus {
@@ -248,5 +259,17 @@ class PervideasNuntiusTitulus {
   static const String centumPercentAccepit = 'centum-percent-accepit';
   static const String inritaTransactio = 'inrita-transactio';
   static const String neTransactio = 'ne-transactio';
-
-}
+  static const String furcaNotFound = 'furca-not-found';
+  static const String removeSiRemotionem = 'remove-si-remotionem';
+  static const String invalidumFurca = 'invalidum-furca';
+  static const String petitioForamenFurca = 'petitio-foramen-furca';
+  static const String petitioForamenFurcas = 'petitio-foramen-furcas';
+  static const String nonInvenioFurca = 'non-invenio-furca';
+  static const String mitteForamenFurca = 'mitte-foramen-furca';
+  static const String posseSyncFurca = 'posse-sync-furca';
+  static const String declinareFurca = 'declinare-furca';
+  static const String venaNonInveni = 'vena-non-invveni';
+  static const String removePropterStagnum = 'remove-propter-stagnum';
+  static const String petitioSockets = 'petitio-sockets';
+  static const String respondSockes = 'respond-sockets';
+ }

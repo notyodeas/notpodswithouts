@@ -5,17 +5,19 @@ import 'package:shelf_router/shelf_router.dart';
 import 'package:elliptic/elliptic.dart';
 import 'dart:isolate';
 import '../auxiliatores/fossor_praecipuus.dart';
+import '../exempla/constantes.dart';
 import '../exempla/errors.dart';
 import '../exempla/gladiator.dart';
 import '../exempla/obstructionum.dart';
 import '../exempla/pera.dart';
+import '../exempla/si_remotionem.dart';
 import '../exempla/transactio.dart';
 import '../server.dart';
 
 
 Future<Response> fossorEfectus(Request req) async {
   Directory directorium =
-      Directory('vincula/${argumentis!.obstructionumDirectorium}');
+      Directory('vincula/${argumentis!.obstructionumDirectorium}${Constantes.principalis}');
   bool estFurca = bool.parse(req.params['furca']!);
   String privatus = req.params['privatus']!;
   if (PrivateKey.fromHex(Pera.curve(), privatus).publicKey.toHex() != argumentis!.publicaClavis) {

@@ -5,6 +5,7 @@ import 'dart:isolate';
 import 'package:shelf/shelf.dart';
 import 'package:elliptic/elliptic.dart';
 
+import '../exempla/constantes.dart';
 import '../exempla/errors.dart';
 import '../exempla/obstructionum.dart';
 import '../exempla/pera.dart';
@@ -24,7 +25,7 @@ Future<Response> solucionisSubmittereSolocionisPropter(Request req) async {
   }
   InterioreInterioreSolucionisPropter iisp = InterioreInterioreSolucionisPropter(publica, ssr.accipientis);
   InterioreSolucionisPropter isr = InterioreSolucionisPropter(privatus, iisp);
-  List<Obstructionum> lo = await Obstructionum.getBlocks(Directory('vincula/${argumentis!.obstructionumDirectorium}'));
+  List<Obstructionum> lo = await Obstructionum.getBlocks(Directory('vincula/${argumentis!.obstructionumDirectorium}${Constantes.principalis}'));
   if (!isr.estValidus(lo)) {
     return Response.badRequest(body: json.encode(BadRequest(code: 1, nuntius: 'Publica clavis iam usus est ad mercedem Ratio aut est receptaculum et senior solucionis Ratio', message: 'public key is already used for a payment account or is the receiver of an older payment account')));
   }
@@ -44,7 +45,7 @@ Response solucionisStagnum(Request req) {
 Future<Response> solucionisCashEx(Request req) async {
   SolucionisCashEx sce = SolucionisCashEx.fromJson(await json.decode(await req.readAsString()));
   String publica = PrivateKey.fromHex(Pera.curve(), sce.ex).publicKey.toHex();
-  Directory directorium = Directory('vincula/${argumentis!.obstructionumDirectorium}');
+  Directory directorium = Directory('vincula/${argumentis!.obstructionumDirectorium}${Constantes.principalis}');
   List<Obstructionum> lo = await Obstructionum.getBlocks(directorium);
   SolucionisPropter sp = SolucionisPropter.accipere(publica, lo);
   BigInt mittere = await Pera.statera(sce.liber, publica, lo);
@@ -77,7 +78,7 @@ Future<Response> solucionisSubmittereFissileSolocionisPropter(Request req) async
   }
   InterioreInterioreFissileSolucionisPropter iifsp = InterioreInterioreFissileSolucionisPropter(publica, sfsr.reliquiae, sfsr.fixs);
   InterioreFissileSolucionisPropter ifsr = InterioreFissileSolucionisPropter(privatus, iifsp);
-  List<Obstructionum> lo = await Obstructionum.getBlocks(Directory('vincula/${argumentis!.obstructionumDirectorium}'));
+  List<Obstructionum> lo = await Obstructionum.getBlocks(Directory('vincula/${argumentis!.obstructionumDirectorium}${Constantes.principalis}'));
   if (!ifsr.estValidus(lo)) {
     return Response.badRequest(body: json.encode(BadRequest(code: 0, nuntius: 'Publica clavis iam usus est ad mercedem Ratio aut est receptaculum et senior solucionis Ratio', message: 'public key is already used for a payment account or is the receiver of an older payment account')));
   }
@@ -99,7 +100,7 @@ Future<Response> solucionisFissileCashEx(Request req) async {
   try {
     SolucionisCashEx sce = SolucionisCashEx.fromJson(await json.decode(await req.readAsString()));
     String publica = PrivateKey.fromHex(Pera.curve(), sce.ex).publicKey.toHex();
-    Directory directorium = Directory('vincula/${argumentis!.obstructionumDirectorium}');
+    Directory directorium = Directory('vincula/${argumentis!.obstructionumDirectorium}${Constantes.principalis}');
     List<Obstructionum> lo = await Obstructionum.getBlocks(directorium);
     FissileSolucionisPropter fsp = FissileSolucionisPropter.accipere(publica, lo);
     BigInt mittere = await Pera.statera(sce.liber, publica, lo);

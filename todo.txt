@@ -386,3 +386,14 @@ maxime aantal objecten in blok misschien per output van tx -1 ipv gehele tx -1
 worden bij confussus en expressi wel op attacks and defences gecontroleerd
 
 als je forkt staat est-furca vaak op true hoe weet je dat jij het blok hebt vervangen en dat je est furca terug moet naar false
+
+is certido signature verified
+
+
+have an endpoint that tells you wethere you should mine with furca set to true or false
+removereusqquad else case length of array is more than one siwtch point of index of numerus array
+
+est furca kan nadat chain is replaced nog steed op receiver true minen en wil error msg voor andere node 
+
+of your bootnode goes into a sideway let the syncer know wether he would like to sync this sideway or not
+you ddony really know because an est furca could be on the principalis chain

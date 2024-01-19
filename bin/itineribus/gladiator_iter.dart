@@ -19,7 +19,7 @@ import '../server.dart';
 
 Future<Response> gladiatorInvictos(Request req) async {
   Directory directory =
-      Directory('vincula/${argumentis!.obstructionumDirectorium}');
+      Directory('vincula/${argumentis!.obstructionumDirectorium}${Constantes.principalis}');
   List<Tuple3<String, GladiatorOutput, bool>> gladiatores =
       await Obstructionum.invictosGladiatores(directory);
   final List<InvictosGladiator> invictos = [];
@@ -33,7 +33,7 @@ Future<Response> gladiatorInvictos(Request req) async {
 Future<Response> gladiatorDefenditur(Request req) async {
   String publica = req.params['publica-clavis']!;
   Directory directory =
-      Directory('vincula/${argumentis!.obstructionumDirectorium}');
+      Directory('vincula/${argumentis!.obstructionumDirectorium}${Constantes.principalis}');
   List<Obstructionum> lo = await Obstructionum.getBlocks(directory);
   if (await Pera.isPublicaClavisDefended(publica, lo)) {
     return Response.ok(json.encode({
@@ -54,7 +54,7 @@ Future<Response> gladiatorArma(Request req) async {
   try {
     final String publica = req.params['publica-clavis']!;
     Directory directory =
-        Directory('vincula/${argumentis!.obstructionumDirectorium}');
+        Directory('vincula/${argumentis!.obstructionumDirectorium}${Constantes.principalis}');
     List<Obstructionum> lo = await Obstructionum.getBlocks(directory);
     final primis = await Pera.isPrimis(publica, directory);
     final gladiatorIdentitatis =
@@ -87,7 +87,7 @@ Future<Response> gladiatorArma(Request req) async {
 Future<Response> gladiatorSummaBidArma(Request req) async {
   final String probationem = req.params['probationem']!;
   final Directory directorium = Directory(
-      '${Constantes.vincula}/${argumentis!.obstructionumDirectorium}');
+      '${Constantes.vincula}/${argumentis!.obstructionumDirectorium}${Constantes.principalis}');
   List<Obstructionum> lo = await Obstructionum.getBlocks(directorium);
   try {
     BigInt summaBid = await Pera.summaBid(probationem, lo);

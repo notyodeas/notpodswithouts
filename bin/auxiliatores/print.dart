@@ -1,8 +1,6 @@
 class Print {
   static nota({required String nuntius, required String message}) {
     print('\n');
-    print('ineuntes pari ad parem nuntium habuit errores');
-    print('incoming peer to peer message had errors');
     print('nuntius: $nuntius');
     print('message: $message');
   }
@@ -10,5 +8,14 @@ class Print {
     print('\n');
     print('corrumpere obstructionum deprehensis in sync');
     print('corrupt block detected upon sync');
+  }
+
+  static write(dynamic object) {
+      print(' \n clientiswroteback \n ');
+      print(object);
+  }
+  static wroteThrough(dynamic object) {
+      print(' \n clientiswrotethrough \n ');
+      print(object);
   }
 }

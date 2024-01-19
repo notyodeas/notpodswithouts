@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 
+import '../exempla/constantes.dart';
 import '../exempla/obstructionum.dart';
 import '../exempla/obstructionum_arma.dart';
 import '../exempla/pera.dart';
@@ -30,7 +31,7 @@ import '../server.dart';
 
 // @Operation.get('liber', 'index', 'probationem')
 Future<Response> summaIubeoTelum(Request req) async {
-  Directory directorium = Directory(argumentis!.obstructionumDirectorium);
+  Directory directorium = Directory('${Constantes.vincula}/${argumentis!.obstructionumDirectorium}${Constantes.principalis}');
   final String probationem = req.params['probationem']!;
   List<Obstructionum> lo = await Obstructionum.getBlocks(directorium);
   try {

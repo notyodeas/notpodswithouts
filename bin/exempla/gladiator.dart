@@ -8,23 +8,49 @@ import 'errors.dart';
 import 'obstructionum.dart';
 import 'pera.dart';
 import 'package:elliptic/elliptic.dart';
+import 'package:collection/collection.dart';
+
+class Quadrigis {
+  final String publicaClavis;
+  final String signature;
+  Quadrigis(String ex, this.publicaClavis):
+    signature = Utils.signumIdentitatis(PrivateKey.fromHex(Pera.curve(), ex), publicaClavis); 
+  Quadrigis.fromJson(Map<String, dynamic> map):
+    publicaClavis = map[JSON.publicaClavis],
+    signature = map[JSON.signature];
+  Map<String, dynamic> toJson() => {
+    JSON.publicaClavis: publicaClavis,
+    JSON.signature: signature
+  };
+}
 
 class InteriorePropter {
+  bool? primis;
   final String publicaClavis;
+  final String signature;
+  final List<Quadrigis> quadrigis;
   BigInt nonce;
-  InteriorePropter(this.publicaClavis): nonce = BigInt.zero;
-  InteriorePropter.incipio(this.publicaClavis)
-      : nonce = BigInt.zero;
+  InteriorePropter(String ex, this.publicaClavis, this.quadrigis):
+    signature = Utils.signumIdentitatis(PrivateKey.fromHex(Pera.curve(), ex), publicaClavis),
+    nonce = BigInt.zero; 
+  InteriorePropter.incipio(String ex, this.publicaClavis): 
+      signature = Utils.signumIdentitatis(PrivateKey.fromHex(Pera.curve(), ex), publicaClavis),
+      quadrigis = [],
+      nonce = BigInt.zero;
   mine() {
     nonce += BigInt.one;
   }
 
   Map<String, dynamic> toJson() => {
         JSON.publicaClavis: publicaClavis,
+        JSON.signature: signature,
+        JSON.quadrigis: quadrigis.map((mquadrigis) => mquadrigis.toJson()).toList(),
         JSON.nonce: nonce.toString(),
       };
   InteriorePropter.fromJson(Map<String, dynamic> jsoschon)
       : publicaClavis = jsoschon[JSON.publicaClavis].toString(),
+        signature = jsoschon[JSON.signature],
+        quadrigis = List<Quadrigis>.from((jsoschon[JSON.quadrigis] as List<dynamic>).map((m) => Quadrigis.fromJson(m as Map<String, dynamic>))),
         nonce = BigInt.parse(jsoschon[JSON.nonce].toString());
 }
 
@@ -113,9 +139,9 @@ class GladiatorOutput {
   GladiatorOutput(this.rationibus)
       : impetum = Utils.randomHex(1),
         defensio = Utils.randomHex(1);
-  GladiatorOutput.incipio(String producentis)
+  GladiatorOutput.incipio(String ex, String producentis)
       : rationibus = [
-          Propter.incipio(InteriorePropter.incipio(producentis)),
+          Propter.incipio(InteriorePropter.incipio(ex, producentis)),
         ],
         defensio = Utils.randomHex(1),
         impetum = Utils.randomHex(1);
@@ -144,13 +170,46 @@ class InterioreGladiator {
   InterioreGladiator.ce({required this.input})
       : outputs = [],
         identitatis = Utils.randomHex(64);
-  InterioreGladiator.incipio(String producentis)
-      : outputs = [GladiatorOutput.incipio(producentis)],
+  InterioreGladiator.incipio(String ex, String producentis)
+      : outputs = [GladiatorOutput.incipio(ex, producentis)],
         identitatis = Utils.randomHex(64);
   static List<GladiatorOutput> egos(List<Propter> propters) {
+    List<List<Propter>> teams = [];
+    List<String> lpi = [];
+    outer:
+    for (Propter p in propters.where((wpropters) => wpropters.interiore.quadrigis.isNotEmpty && !lpi.contains(wpropters.interiore.publicaClavis))) {
+      List<Propter> bigas = [p];
+      for (Quadrigis q in p.interiore.quadrigis) {
+        Propter? ffp = propters.singleWhereOrNull((swpropters) => swpropters.interiore.publicaClavis == q.publicaClavis && !lpi.contains(q.publicaClavis));
+        if (ffp == null) {
+          continue outer;
+        }
+        bigas.add(ffp);
+        lpi.add(ffp.interiore.publicaClavis);
+      }
+      teams.add(bigas);
+    }
+    for (List<Propter> lp in teams) {
+      for (Propter p in lp) {
+        propters.remove(p);
+      }
+    }
+    List<Propter> primisGo = [];
+    List<Propter> secundoGo = []; 
+    for (int i = 0; i < teams.length; i++) {
+      if (i % 2 == 0) {
+        primisGo.addAll(teams[i]);
+      } else {
+        secundoGo.addAll(teams[i]);
+      }
+    }
+    List<Propter> lpt = propters.take((propters.length / 2).round()).toList();
+    List<Propter> lps = propters.skip((propters.length / 2).round()).toList();
+    lpt.addAll(primisGo);
+    lps.addAll(secundoGo);
     return [
-      GladiatorOutput(propters.take((propters.length / 2).round()).toList()),
-      GladiatorOutput(propters.skip((propters.length / 2).round()).toList())
+      GladiatorOutput(lpt),
+      GladiatorOutput(lps)
     ];
   }
 
@@ -217,4 +276,21 @@ class Gladiator {
       : probationem = jsoschon[JSON.probationem],
         interiore = InterioreGladiator.fromJson(
             jsoschon[JSON.interiore] as Map<String, dynamic>);
+}
+
+
+class RemovePropterStagnum {
+  String publicaClavis;
+  String signature;
+  RemovePropterStagnum(String ex, this.publicaClavis): 
+    signature = Utils.signumIdentitatis(PrivateKey.fromHex(Pera.curve(), ex), publicaClavis);
+  RemovePropterStagnum.fromJson(Map<String, dynamic> map):
+    publicaClavis = map[JSON.publicaClavis],
+    signature = map[JSON.signature]; 
+
+  Map<String, dynamic> toJson() => {
+    JSON.publicaClavis: publicaClavis,
+    JSON.signature: signature
+  };
+
 }

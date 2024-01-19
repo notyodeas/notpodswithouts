@@ -4,11 +4,13 @@ import 'dart:isolate';
 import 'package:elliptic/elliptic.dart';
 import 'package:shelf/shelf.dart';
 import '../exempla/connexa_liber_expressi.dart';
+import '../exempla/constantes.dart';
 import '../exempla/obstructionum.dart';
 import '../exempla/pera.dart';
 import '../exempla/petitio/submittere_inrita_transactio.dart';
 import '../exempla/petitio/submittere_transactio.dart';
 import '../exempla/responsio/transactio_submittere_responsionis.dart';
+import '../exempla/si_remotionem.dart';
 import '../exempla/transactio.dart';
 import '../exempla/errors.dart';
 import '../exempla/utils.dart';
@@ -19,7 +21,7 @@ Future<Response> submittereTransactioLiber(Request req) async {
   SubmittereTransaction st =
       SubmittereTransaction.fromJson(json.decode(await req.readAsString()));
   Directory directorium =
-      Directory('vincula/${argumentis!.obstructionumDirectorium}');
+      Directory('vincula/${argumentis!.obstructionumDirectorium}${Constantes.principalis}');
   try {
     PrivateKey pk = PrivateKey.fromHex(Pera.curve(), st.ex);
     String publica = pk.publicKey.toHex();

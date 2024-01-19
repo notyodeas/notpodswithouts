@@ -7,6 +7,7 @@ import 'package:elliptic/elliptic.dart';
 import './transactio.dart';
 import 'package:ecdsa/ecdsa.dart';
 import 'connexa_liber_expressi.dart';
+import 'si_remotionem.dart';
 import 'solucionis_propter.dart';
 
 class Utils {

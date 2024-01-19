@@ -10,6 +10,7 @@ import '../exempla/errors.dart';
 import '../exempla/obstructionum.dart';
 import '../exempla/pera.dart';
 import '../exempla/petitio/retribuere_profundum.dart';
+import '../exempla/si_remotionem.dart';
 import '../exempla/transactio.dart';
 import '../exempla/utils.dart';
 import 'package:elliptic/elliptic.dart';
@@ -20,7 +21,7 @@ Future<Response> profundumRetribuere(Request req) async {
     RetribuereProfundum rp =
         RetribuereProfundum.fromJson(json.decode(await req.readAsString()));
     List<Obstructionum> lo = await Obstructionum.getBlocks(
-        Directory('vincula/${argumentis!.obstructionumDirectorium}'));
+        Directory('vincula/${argumentis!.obstructionumDirectorium}${Constantes.principalis}'));
     List<SiRemotionem> lsr = [];
     lo.map((mo) => mo.interiore.siRemotiones).forEach(lsr.addAll);
     SiRemotionem sr = lsr.singleWhere((swsr) =>
@@ -75,21 +76,16 @@ Future<Response> profundumRetribuere(Request req) async {
 Future<Response> profundumDebitaHabereIus(Request req) async {
   bool debita = bool.parse(req.params['debita']!);
   String ex = req.params['ex']!;
-  Directory directorium = Directory('${Constantes.vincula}/${argumentis!.obstructionumDirectorium}');
+  Directory directorium = Directory('${Constantes.vincula}/${argumentis!.obstructionumDirectorium}${Constantes.principalis}');
   List<Obstructionum> lo = await Obstructionum.getBlocks(directorium);
   Iterable<SiRemotionem> lsr = SiRemotionem.debitaHabereIus(debita, ex, lo);
   return Response.ok(json.encode(lsr.map((mlsr) => mlsr.toJson()).toList()));
 }
 
 Future<Response> profundumProfundis(Request req) async {
-  Directory directorium = Directory('${Constantes.vincula}/${argumentis!.obstructionumDirectorium}');
+  Directory directorium = Directory('${Constantes.vincula}/${argumentis!.obstructionumDirectorium}${Constantes.principalis}');
   List<Obstructionum> lo = await Obstructionum.getBlocks(directorium);
   List<SiRemotionemOutput> lsr = [];
   lo.map((mlo) => mlo.interiore.siRemotiones.where((wsr) => wsr.interiore.siRemotionemOutput != null).map((msr) => msr.interiore.siRemotionemOutput!)).forEach(lsr.addAll);
   return Response.ok(json.encode(lsr.map((e) => e.toJson()).toList()));
 }
-
-// Future<Response> profundumProfundums(Request req) async {
-//   String publica = req.params['publica-clavis']!;
-
-// }

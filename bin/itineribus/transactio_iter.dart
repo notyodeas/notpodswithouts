@@ -13,7 +13,7 @@ import '../server.dart';
 Future<Response> transactioIdentitatis(Request req) async {
   String identitatis = req.params['identitatis']!;
   Directory directory =
-      Directory('vincula/${argumentis!.obstructionumDirectorium}');
+      Directory('vincula/${argumentis!.obstructionumDirectorium}${Constantes.principalis}');
   List<Obstructionum> obs = [];
   for (int i = 0; i < directory.listSync().length; i++) {
     await for (String obstructionum in Utils.fileAmnis(

@@ -11,6 +11,7 @@ import '../exempla/petitio/incipit_pugna.dart';
 import '../exempla/gladiator.dart';
 import '../exempla/obstructionum.dart';
 import '../exempla/pera.dart';
+import '../exempla/si_remotionem.dart';
 import '../exempla/transactio.dart';
 import '../exempla/constantes.dart';
 import '../server.dart';
@@ -21,7 +22,7 @@ Future<Response> fossorExpressi(Request req) async {
     IncipitPugna ip =
       IncipitPugna.fromJson(json.decode(await req.readAsString()));
     Directory directorium =
-      Directory('vincula/${argumentis!.obstructionumDirectorium}');
+      Directory('vincula/${argumentis!.obstructionumDirectorium}${Constantes.principalis}');
     Obstructionum prior = await Obstructionum.acciperePrior(directorium);
     List<Obstructionum> lo = await Obstructionum.getBlocks(directorium);
     if (!File('${directorium.path}/${Constantes.caudices}0.txt').existsSync()) {
@@ -59,11 +60,9 @@ Future<Response> fossorExpressi(Request req) async {
     List<Transactio> lttip = [];
     lttip.addAll(par!.liberTransactions);
     lttip.addAll(prior.interiore.expressiTransactions);
-    // lttip.addAll(prior.interioreObstructionum.expressiTransactions);
+     Iterable<Transactio> ltsr = par!.siRemotiones.where((wsr) => wsr.interiore.siRemotionemInput != null).map((msr) => Transactio.nullam(msr.interiore.siRemotionemInput!.interioreTransactio!));
+    lttip.addAll(ltsr);
     COE coe = await COE.computo(100, prior, gladiator, ip, lttip, lo);
-    print('iscoetheproblem ${coe.toJson()}');
-    print('expressillt ${lttip.map((e) => e.toJson())}');
-    print('coeltt ${coe.llt.map((e) => e.toJson())}');
     FossorPraecipuus fp = FossorPraecipuus.coe(
       llttbi: coe.llt, 
       lfttbi: coe.lft, 
@@ -82,13 +81,13 @@ Future<Response> fossorExpressi(Request req) async {
       lit: par!.inritaTransactions,
       lo: lo
     );
-    // fp.llttbi.addAll(prior.interioreObstructionum.expressiTransactions);
+
     for (SiRemotionem sr in fp.lsrtbi.where((wlsr) => wlsr.interiore.siRemotionemInput != null)) {
         sr.interiore.siRemotionemInput?.interioreTransactio = null;
     }
     final primis = await Pera.isPrimis(publica, directorium);
     final gladiatorIdentitatis =
-        await Pera.accipereGladiatorIdentitatis(publica, directorium);
+        await Pera.accipereGladiatorIdentitatis(publica, directorium);  
     List<String> scuta = await RequiriturInProbationem.requiriturInProbationem(primis, gladiatorIdentitatis, ip.victima, lo);
     List<int> on = await Obstructionum.utObstructionumNumerus(lo.last);
     BigInt numerus = await Obstructionum.numeruo(on);
