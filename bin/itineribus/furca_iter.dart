@@ -52,8 +52,7 @@ Future<Response> furcaQuaerere(Request req) async {
 Future<Response> furcaSync(Request req) async {
   String probationem = req.params['probationem']!;
   Directory directorium = Directory('${Constantes.vincula}/${argumentis!.obstructionumDirectorium}${Constantes.principalis}');
-  Obstructionum prioro = await Obstructionum.acciperePrior(directorium);
-  par!.syncFurca(prioro.probationem, probationem);
+  par!.syncFurca(probationem);
   return Response.ok(json.encode({
     "nuntius": "nodi propriam invenire coepi ad furcam syncing datam, pro magis notitia tua consolatorium vide",
     "message": "started to find the proper node for syncing the given fork, for more information see your console"

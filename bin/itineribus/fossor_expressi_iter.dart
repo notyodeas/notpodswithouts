@@ -33,9 +33,9 @@ Future<Response> fossorExpressi(Request req) async {
         "message": "Still waiting on incipio block"
       }));
     }
-    Gladiator? gladiator =
+    Gladiator? gladiatorVictima =
     await Obstructionum.grabGladiator(ip.victima.identitatis, lo);
-    if (gladiator == null) {
+    if (gladiatorVictima == null) {
       return Response.badRequest(
           body: json.encode({
         "code": 1,
@@ -57,12 +57,23 @@ Future<Response> fossorExpressi(Request req) async {
     if (publica != argumentis!.publicaClavis) {
       return Response.badRequest(body: json.encode(BadRequest(code: 3, nuntius: 'doleo te solum posse meum confussum vel expressi cum clavis privatis quae ad argumentum producentis in nodi launch datam pertinet', message: 'sorry you can only mine a confussus or expressi with the private key that belongs to the argument of producentis given on node launch')));
     }
+    bool inimicusPrimis = await Pera.isPrimis(publica, directorium);
+    String gladiatorInimicusIdentitatis = await Pera.accipereGladiatorIdentitatis(publica, directorium);
+    Gladiator? gladiatorInimicus = await Obstructionum.grabGladiator(gladiatorInimicusIdentitatis, lo);
+    if (gladiatorInimicus == null) {
+      return Response.badRequest(
+          body: json.encode({
+        "code": 1,
+        "nuntius": "Gladiator iam victus aut non inveni",
+        "message": "Gladiator already defeaten or not found with your private key"
+      }));
+    }
     List<Transactio> lttip = [];
     lttip.addAll(par!.liberTransactions);
     lttip.addAll(prior.interiore.expressiTransactions);
-     Iterable<Transactio> ltsr = par!.siRemotiones.where((wsr) => wsr.interiore.siRemotionemInput != null).map((msr) => Transactio.nullam(msr.interiore.siRemotionemInput!.interioreTransactio!));
+    Iterable<Transactio> ltsr = par!.siRemotiones.where((wsr) => wsr.interiore.siRemotionemInput != null).map((msr) => Transactio.nullam(msr.interiore.siRemotionemInput!.interioreTransactio!));
     lttip.addAll(ltsr);
-    COE coe = await COE.computo(100, prior, gladiator, ip, lttip, lo);
+    COE coe = await COE.computo(victimaPrimis: ip.victima.primis, inimicusPrimis: inimicusPrimis, maxime: 100, ex: ip.ex, prior: prior, gladiatorVictima: gladiatorVictima, gladiatorInimicus: gladiatorInimicus, llt: lttip, lo: lo);
     FossorPraecipuus fp = FossorPraecipuus.coe(
       llttbi: coe.llt, 
       lfttbi: coe.lft, 

@@ -37,9 +37,9 @@ Future<Response> fossorConfussus(Request req) async {
     // so the thread is stull running while the block already is mined so stop the thread from spinning if successful
     Obstructionum priorObstructionum =
         await Obstructionum.acciperePrior(directorium);
-    Gladiator? gladiator = await Obstructionum.grabGladiator(
+    Gladiator? gladiatorVictima = await Obstructionum.grabGladiator(
         ip.victima.identitatis, lo);
-    if (gladiator == null) {
+    if (gladiatorVictima == null) {
       return Response.badRequest(
           body: json.encode({
         "code": 1,
@@ -64,7 +64,18 @@ Future<Response> fossorConfussus(Request req) async {
     List<Transactio> ltsr = [];
     ltsr.addAll(par!.liberTransactions);
     ltsr.addAll(par!.siRemotiones.where((wsr) => wsr.interiore.siRemotionemInput != null).map((msr) => Transactio.nullam(msr.interiore.siRemotionemInput!.interioreTransactio!)));
-    COE coe = await COE.computo(100, prior, gladiator, ip, ltsr, lo);
+    bool inimicusPrimis = await Pera.isPrimis(publica, directorium);
+    String gladiatorInimicusIdentitatis = await Pera.accipereGladiatorIdentitatis(publica, directorium);
+    Gladiator? gladiatorInimicus = await Obstructionum.grabGladiator(gladiatorInimicusIdentitatis, lo);
+    if (gladiatorInimicus == null) {
+      return Response.badRequest(
+          body: json.encode({
+        "code": 1,
+        "nuntius": "Gladiator iam victus aut non inveni",
+        "message": "Gladiator already defeaten or not found with your private key"
+      }));
+    }
+    COE coe = await COE.computo(victimaPrimis: ip.victima.primis, inimicusPrimis: inimicusPrimis, maxime: 100, ex: ip.ex, prior: prior, gladiatorVictima: gladiatorVictima, gladiatorInimicus: gladiatorInimicus, llt: ltsr, lo: lo);
     FossorPraecipuus fp = FossorPraecipuus.coe(
       llttbi: coe.llt, 
       lfttbi: coe.lft

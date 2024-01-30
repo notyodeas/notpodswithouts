@@ -21,6 +21,27 @@ import 'package:elliptic/elliptic.dart';
 import '../server.dart';
 import 'epistulae.dart';
 
+class RemoveTransactionsPervideasNuntius extends PervideasNuntius {
+  TransactioGenus transactioGenus;
+  List<String> identitatum;
+  RemoveTransactionsPervideasNuntius(
+      this.transactioGenus, this.identitatum, String titulust, List<String> accepit)
+      : super(titulust, accepit);
+  RemoveTransactionsPervideasNuntius.ex(Map<String, dynamic> nuntius)
+      : transactioGenus =
+            TransactioGenusFromJson.fromJson(nuntius[PervideasNuntiusCasibus.transactioGenus].toString())
+                as TransactioGenus,
+        identitatum = List<String>.from(
+            nuntius[PervideasNuntiusCasibus.identitatum] as List<dynamic>),
+        super.ex(nuntius);
+  @override
+  Map<String, dynamic> indu() => {
+    PervideasNuntiusCasibus.transactioGenus: transactioGenus.name.toString(),
+    PervideasNuntiusCasibus.identitatum: identitatum,
+    PervideasNuntiusCasibus.titulus: titulus,
+    PervideasNuntiusCasibus.accepit: accepit
+  };
+}
 
 class QueueItem  {
   Socket clientis;
@@ -36,6 +57,7 @@ class ParAdRimor {
   bool isSalvare = false;
   bool isRemove = false;
   bool isLiber = false;
+  bool isBases = false;
   // bool estObstructionum = false;
   // bool scripsit = false;
   bool isEfectusAgit = false;
@@ -119,20 +141,13 @@ class ParAdRimor {
             qi.clientis.write(json.encode(icpn.indu()));
             Print.write(icpn.indu());
             await filterOnline();
-            while (true) {
-              try {
-                List<String> bf = bases.where((wb) => wb != ubspn.nervus && wb != ip && !ubspn.accepit.contains(wb)).toList();
-                if (bf.isNotEmpty) {
-                  String nervuss = bf[random.nextInt(bf.length)];            
-                  Socket nervus = await Socket.connect(
-                      nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));
-                  UnaBasesSingulasPervideasNuntius ubspntw = UnaBasesSingulasPervideasNuntius(ubspn.nervus, PervideasNuntiusTitulus.singleSocket, [ip]);             
-                  nervus.write(json.encode(ubspntw.indu()));
-                }
-                break;
-              } catch (_) {
-                continue;
-              }
+            List<String> bf = bases.where((wb) => wb != ubspn.nervus && wb != ip && !ubspn.accepit.contains(wb)).toList();
+            if (bf.isNotEmpty) {
+              String nervuss = bf[random.nextInt(bf.length)];            
+              Socket nervus = await Socket.connect(
+                  nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));
+              UnaBasesSingulasPervideasNuntius ubspntw = UnaBasesSingulasPervideasNuntius(ubspn.nervus, PervideasNuntiusTitulus.singleSocket, [ip]);             
+              nervus.write(json.encode(ubspntw.indu()));
             }
             if (bases.length < maxPares &&
               !bases.contains(ubspn.nervus) &&
@@ -152,22 +167,15 @@ class ParAdRimor {
             if (!ubspn.accepit.contains(ip)) {
               ubspn.accepit.add(ip);
             }
-            while (true) {
-              try {
-                List<String> bf = bases.where((wb) => wb != ip && wb != ubspn.nervus && !ubspn.accepit.contains(wb)).toList();
-                if (bf.isNotEmpty) {
-                  String nervuss = bf[random.nextInt(bf.length)];
-                  Socket nervus = await Socket.connect(
-                        nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));
-                  nervus.write(json.encode(ubspn.indu()));
-                  Print.wroteThrough(ubspn.indu());
-                }
-                qi.clientis.destroy();
-                break;
-              } catch (_) {
-                continue;
-              }
+            List<String> bf = bases.where((wb) => wb != ip && wb != ubspn.nervus && !ubspn.accepit.contains(wb)).toList();
+            if (bf.isNotEmpty) {
+              String nervuss = bf[random.nextInt(bf.length)];
+              Socket nervus = await Socket.connect(
+                    nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));
+              nervus.write(json.encode(ubspn.indu()));
+              Print.wroteThrough(ubspn.indu());
             }
+            qi.clientis.destroy();
           }
           case PervideasNuntiusTitulus.petitioObstructionumIncipio: {
             PetitioObstructionumIncipioPervideasNuntius poipn =
@@ -179,9 +187,10 @@ class ParAdRimor {
               poipn.accepit.add(ip);
             }
             qi.clientis.write(json.encode(ObstructionumReponereUnaPervideasNuntius(
-                    obss[0],
-                    PervideasNuntiusTitulus.obstructionumReponereUna,
-                    poipn.accepit)
+                    remove: null,
+                    obstructionum: obss[0],
+                    titulus: PervideasNuntiusTitulus.obstructionumReponereUna,
+                    accepit: poipn.accepit)
                 .indu()));
             break;
           }
@@ -200,20 +209,27 @@ class ParAdRimor {
                   PervideasNuntiusTitulus.summaScandalumExNodo, []).indu()));
               // qi.clientis.destroy();
             } else {
-              qi.clientis.write(json.encode(ObstructionumReponereUnaPervideasNuntius(
-                      obs, PervideasNuntiusTitulus.obstructionumReponereUna, [])
+              qi.clientis.write(json.encode(ObstructionumReponereUnaPervideasNuntius(remove: null,
+                     obstructionum: obs, titulus: PervideasNuntiusTitulus.obstructionumReponereUna, accepit: [])
                   .indu()));
             }
             break;
           }
           case PervideasNuntiusTitulus.petitioSockets: {
+            // while (isBases) {
+            //   await Future.delayed(Duration(seconds: 1));
+            // }
+            List<String> btr = [];
             PervideasNuntius pn = PervideasNuntius.ex(json.decode(qi.msg) as Map<String, dynamic>);
             for (String nervuss in bases.where((wbases) => wbases != ip)) {
               try {
                 await Socket.connect(nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));        
               } catch (e) {
-                bases.remove(nervuss);
+                btr.add(nervuss);
               }        
+            }
+            for (String tr in btr) {
+              bases.remove(tr);
             }
             qi.clientis.write(json.encode(RespondBasesPervideasNuntius(bases, PervideasNuntiusTitulus.respondSockes, [ip]).indu()));
             break;
@@ -263,23 +279,15 @@ class ParAdRimor {
                 ppn.accepit.add(ip);
               }
               await filterOnline();
-              while (true) {
-                try {
-                  List<String> acceptum = bases.where((wb) => !ppn.accepit.contains(wb)).toList();
-                  if (acceptum.isEmpty) {
-                    break;
-                  }
-                  String nervuss = acceptum[random.nextInt(acceptum.length)];
-                  Socket nervus = await Socket.connect(nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));
-                  nervus.write(json.encode(PropterPervideasNuntius(ppn.propter, PervideasNuntiusTitulus.propter, [ip]).indu()));
-                  break;
-                } catch (e) {
-                  continue;
-                }
+              List<String> acceptum = bases.where((wb) => !ppn.accepit.contains(wb)).toList();
+              if (acceptum.isEmpty) {
+                break;
               }
+              String nervuss = acceptum[random.nextInt(acceptum.length)];
+              Socket nervus = await Socket.connect(nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));
+              nervus.write(json.encode(PropterPervideasNuntius(ppn.propter, PervideasNuntiusTitulus.propter, [ip]).indu()));
               break;
             }
-            break;
           }
           case PervideasNuntiusTitulus.prepareObstructionumSync: {
             List<String> albumBases = bases;
@@ -410,21 +418,14 @@ class ParAdRimor {
               clepn.accepit.add(ip);
             }
             await filterOnline();
-            while (true) {
-              try {
-                List<String> acceptum = bases.where((wbases) => !clepn.accepit.contains(wbases)).toList();
-                if (acceptum.isEmpty) {
-                  break;
-                }
-                String nervuss = acceptum[random.nextInt(acceptum.length)];
-                Socket nervus = await Socket.connect(
-                  nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));
-                nervus.write(json.encode(clepn.indu()));
-                break;
-              } catch (_) {
-                continue;
-              }
+            List<String> acceptum = bases.where((wbases) => !clepn.accepit.contains(wbases)).toList();
+            if (acceptum.isEmpty) {
+              break;
             }
+            String nervuss = acceptum[random.nextInt(acceptum.length)];
+            Socket nervus = await Socket.connect(
+              nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));
+            nervus.write(json.encode(clepn.indu()));
             break;
           }
           case PervideasNuntiusTitulus.siRemotionem: {
@@ -478,21 +479,16 @@ class ParAdRimor {
             }
             par!.siRemotiones.remove(sr);
             await filterOnline();
-            while (true) {
-              try {
-                List<String> acceptum = bases.where((wbases) => !rsrrpn.accepit.contains(wbases)).toList();
-                if (acceptum.isEmpty) {
-                  break;
-                }
-                String nervuss = acceptum[random.nextInt(acceptum.length)];
-                Socket nervus = await Socket.connect(
-                  nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));
-                nervus.write(json.encode(rsrrpn.indu()));
-                nervus.destroy(); 
-              } catch (_) {
-                continue;
-              }
+            List<String> acceptum = bases.where((wbases) => !rsrrpn.accepit.contains(wbases)).toList();
+            if (acceptum.isEmpty) {
+              break;
             }
+            String nervuss = acceptum[random.nextInt(acceptum.length)];
+            Socket nervus = await Socket.connect(
+              nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));
+            nervus.write(json.encode(rsrrpn.indu()));
+            nervus.destroy(); 
+
           }
           case PervideasNuntiusTitulus.solucionisPropter: {
             SolucionisPropterPervideasNuntius sppn = SolucionisPropterPervideasNuntius.ex(json.decode(qi.msg) as Map<String, dynamic>);
@@ -525,22 +521,15 @@ class ParAdRimor {
               sppn.accepit.add(ip);
             }
             await filterOnline();
-            while (true) {
-              try {
-                List<String> acceptum = bases.where((wbases) => !sppn.accepit.contains(wbases)).toList();
-                if (acceptum.isEmpty) {
-                    break;
-                }
-                String nervuss = acceptum[random.nextInt(acceptum.length)];
-                Socket nervus = await Socket.connect(
-                  nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));
-                nervus.write(json.encode(sppn.indu()));
-                nervus.destroy();
+            List<String> acceptum = bases.where((wbases) => !sppn.accepit.contains(wbases)).toList();
+            if (acceptum.isEmpty) {
                 break;
-              } catch (_) {
-                continue;
-              }
             }
+            String nervuss = acceptum[random.nextInt(acceptum.length)];
+            Socket nervus = await Socket.connect(
+              nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));
+            nervus.write(json.encode(sppn.indu()));
+            nervus.destroy();
             break;
           }
           case PervideasNuntiusTitulus.fissileSolucionisPropter: {
@@ -581,22 +570,15 @@ class ParAdRimor {
               fsppn.accepit.add(ip);
             }
             await filterOnline();
-            while (true) {
-              try {
-                List<String> acceptum = bases.where((wbases) => !fsppn.accepit.contains(wbases)).toList();
-                if (acceptum.isEmpty) {
-                  break;
-                }
-                String nervuss = acceptum[random.nextInt(acceptum.length)];
-                Socket nervus = await Socket.connect(
-                  nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));
-                nervus.write(json.encode(fsppn.indu()));
-                nervus.destroy();
-                break;
-              } catch (_) {
-                continue;
-              }
+            List<String> acceptum = bases.where((wbases) => !fsppn.accepit.contains(wbases)).toList();
+            if (acceptum.isEmpty) {
+              break;
             }
+            String nervuss = acceptum[random.nextInt(acceptum.length)];
+            Socket nervus = await Socket.connect(
+              nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));
+            nervus.write(json.encode(fsppn.indu()));
+            nervus.destroy();
             break;
           }
           case PervideasNuntiusTitulus.removeConnexaLiberExpressis: {
@@ -611,22 +593,14 @@ class ParAdRimor {
               rbipn.accepit.add(ip);
             }
             await filterOnline();
-            while (true) {
-              try {
-                List<String> acceptum = bases.where((wbases) => !rbipn.accepit.contains(ip)).toList();
-                if (acceptum.isEmpty) {
-                  break;
-                }
-                String nervuss = acceptum[random.nextInt(acceptum.length)];
-                Socket nervus = await Socket.connect(
-                  nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));
-                nervus.write(json.encode(rbipn.indu()));
-                break;
-              } catch (_) {
-                continue;
-              }
+            List<String> acceptum = bases.where((wbases) => !rbipn.accepit.contains(ip)).toList();
+            if (acceptum.isEmpty) {
+              break;
             }
-            // qi.clientis.destroy();
+            String nervuss = acceptum[random.nextInt(acceptum.length)];
+            Socket nervus = await Socket.connect(
+              nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));
+            nervus.write(json.encode(rbipn.indu()));
             break;
           }
           case PervideasNuntiusTitulus.removePropterStagnum: {
@@ -637,21 +611,77 @@ class ParAdRimor {
               rpspn.accepit.add(ip);
             }
             await filterOnline();
-            while (true) {
-              try {
-                List<String> acceptum = bases.where((wbases) => !rpspn.accepit.contains(wbases)).toList();
-                if (acceptum.isEmpty) {
-                  break;
+            List<String> acceptum = bases.where((wbases) => !rpspn.accepit.contains(wbases)).toList();
+            if (acceptum.isEmpty) {
+              break;
+            }
+            String nervuss = acceptum[random.nextInt(acceptum.length)];
+            Socket nervus = await Socket.connect(
+              nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));
+            nervus.write(json.encode(rpspn.indu()));
+            break;
+
+          }
+          case PervideasNuntiusTitulus.removeTransactions: {
+            RemoveTransactionsPervideasNuntius rtpn =
+                RemoveTransactionsPervideasNuntius.ex(
+                    json.decode(qi.msg) as Map<String, dynamic>);
+            List<Obstructionum> lo = await Obstructionum.getBlocks(directorium);
+            switch (rtpn.transactioGenus) {
+              case TransactioGenus.liber: {
+                List<String> llti = [];
+                lo.map(
+                  (mo) => mo.interiore.liberTransactions.map(
+                    (mlt) => mlt.interiore.identitatis)).forEach(llti.addAll);
+                if (!rtpn.identitatum.every((ei) => llti.contains(ei))) {
+                  Print.nota(nuntius: 'transactions non possunt nisi per identitatem eorum removeri, si includuntur in stipitem', message: 'transactions can only be removed by their identity if they are included in a block');
+                  return;
                 }
-                String nervuss = acceptum[random.nextInt(acceptum.length)];
-                Socket nervus = await Socket.connect(
-                  nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));
-                nervus.write(json.encode(rpspn.indu()));
+                liberTransactions.removeWhere((lt) => rtpn.identitatum.any(
+                (identitatis) =>
+                    identitatis == lt.interiore.identitatis));
                 break;
-              } catch (_) {
-                continue;
+              }
+              case TransactioGenus.fixum: {
+                List<String> lfti = [];
+                lo.map((mo) => mo.interiore.fixumTransactions.map(
+                  (mft) => mft.interiore.identitatis)).forEach(lfti.addAll);
+                if (!rtpn.identitatum.every((ei) => lfti.contains(ei))) {
+                  Print.nota(nuntius: 'transactions non possunt nisi per identitatem eorum removeri, si includuntur in stipitem', message: 'transactions can only be removed by their identity if they are included in a block');
+                  return;
+                }
+                fixumTransactions.removeWhere((ft) => rtpn.identitatum.any(
+                (identitatis) =>
+                    identitatis == ft.interiore.identitatis));
+                break;
+              }
+              case TransactioGenus.expressi: {
+                List<String> leti = [];
+                lo.map((mo) => mo.interiore.expressiTransactions.map(
+                  (met) => met.interiore.identitatis)).forEach(leti.addAll);
+                if (!rtpn.identitatum.every((ei) => leti.contains(ei))) {
+                  Print.nota(nuntius: 'transactions non possunt nisi per identitatem eorum removeri, si includuntur in stipitem', message: 'transactions can only be removed by their identity if they are included in a block');
+                  return;
+                }
+                expressiTransactions.removeWhere((et) => rtpn.identitatum.any(
+                (identitatis) =>
+                    identitatis == et.interiore.identitatis));
+                break;
               }
             }
+            if (!rtpn.accepit.contains(ip)) {
+                rtpn.accepit.add(ip);
+            }
+            await filterOnline();
+            List<String> acceptum = bases.where((wbases) => !rtpn.accepit.contains(wbases)).toList();
+            if (acceptum.isEmpty) {
+                break;
+            }
+            String nervuss = acceptum[random.nextInt(acceptum.length)];
+            Socket nervus = await Socket.connect(
+              nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));
+            nervus.write(json.encode(rtpn.indu()));
+            clientis.destroy();
             break;
           }
           case PervideasNuntiusTitulus.inritaTransactio: {
@@ -678,22 +708,16 @@ class ParAdRimor {
               itpn.accepit.add(ip);
             }
             await filterOnline();
-            while (true) {
-              try {
-                List<String> acceptum = bases.where((wbases) => !itpn.accepit.contains(wbases)).toList();
-                if (acceptum.isEmpty) {
-                    break;
-                }
-                String nervuss = acceptum[random.nextInt(acceptum.length)];
-                Socket nervus = await Socket.connect(
-                  nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));
-                nervus.write(json.encode(itpn.indu()));
+            List<String> acceptum = bases.where((wbases) => !itpn.accepit.contains(wbases)).toList();
+            if (acceptum.isEmpty) {
                 break;
-              } catch (e) {
-                continue;
-              }
             }
+            String nervuss = acceptum[random.nextInt(acceptum.length)];
+            Socket nervus = await Socket.connect(
+              nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));
+            nervus.write(json.encode(itpn.indu()));
             break;
+
           }
           case PervideasNuntiusTitulus.accipreObstructionum: {
             // bool spass = false;
@@ -736,9 +760,7 @@ class ParAdRimor {
                 if (await validateObstructionum(
                     qi.clientis, lo, opn.obstructionum)) {
                   reprehendoSummaScandalumNumero(opn.obstructionum);
-                  isSalvare = true;
-                  await opn.obstructionum.salvareLatus(directorium);
-                  isSalvare = false;
+                  
                   if (opn.obstructionum.interiore.divisa <
                           prioro.interiore.divisa &&
                       opn.obstructionum.interiore
@@ -748,10 +770,22 @@ class ParAdRimor {
                     await Obstructionum.removereUsqueAd(ffi, directorium);
                     await ffi.salvare(directorium);
                     await opn.obstructionum.salvare(directorium);
+                  } else {
+                    if (!opn.accepit.contains(ip)) {
+                      opn.accepit.add(ip);
+                    }
+                    await filterOnline();
+                    List<String> acceptum = bases.where((wb) => !opn.accepit.contains(wb)).toList();
+                    if (acceptum.isNotEmpty) {
+                      String nervuss = acceptum[random.nextInt(acceptum.length)];
+                      Socket nervus = await Socket.connect(nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));
+                      nervus.write(json.encode(opn.indu()));
+                    }
+                    isSalvare = true;
+                    await opn.obstructionum.salvareLatus(directorium);
+                    isSalvare = false;
                   }
-                  if (!opn.accepit.contains(ip)) {
-                    opn.accepit.add(ip);
-                  }
+
                   qi.clientis.write(json.encode(ObstructionumSalvarePervideasNuntius(
                           opn.obstructionum,
                           PervideasNuntiusTitulus.obstructionumIsSalvare,
@@ -793,9 +827,6 @@ class ParAdRimor {
                     break;
                   }
                   reprehendoSummaScandalumNumero(opn.obstructionum);
-                  isSalvare = true;
-                  await opn.obstructionum.salvareLatus(directorium);
-                  isSalvare = false;
                   if (opn.obstructionum.interiore.divisa <
                           prioro.interiore.divisa &&
                       opn.obstructionum.interiore
@@ -821,6 +852,19 @@ class ParAdRimor {
                           PervideasNuntiusTitulus.obstructionumIsSalvare,
                           opn.accepit)
                       .indu()));
+                  if (!opn.accepit.contains(ip)) {
+                    opn.accepit.add(ip);
+                  }
+                  await filterOnline();
+                  List<String> acceptum = bases.where((wb) => !opn.accepit.contains(wb)).toList();
+                  if (acceptum.isNotEmpty) {
+                    String nervuss = acceptum[random.nextInt(acceptum.length)];
+                    Socket nervus = await Socket.connect(nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));
+                    nervus.write(json.encode(opn.indu()));
+                  }
+                  isSalvare = true;
+                  await opn.obstructionum.salvareLatus(directorium);
+                  isSalvare = false;
                   // qi.clientis.destroy();
                 } else {
                   Print.nota(nuntius: 'nuntius', message: 'invalid fork');
@@ -883,19 +927,19 @@ class ParAdRimor {
                       PervideasNuntiusTitulus.obstructionumIsSalvare,
                       opn.accepit)
                     .indu()));
-
+                    if (!opn.accepit.contains(ip)) {
+                      opn.accepit.add(ip);
+                    }
+                    await filterOnline();
                     List<String> acceptum = bases.where((wb) => !opn.accepit.contains(wb)).toList();
-                    String nervuss = acceptum[random.nextInt(acceptum.length)];
-                    Socket nervus = await Socket.connect(nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));
-                    nervus.write(json.encode(opn.indu()));
-                    nervus.listen((nuntius) async {
-                      PervideasNuntius pn = PervideasNuntius.ex(json.decode(String.fromCharCodes(nuntius).trim()));
-                      if (pn.titulus == PervideasNuntiusTitulus.obstructionumIsSalvare) {
-                        isSalvare = true;
-                        await opn.obstructionum.salvareExitus(directorium);
-                        isSalvare = false;
-                      }
-                    });
+                    if (acceptum.isNotEmpty) {
+                      String nervuss = acceptum[random.nextInt(acceptum.length)];
+                      Socket nervus = await Socket.connect(nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));
+                      nervus.write(json.encode(opn.indu()));
+                    }
+                    isSalvare = true;
+                    await opn.obstructionum.salvareExitus(directorium);
+                    isSalvare = false;
                   }
                  // qi.clientis.destroy();
                 }
@@ -1056,37 +1100,32 @@ class ParAdRimor {
             if (!sfppn.accepit.contains(ip)) {
               sfppn.accepit.add(ip);
             }
-            while (true) {
-              try {
-              List<String> acceptum = bases.where((wbases) => !sfppn.accepit.contains(wbases)).toList();
-              if (acceptum.isEmpty) {
-                break;
-              }
-              String nervuss = acceptum[random.nextInt(acceptum.length)];
-              Socket nervus = await Socket.connect(
-                nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));
-              nervus.write(json.encode(SatusFurcaPropagationemPervideasNuntius(
-                  sfppn.obstructionum,
-                  PervideasNuntiusTitulus.addereForamenFurca,
-                  sfppn.accepit)));
-                break;
-              } catch (_) {
-                continue;
-              }
+            await filterOnline();
+            List<String> acceptum = bases.where((wbases) => !sfppn.accepit.contains(wbases)).toList();
+            if (acceptum.isEmpty) {
+              break;
             }
+            String nervuss = acceptum[random.nextInt(acceptum.length)];
+            Socket nervus = await Socket.connect(
+              nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));
+            nervus.write(json.encode(SatusFurcaPropagationemPervideasNuntius(
+                sfppn.obstructionum,
+                PervideasNuntiusTitulus.addereForamenFurca,
+                sfppn.accepit)));
             break;
           }
           case PervideasNuntiusTitulus.posseSyncFurca: {
             PosseSyncFurcaPervideasNuntius psfpn = PosseSyncFurcaPervideasNuntius.ex(json.decode(eventus) as Map<String, dynamic>);
             List<Obstructionum> lop = await Obstructionum.getBlocks(directorium);
-            if (lop.any((alop) => alop.probationem == psfpn.summum) && lop.any((alop) => alop.probationem == psfpn.current)) {
-                Obstructionum reditus = lop.singleWhere((swlo) => swlo.interiore.priorProbationem == psfpn.current);
-                qi.clientis.write(json.encode(ObstructionumReponerePervideasNuntius(reditus, PervideasNuntiusTitulus.obstructionumReponereUna, [ip]).indu()));
+            if (lop.any((alop) => alop.probationem == psfpn.summum)) {
+                Obstructionum ralop = lop.removeLast();
+                while (ralop.interiore.estFurca == true) {
+                  ralop = lop.removeLast();
+                }
+                qi.clientis.write(json.encode(ObstructionumReponereUnaPervideasNuntius(remove: true, obstructionum: ralop, titulus: PervideasNuntiusTitulus.obstructionumReponereUna, accepit: [ip]).indu()));
             } else if (!lop.any((alop) => alop.probationem == psfpn.summum)) {
-                qi.clientis.write(DeclinareFurcaPervideasNuntius(bases, PervideasNuntiusTitulus.declinareFurca, [ip]));
-            } else if (!lop.any((alop) => alop.probationem == psfpn.current)) {
-                qi.clientis.write(json.encode(PervideasNuntius(PervideasNuntiusTitulus.venaNonInveni, [ip]).indu()));
-            }
+                qi.clientis.write(json.encode(DeclinareFurcaPervideasNuntius(bases, PervideasNuntiusTitulus.declinareFurca, [ip]).indu()));
+            } 
           }
         }
         // qi.clientis.destroy();
@@ -1211,12 +1250,16 @@ class ParAdRimor {
     }
   }
   Future filterOnline() async {
+    List<String> btr = [];
     for (String nervuss in bases.where((wbases) => wbases != ip)) {
       try {
         await Socket.connect(nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));        
       } catch (e) {
-        bases.remove(nervuss);
+        btr.add(nervuss);
       }
+    }
+    for (String tr in btr) {
+      bases.remove(tr);
     }
     if (bases.isEmpty) {
       return;
@@ -1489,19 +1532,22 @@ class ParAdRimor {
     }
   }
   
-  Future syncFurca(String current, String summum) async {
+  Future syncFurca(String summum) async {
     ReceivePort rp = ReceivePort();
     List<String> conatus = [];
     List<String> extra = [];
     String nervuss = bases[random.nextInt(bases.length)];
     Socket nervus = await Socket.connect(
       nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));
-    nervus.write(json.encode(PosseSyncFurcaPervideasNuntius(current, summum, PervideasNuntiusTitulus.posseSyncFurca, [ip]).indu()));
+    nervus.write(json.encode(PosseSyncFurcaPervideasNuntius(summum, PervideasNuntiusTitulus.posseSyncFurca, [ip]).indu()));
     nervus.listen((eventus) async { 
       PervideasNuntius pn = PervideasNuntius.ex(json.decode(String.fromCharCodes(eventus).trim()) as Map<String, dynamic>);
       switch (pn.titulus) {
         case PervideasNuntiusTitulus.obstructionumReponereUna: {
           ObstructionumReponereUnaPervideasNuntius orupn = ObstructionumReponereUnaPervideasNuntius.ex(json.decode(String.fromCharCodes(eventus).trim()));
+          if (orupn.remove == true) {
+            await Obstructionum.removereAdProbationemObstructionum(orupn.obstructionum.interiore.priorProbationem, directorium);
+          }
           Obstructionum prioro = await Obstructionum.acciperePrior(directorium);
           if (orupn.obstructionum.interiore.priorProbationem == prioro.probationem) {
             isSalvare = true;
@@ -1514,23 +1560,12 @@ class ParAdRimor {
           break;
         }
         case PervideasNuntiusTitulus.declinareFurca: {
-          DeclinareFurcaPervideasNuntius dfpn = DeclinareFurcaPervideasNuntius.ex(json.decode(String.fromCharCodes(eventus)) as Map<String, dynamic>);
+          DeclinareFurcaPervideasNuntius dfpn = DeclinareFurcaPervideasNuntius.ex(json.decode(String.fromCharCodes(eventus).trim()) as Map<String, dynamic>);
+          print(dfpn.indu());
           conatus.add(nervuss);
           extra.addAll(dfpn.lymphaticorum);
           rp.sendPort.send(nervuss);
           nervus.destroy();             
-          break;
-        }
-        case PervideasNuntiusTitulus.venaNonInveni: {
-          Print.nota(nuntius: 'nodi, qui est unus ducum huius furcae, requirit te ut aliquos caudices removeas, cum currens truncus tui in nexibus non inveniatur.', message: 'the node that is one of the leaders of this fork requires you to remove some blocks, since the current block of you is not found in his chain');
-          Print.nota(nuntius: 'vis sync ab initio scandalum, si sic typus INCIPIO', message: 'would you like to sync from the incipio block, if yes type INCIPIO \n ');
-          var line = stdin.readLineSync();
-          if (line == 'incipio' || line == 'INCIPIO') {
-            Obstructionum incipio = await Obstructionum.accipereIncipio(directorium);
-            await Obstructionum.removereAdProbationemObstructionum(incipio.probationem, directorium);
-            nervus.write(json.encode(PetitioObstructionumPervideasNuntius(incipio.probationem,
-            PervideasNuntiusTitulus.petitioObstructionum, []).indu()));
-          } 
           break;
         }
         case PervideasNuntiusTitulus.summaScandalumExNodo: {
@@ -1551,16 +1586,27 @@ class ParAdRimor {
     rp.listen((message) async {
       List<String> basesEarumExtra = bases.where((wb) => !conatus.contains(wb)).toList();
       basesEarumExtra.addAll(extra.where((we) => !conatus.contains(we)));
+      print(basesEarumExtra);
       String nervuss = basesEarumExtra[random.nextInt(basesEarumExtra.length)];
       Socket nervus = await Socket.connect(
       nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));
-      nervus.write(json.encode(PosseSyncFurcaPervideasNuntius(current, summum, PervideasNuntiusTitulus.posseSyncFurca, [ip]).indu()));
+      nervus.write(json.encode(PosseSyncFurcaPervideasNuntius(summum, PervideasNuntiusTitulus.posseSyncFurca, [ip]).indu()));
       nervus.listen((eventus) async { 
         PervideasNuntius pn = PervideasNuntius.ex(json.decode(String.fromCharCodes(eventus).trim()) as Map<String, dynamic>);
         switch (pn.titulus) {
           case PervideasNuntiusTitulus.obstructionumReponereUna: {
-            ObstructionumReponereUnaPervideasNuntius orupn = ObstructionumReponereUnaPervideasNuntius.ex(json.decode(String.fromCharCodes(eventus).trim()));
+            ObstructionumReponereUnaPervideasNuntius orupn = ObstructionumReponereUnaPervideasNuntius.ex(json.decode(String.fromCharCodes(eventus).trim()) as Map<String, dynamic>);
+            print(' \n nuntiusorupn \n');
+            print(orupn.obstructionum.toJson());
+            if (orupn.remove == true) {
+              await Obstructionum.removereAdProbationemObstructionum(orupn.obstructionum.interiore.priorProbationem, directorium);
+            }
             Obstructionum prioro = await Obstructionum.acciperePrior(directorium);
+            print(' \n prior \n');
+            print(prioro.toJson());
+            // Obstructionum prioro = await Obstructionum.acciperePrior(directorium);
+            print('prior');
+            print(prioro.toJson());
             if (orupn.obstructionum.interiore.priorProbationem == prioro.probationem) {
               isSalvare = true;
               await orupn.obstructionum.salvare(directorium);
@@ -1575,18 +1621,6 @@ class ParAdRimor {
             conatus.add(nervuss);
             rp.sendPort.send(null);
             nervus.destroy();             
-            break;
-          }
-          case PervideasNuntiusTitulus.venaNonInveni: {
-            Print.nota(nuntius: 'nodi, qui est unus ducum huius furcae, requirit te ut aliquos caudices removeas, cum currens truncus tui in nexibus non inveniatur.', message: 'the node that is one of the leaders of this fork requires you to remove some blocks, since the current block of you is not found in his chain');
-            Print.nota(nuntius: 'vis sync ab initio scandalum, si sic typus INCIPIO', message: 'would you like to sync from the incipio block, if yes type INCIPIO \n ');
-            var line = stdin.readLineSync();
-            if (line == 'incipio' || line == 'INCIPIO') {
-              Obstructionum incipio = await Obstructionum.accipereIncipio(directorium);
-              await Obstructionum.removereAdProbationemObstructionum(incipio.probationem, directorium);
-              nervus.write(json.encode(PetitioObstructionumPervideasNuntius(incipio.probationem,
-              PervideasNuntiusTitulus.petitioObstructionum, []).indu()));
-            } 
             break;
           }
           case PervideasNuntiusTitulus.summaScandalumExNodo: {
@@ -1633,44 +1667,38 @@ class ParAdRimor {
   Future removeExpressiTransactions(List<String> identitatum) async {
     expressiTransactions.removeWhere(
         (l) => identitatum.any((i) => i == l.interiore.identitatis));
-    
-    for (String nervuss in bases.where((wb) => wb != ip)) {
-      Socket nervus = await Socket.connect(
-          nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));
-      // nervus.write(json.encode(RemoveTransactionsPervideasNuntius(
-      //     TransactioGenus.expressi,
-      //     identitatum,
-      //     PervideasNuntiusTitulus.removeTransactions,
-      //     [ip]).indu()));
-      nervus.destroy();
+    await filterOnline();
+    List<String> acceptum = bases.where((wbases) => wbases != ip).toList();
+    if (acceptum.isEmpty) {
+      return;
     }
+    String nervuss = acceptum[random.nextInt(acceptum.length)];
+    Socket nervus = await Socket.connect(
+        nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));
+    nervus.write(json.encode(RemoveTransactionsPervideasNuntius(
+          TransactioGenus.expressi,
+          identitatum,
+          PervideasNuntiusTitulus.removeTransactions,
+          [ip]).indu()));
+      nervus.destroy();
   }
   // proof you are the owner too
   Future removeConnexaLiberExpressis(List<String> identitatum) async {
     connexiaLiberExpressis.removeWhere((cle) => identitatum.any((identitatis) =>
         identitatis == cle.interioreConnexaLiberExpressi.identitatis));
     await filterOnline();
-    List<String> conatus = [];
-    while (true) {
-      try {
-        List<String> acceptum = bases.where((wbases) => !conatus.contains(wbases)).toList();
-        if (acceptum.isEmpty) {
-          break;
-        }
-        String nervuss = acceptum[random.nextInt(acceptum.length)];
-        conatus.add(nervuss);
-        Socket nervus = await Socket.connect(
-            nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));
-        nervus.write(json.encode(RemoveByIdentitatumPervideasNuntius(
-          identitatum,
-          PervideasNuntiusTitulus.removeConnexaLiberExpressis,
-          [ip]).indu()));
-        nervus.destroy();
-        break;
-      } catch (_) {
-        continue;
-      }
+    List<String> acceptum = bases.where((wbases) => wbases != ip).toList();
+    if (acceptum.isEmpty) {
+      return;
     }
+    String nervuss = acceptum[random.nextInt(acceptum.length)];
+    Socket nervus = await Socket.connect(
+        nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));
+    nervus.write(json.encode(RemoveByIdentitatumPervideasNuntius(
+      identitatum,
+      PervideasNuntiusTitulus.removeConnexaLiberExpressis,
+      [ip]).indu()));
+    nervus.destroy();
   }
 
   Future removeSiRemotionem(SiRemotionemRemoveNuntius srrn) async {
@@ -1809,40 +1837,34 @@ class ParAdRimor {
   Future syncThrough(TransactioGenus tg, Transactio transactio, List<String> accepit) async {
     // ppn.accepit.add(ip);
     await filterOnline();
-    while (true) {
-      try {
-        List<String> acceptum = bases.where((wbases) => !accepit.contains(wbases)).toList();
-        if (acceptum.isEmpty) {
-          break;
-        }
-        String nervuss = acceptum[random.nextInt(acceptum.length)];
-        Socket nervus = await Socket.connect(nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));
-        switch (tg) {
-          case TransactioGenus.liber: {
-            nervus.write(json.encode(TransactioPervideasNuntius(
-            transactio, PervideasNuntiusTitulus.liberTransactio, accepit).indu()));
-            nervus.listen((eventus) {
-                PetitioExpressiTransactioPervideasNuntius petpn =
-                PetitioExpressiTransactioPervideasNuntius.ex(
-                    json.decode(String.fromCharCodes(eventus).trim()));
-                Transactio? t = expressiTransactions.singleWhereOrNull((swet) => swet.interiore.inputs.any((ai) => ai.transactioIdentitatis == transactio.interiore.identitatis));
-                if (t != null) {
-                  nervus.write(json.encode(DareExpressiTransactioPervideasNuntius(t, PervideasNuntiusTitulus.expressiTransactio, petpn.accepit).indu()));              
-                }
-                nervus.destroy();        
-            });
-            break;
-          }
-          case TransactioGenus.fixum: {
-            nervus.write(json.encode(TransactioPervideasNuntius(
-            transactio, PervideasNuntiusTitulus.fixumTransactio, accepit).indu()));
-            break;
-          }
-          default: break;
-        }
-      } catch (e) {
-        continue;
+    List<String> acceptum = bases.where((wbases) => !accepit.contains(wbases)).toList();
+    if (acceptum.isEmpty) {
+      return;
+    }
+    String nervuss = acceptum[random.nextInt(acceptum.length)];
+    Socket nervus = await Socket.connect(nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));
+    switch (tg) {
+      case TransactioGenus.liber: {
+        nervus.write(json.encode(TransactioPervideasNuntius(
+        transactio, PervideasNuntiusTitulus.liberTransactio, accepit).indu()));
+        nervus.listen((eventus) {
+            PetitioExpressiTransactioPervideasNuntius petpn =
+            PetitioExpressiTransactioPervideasNuntius.ex(
+                json.decode(String.fromCharCodes(eventus).trim()));
+            Transactio? t = expressiTransactions.singleWhereOrNull((swet) => swet.interiore.inputs.any((ai) => ai.transactioIdentitatis == transactio.interiore.identitatis));
+            if (t != null) {
+              nervus.write(json.encode(DareExpressiTransactioPervideasNuntius(t, PervideasNuntiusTitulus.expressiTransactio, petpn.accepit).indu()));              
+            }
+            nervus.destroy();        
+        });
+        break;
       }
+      case TransactioGenus.fixum: {
+        nervus.write(json.encode(TransactioPervideasNuntius(
+        transactio, PervideasNuntiusTitulus.fixumTransactio, accepit).indu()));
+        break;
+      }
+      default: break;
     }
   }
 
@@ -2203,22 +2225,15 @@ class ParAdRimor {
     }
     siRemotiones.add(srpn.siRemotionem);
     await filterOnline();
-    while (true) {
-      try {
-        List<String> acceptum = bases.where((wbases) => srpn.accepit.contains(wbases)).toList();
-        if (acceptum.isEmpty) {
-          break;
-        }
-        String nervuss = acceptum[random.nextInt(acceptum.length)];
-        Socket nervus = await Socket.connect(
-          nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));    
-        nervus.write(json.encode(srpn.indu()));
-        nervus.destroy();
-        break;
-      } catch (_) {
-        continue;
-      }
+    List<String> acceptum = bases.where((wbases) => srpn.accepit.contains(wbases)).toList();
+    if (acceptum.isEmpty) {
+      return;
     }
+    String nervuss = acceptum[random.nextInt(acceptum.length)];
+    Socket nervus = await Socket.connect(
+      nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));    
+    nervus.write(json.encode(srpn.indu()));
+    nervus.destroy();
   }
 
   Future<bool> convalidandumLiber(Iterable<Transactio> llt, List<Obstructionum> lo) async {

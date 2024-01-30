@@ -472,21 +472,24 @@ class ObstructionumSalvarePervideasNuntius extends PervideasNuntius {
 
 
 class ObstructionumReponereUnaPervideasNuntius extends PervideasNuntius {
+  bool? remove;
   Obstructionum obstructionum;
-  ObstructionumReponereUnaPervideasNuntius(
-      this.obstructionum, String titulus, List<String> accepit)
+  ObstructionumReponereUnaPervideasNuntius({
+      this.remove, required this.obstructionum, required String titulus, required List<String> accepit})
       : super(titulus, accepit);
   ObstructionumReponereUnaPervideasNuntius.ex(Map<String, dynamic> nuntius)
-      : obstructionum = Obstructionum.fromJson(
+      : remove = nuntius[PervideasNuntiusCasibus.remove].toString() == 'null' ? null : nuntius[PervideasNuntiusCasibus.remove],
+        obstructionum = Obstructionum.fromJson(
             nuntius[PervideasNuntiusCasibus.obstructionum]
                 as Map<String, dynamic>),
         super.ex(nuntius);
   @override
   Map<String, dynamic> indu() => {
+        PervideasNuntiusCasibus.remove: remove,
         PervideasNuntiusCasibus.obstructionum: obstructionum.toJson(),
         PervideasNuntiusCasibus.titulus: titulus,
         PervideasNuntiusCasibus.accepit: accepit
-      };
+      }..removeWhere((key, value) => value == null);
 }
 
 class ObstructionumReponerePervideasNuntius extends PervideasNuntius {
@@ -555,16 +558,13 @@ class NonInvenioFurcaPervideasNuntius extends PervideasNuntius {
 }
 
 class PosseSyncFurcaPervideasNuntius extends PervideasNuntius {
-  String current;
   String summum;
-  PosseSyncFurcaPervideasNuntius(this.current, this.summum, String titulus, List<String> accepit): super(titulus, accepit);
+  PosseSyncFurcaPervideasNuntius(this.summum, String titulus, List<String> accepit): super(titulus, accepit);
   PosseSyncFurcaPervideasNuntius.ex(Map<String , dynamic> nuntius):
-    current = nuntius[PervideasNuntiusCasibus.current],
     summum = nuntius[PervideasNuntiusCasibus.summum], super.ex(nuntius);
 
   @override
   Map<String, dynamic> indu() => {
-    PervideasNuntiusCasibus.current: current,
     PervideasNuntiusCasibus.summum: summum,
     PervideasNuntiusCasibus.titulus: titulus,
     PervideasNuntiusCasibus.accepit: accepit
@@ -574,7 +574,7 @@ class DeclinareFurcaPervideasNuntius extends PervideasNuntius {
   List<String> lymphaticorum;
   DeclinareFurcaPervideasNuntius(this.lymphaticorum, String titulus, List<String> accepit): super(titulus, accepit);
   DeclinareFurcaPervideasNuntius.ex(Map<String, dynamic> nuntius): 
-  lymphaticorum = nuntius[PervideasNuntiusCasibus.lymphaticorum],
+  lymphaticorum = List<String>.from(nuntius[PervideasNuntiusCasibus.lymphaticorum]),
   super.ex(nuntius);
 
   @override

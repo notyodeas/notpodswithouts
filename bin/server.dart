@@ -26,6 +26,7 @@ import 'auxiliatores/print.dart';
 import 'itineribus/fossor_expressi_iter.dart';
 import 'itineribus/gladiator_iter.dart';
 import 'itineribus/network_iter.dart';
+import 'package:shelf_cors_headers/shelf_cors_headers.dart';
 
 class PoschosTesches {
   String? vaschal;
@@ -86,6 +87,7 @@ final _router = Router()
   ..get('/furca-foramen', furcaForamen)
   ..get('/furca-tridentes', furcaTridentes)
   ..get('/furca-quaerere', furcaQuaerere)
+  ..post('/furca-sync/<probationem>', furcaSync)
   ..post('/solucionis-submittere-solocionis-propter', solucionisSubmittereSolocionisPropter)
   ..get('/solucionis-stagnum', solucionisStagnum)
   ..post('/solucionis-cash-ex', solucionisCashEx)
@@ -249,7 +251,7 @@ void main(List<String> args) async {
   }
 
   // Configure a pipeline that logs requests.
-  final handler = Pipeline().addMiddleware(logRequests()).addHandler(_router);
+  final handler = Pipeline().addMiddleware(logRequests()).addMiddleware(corsHeaders()).addHandler(_router);
 
   // For running in containers, we respect the PORT environment variable.
   final port = int.parse(eventus['rpc-portus']);

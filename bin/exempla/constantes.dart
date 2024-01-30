@@ -222,6 +222,7 @@ class PervideasNuntiusCasibus {
   static String srrn = 'srrn';
   static String current = 'current';
   static String lymphaticorum = 'lymphaticorum';
+  static String remove = 'remove';
 }
 
 class PervideasNuntiusTitulus {

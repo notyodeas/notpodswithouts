@@ -214,10 +214,8 @@ class Pera {
 
   //left off
   static Future<Tuple2<InterioreTransactio?, InterioreTransactio?>>
-      transformFixum(String privatus, Iterable<Transactio> txs,
+      transformFixum(String privatus, String publica, Iterable<Transactio> txs,
           List<Obstructionum> lo) async {
-    String publica =
-        PrivateKey.fromHex(Pera.curve(), privatus).publicKey.toHex();
     List<Tuple3<int, String, TransactioOutput>> outs =
         await inconsumptusOutputs(true, publica, lo);
     for (Transactio tx

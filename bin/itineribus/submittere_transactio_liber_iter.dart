@@ -95,81 +95,47 @@ Future<Response> submittereTransactioLiber(Request req) async {
           liber: true,
           twice: true,
           ts: TransactioSignificatio.regularis,
-          ex: st.ex,
+          ex: st.ex ,
           value: st.pod,
           to: st.to,
           transactioStagnum: stagnum,
           lo: lo));      
-      List<Transactio> letc = List<Transactio>.from(par!.expressiTransactions.map((e) => Transactio.fromJson(e.toJson())));
-      Transactio? ltttip = par!.liberTransactions.singleWhereOrNull((swonlt) => liber.interiore.inputs.any((ai) => ai.transactioIdentitatis == swonlt.interiore.identitatis));
-      List<Transactio> llttip = [];
-      List<String> lclei = [];
-      if (ltttip != null) {
-        while (ltttip != null) {
-          par!.connexiaLiberExpressis.where((wcle) => wcle.interioreConnexaLiberExpressi.identitatis == ltttip!.interiore.identitatis).map((mcle) => mcle.interioreConnexaLiberExpressi.identitatis) .forEach(lclei.add);
-          llttip.add(ltttip);
-          ltttip = par!.liberTransactions.singleWhereOrNull((swonlt) => ltttip!.interiore.inputs.any((ai) => ai.transactioIdentitatis == swonlt.interiore.identitatis));
+        Transactio? frt = par!.liberTransactions.singleWhereOrNull((swonlt) =>  liber.interiore.inputs.any((ainputs) => ainputs.transactioIdentitatis == swonlt.interiore.identitatis));
+        List<String> ettri = [];
+        while (frt != null) {
+          print('ilooploop');
+          ConnexaLiberExpressi cle = par!.connexiaLiberExpressis.singleWhere((swc) => swc.interioreConnexaLiberExpressi.identitatis == frt!.interiore.identitatis);
+          await par!.removeConnexaLiberExpressis([cle.interioreConnexaLiberExpressi.identitatis]);
+          cle.interioreConnexaLiberExpressi.identitatum.forEach(ettri.add);
+          frt = par!.liberTransactions.singleWhereOrNull((swonlt) => frt!.interiore.inputs.any((ainputs) => ainputs.transactioIdentitatis == swonlt.interiore.identitatis));
         }
-        Transactio? etflt = letc.singleWhereOrNull((swet) => swet.interiore.inputs.any((ai) => ai.transactioIdentitatis == llttip.first.interiore.identitatis));
-        List<String> lioettr = [];
-        List<Transactio> lttr = [];
-        if (etflt != null) {
-          lttr.add(etflt);
-          par!.expressiTransactions.remove(etflt);
-          lioettr.add(etflt.interiore.identitatis);
-          Transactio? etfet = letc.singleWhereOrNull((swonet) => swonet.interiore.inputs.any((ai) => ai.transactioIdentitatis == etflt.interiore.identitatis));
-          while (etfet != null) {
-            lttr.add(etfet);
-            lioettr.add(etfet.interiore.identitatis);
-            letc.remove(etfet);
-            etfet = letc.singleWhereOrNull((swonet) => swonet.interiore.inputs.any((ai) => ai.transactioIdentitatis == etfet?.interiore.identitatis));
-          }  
-        }
-        List<Transactio> flet = [];
-        flet.add(Transactio.nullam(await Pera.novamExpressi(ex: st.ex, to: st.to, value: st.pod, regularis: liber)));
-        for (int i = 0; i < lttr.length; i++) {
-          BigInt value = BigInt.zero;
-          for (TransactioOutput to in lttr[i].interiore.outputs.where((wo) => wo.publicaClavis != PrivateKey.fromHex(Pera.curve(), st.ex).publicKey.toHex())) {
-            value += to.pod;
+        List<Transactio> letti = [];
+        letti.add(Transactio.nullam(await Pera.novamExpressi(ex: st.ex, to: st.to, value: st.pod, regularis: liber)));
+        for (int i = 0; i < ettri.length; i++) {
+          Transactio ett = par!.expressiTransactions.singleWhere((swet) => swet.interiore.identitatis == ettri[i]);
+          BigInt pod = BigInt.zero;
+          for (TransactioOutput to in ett.interiore.outputs.where((woutputs) => woutputs.publicaClavis == ett.interiore.recipiens)) {
+            pod += to.pod;
           }
-          flet.add(Transactio.nullam(await Pera.novamExpressi(ex: st.ex, to: st.to, value: value, regularis: flet.last)));
+          letti.add(Transactio.nullam(await Pera.novamExpressi(ex: st.ex, to: ett.interiore.recipiens , value: pod, regularis: letti.last)));
         }
+        // await par!.removeExpressiTransactions(ettri);
         final InterioreConnexaLiberExpressi icle = InterioreConnexaLiberExpressi(
           identitatis: liber.interiore.identitatis,
-          identitatum: flet.map((mlt) => mlt.interiore.identitatis).toList());
+          identitatum: letti.map((mlt) => mlt.interiore.identitatis).toList());
         final ConnexaLiberExpressi cle = ConnexaLiberExpressi(
           PrivateKey.fromHex(Pera.curve(), st.ex).publicKey.toHex(), icle, st.ex);
-        await par!.removeExpressiTransactions(lioettr);
-        await par!.removeConnexaLiberExpressis(lclei);
+        // await par!.removeExpressiTransactions(ettri);
+        // await par!.removeExpressiTransactions(teitr);
         await par!.syncConnexaLiberExpressi(cle);
         await par!.syncLiberTransaction(liber);
-        for (Transactio t in flet) {
+        for (Transactio t in letti) {
           await par!.syncExpressiTransaction(t);
         }
-        print('okey');
-      } else {
-        print('eschelsesche');
-        final Transactio expressi = Transactio.nullam(await Pera.novamExpressi(
-            ex: st.ex,
-            to: st.to,
-            value: st.pod,
-            regularis: liber,
-        ));
-        final InterioreConnexaLiberExpressi icle = InterioreConnexaLiberExpressi(
-            identitatis: liber.interiore.identitatis,
-            identitatum: [expressi.interiore.identitatis]);
-        final ConnexaLiberExpressi cle = ConnexaLiberExpressi(
-            PrivateKey.fromHex(Pera.curve(), st.ex).publicKey.toHex(), icle, st.ex);
-        await par!.syncConnexaLiberExpressi(cle);
-        await par!.syncLiberTransaction(liber);
-        await par!.syncExpressiTransaction(expressi);        
-      }
-      return Response.ok(json.encode(TransactioSubmittereResponsionis(
-              true, liber.interiore.identitatis)
-          .toJson()));
+        return Response.ok(json.encode(TransactioSubmittereResponsionis(true, liber.interiore.identitatis).toJson()));
     }
-  } on BadRequest catch (br) {
-    return Response.badRequest(body: json.encode(br.toJson()));
+  } on BadRequest catch (e) {
+    return Response.badRequest(body: json.encode(e.toJson()));
   }
 }
 

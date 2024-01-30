@@ -1158,6 +1158,7 @@ class Obstructionum {
     }
     List<TransactioInput> leti = [];
     interiore.expressiTransactions.map((met) => met.interiore.inputs).forEach(leti.addAll);
+    
     if (
       counter != interiore.expressiTransactions.length || 
       !leti.every((eeti) => interiore.liberTransactions.map((mlt) => mlt.interiore.identitatis).contains(eeti.transactioIdentitatis) || 

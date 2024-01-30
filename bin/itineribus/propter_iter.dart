@@ -59,12 +59,12 @@ Future<Response> propterSubmittere(Request req) async {
 
 
 Future<Response> propterSubmittereMulti(Request req) async {
-  List<SubmitterePropter> lsp = List<SubmitterePropter>.from(json.decode(await req.readAsString()));
+  List<String> lsp = List<String>.from(json.decode(await req.readAsString()));
   Directory directorium =
       Directory('vincula/${argumentis!.obstructionumDirectorium}/${Constantes.principalis}');
   List<Obstructionum> lo = await Obstructionum.getBlocks(directorium);
-  for (SubmitterePropter sc in lsp) {
-    PrivateKey privatus = PrivateKey.fromHex(Pera.curve(), sc.ex);
+  for (String sc in lsp) {
+    PrivateKey privatus = PrivateKey.fromHex(Pera.curve(), sc);
     if (await Pera.isPublicaClavisDefended(privatus.publicKey.toHex(), lo)) {
       return Response.badRequest(body: json.encode(BadRequest(code: 0, nuntius: 'the public key ${privatus.publicKey.toHex()} iam defenditur', message: 'the public key ${privatus.publicKey.toHex()} is already defended')));
     }
@@ -73,13 +73,9 @@ Future<Response> propterSubmittereMulti(Request req) async {
     }
   }
   ReceivePort rp = ReceivePort();
-  for (SubmitterePropter sp in lsp) {
-    PrivateKey privatus = PrivateKey.fromHex(Pera.curve(), sp.ex);
-    List<Quadrigis> lq = [];
-    for (String publicaClavis in sp.publicaClaves ?? []) {
-      lq.add(Quadrigis(sp.ex, publicaClavis));
-    }
-    InteriorePropter interiore = InteriorePropter(privatus.toHex(), privatus.publicKey.toHex(), lq);
+  for (String sp in lsp) {
+    PrivateKey privatus = PrivateKey.fromHex(Pera.curve(), sp);
+    InteriorePropter interiore = InteriorePropter(privatus.toHex(), privatus.publicKey.toHex(), []);
     isolates.propterIsolates[interiore.publicaClavis] = await Isolate.spawn(Propter.quaestum, List<dynamic>.from([interiore, rp.sendPort]));
   }
   rp.listen((propter) {
