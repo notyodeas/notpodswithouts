@@ -161,6 +161,7 @@ void main(List<String> args) async {
   total.addOption('tabernus-nodi');
   total.addOption('producentis', mandatory: true);
   total.addOption('praemium', defaultsTo: '763000000000000000000');
+  total.addOption('incipio-ex');
   total.addOption('furca');
   total.addFlag('partum-key-par');
   total.addFlag('novus-catena');
@@ -213,9 +214,9 @@ void main(List<String> args) async {
           .create(recursive: true);
   if (novusCatena && directory.listSync().isEmpty) {
     Print.nota(nuntius: 'clavem privatam tuam nobis dare posses ut cum incipio scandalum creares?', message: 'could you give us your private key to create the incipio block with?');
-    String ex = stdin.readLineSync()!;
+    // String ex = stdin.readLineSync()!;
     Obstructionum obs = Obstructionum.incipio(
-        InterioreObstructionum.incipio(ex: ex, producentis: producentis, praemium: BigInt.parse(praemium)));
+        InterioreObstructionum.incipio(ex: eventus['incipio-ex'], producentis: producentis, praemium: BigInt.parse(praemium)));
     await obs.salvareIncipio(directory);
     Print.nota(
         nuntius: 'Incipiens creatus obstructionum',
