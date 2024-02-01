@@ -15,7 +15,7 @@ class Constantes {
   static String principalis = '/principalis';
   static String caudices = "/caudices_";
 
-  static String vincula = 'vincula';
+  static String vincula = '../vincula';
   static String latus = '/latus';
   static String exitus = '/exitus';
 }

@@ -210,7 +210,7 @@ void main(List<String> args) async {
   bool syncFurca = eventus['sync-furca'];
   int pervideasPort = int.parse(eventus['pervideas-portus']);
   Directory directory =
-      await Directory('../${Constantes.vincula}/$obstructionumDirectorium')
+      await Directory('${Constantes.vincula}/$obstructionumDirectorium')
           .create(recursive: true);
   if (novusCatena && directory.listSync().isEmpty) {
     Print.nota(nuntius: 'clavem privatam tuam nobis dare posses ut cum incipio scandalum creares?', message: 'could you give us your private key to create the incipio block with?');
