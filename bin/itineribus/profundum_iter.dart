@@ -21,7 +21,7 @@ Future<Response> profundumRetribuere(Request req) async {
     RetribuereProfundum rp =
         RetribuereProfundum.fromJson(json.decode(await req.readAsString()));
     List<Obstructionum> lo = await Obstructionum.getBlocks(
-        Directory('vincula/${argumentis!.obstructionumDirectorium}${Constantes.principalis}'));
+        Directory('${Constantes.vincula}/${argumentis!.obstructionumDirectorium}${Constantes.principalis}'));
     List<SiRemotionem> lsr = [];
     lo.map((mo) => mo.interiore.siRemotiones).forEach(lsr.addAll);
     SiRemotionem sr = lsr.singleWhere((swsr) =>
@@ -83,9 +83,10 @@ Future<Response> profundumDebitaHabereIus(Request req) async {
 }
 
 Future<Response> profundumProfundis(Request req) async {
+  String publica = req.params['publica-clavis']!;
   Directory directorium = Directory('${Constantes.vincula}/${argumentis!.obstructionumDirectorium}${Constantes.principalis}');
   List<Obstructionum> lo = await Obstructionum.getBlocks(directorium);
-  List<SiRemotionemOutput> lsr = [];
-  lo.map((mlo) => mlo.interiore.siRemotiones.where((wsr) => wsr.interiore.siRemotionemOutput != null).map((msr) => msr.interiore.siRemotionemOutput!)).forEach(lsr.addAll);
-  return Response.ok(json.encode(lsr.map((e) => e.toJson()).toList()));
+  List<InterioreSiRemotionem> lisr = [];
+  lo.map((mlo) => mlo.interiore.siRemotiones.where((wsr) => wsr.interiore.siRemotionemOutput != null && wsr.interiore.siRemotionemOutput!.debetur == publica).map((msr) => msr.interiore)).forEach(lisr.addAll);
+  return Response.ok(json.encode(lisr.map((e) => e.toJson()).toList()));
 }

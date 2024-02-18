@@ -230,7 +230,7 @@ class FossorPraecipuus {
             }
           }
         }
-        lfttbi.addAll(llttbui);
+        lfttbi.addAll(lfttbui);
         lfttbi.addAll(lfttba);
         lfttbui = [];
         istxs = false;

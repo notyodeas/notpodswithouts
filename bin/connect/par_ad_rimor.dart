@@ -840,7 +840,7 @@ class ParAdRimor {
                       print('${o.toJson()}\n');
                       print('\n');
                     }
-                    await Obstructionum.removereExitus(foramen, directorium);
+                    // await Obstructionum.removereExitus(foramen, directorium);
                     await foramen.salvare(directorium);
                     for (Obstructionum o in lof.reversed) {
                       await o.salvare(directorium);
@@ -2146,13 +2146,13 @@ class ParAdRimor {
 
               // we need to remove these outputs if one of the txs of the current block reference a tx of this block
               //
-          if (!await Transactio.omnesClavesPublicasDefendi(outputs, lo)) {
-            Print.nota(
-                nuntius: 'non omnes claves publicae defenduntur',
-                message: 'not all public keys are defended');
-            Print.obstructionumReprobatus();
-            return false;
-          }
+          // if (!await Transactio.omnesClavesPublicasDefendi(outputs, lo)) {
+          //   Print.nota(
+          //       nuntius: 'non omnes claves publicae defenduntur',
+          //       message: 'not all public keys are defended');
+          //   Print.obstructionumReprobatus();
+          //   return false;
+          // }
           if (obstructionum.interiore.generare ==
                   Generare.confussus ||
               obstructionum.interiore.generare ==

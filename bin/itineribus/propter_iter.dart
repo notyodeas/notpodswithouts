@@ -86,6 +86,10 @@ Future<Response> propterSubmittereMulti(Request req) async {
     "message": "all public keys have entered the pool to be defended"
   }));
 }
+Future<Response> propterPublic(Request req) async {
+  PrivateKey pk = PrivateKey.fromHex(Pera.curve(), req.params['private-key']!);
+  return Response.ok(pk.publicKey.toHex());
+}
 Future<Response> propterStatus(Request req) async {
   String publica = req.params['publica-clavis']!;
   Directory directory =

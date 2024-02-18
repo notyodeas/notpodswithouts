@@ -13,7 +13,7 @@ import '../server.dart';
 Future<Response> transactioIdentitatis(Request req) async {
   String identitatis = req.params['identitatis']!;
   Directory directory =
-      Directory('vincula/${argumentis!.obstructionumDirectorium}${Constantes.principalis}');
+      Directory('${Constantes.vincula}/${argumentis!.obstructionumDirectorium}${Constantes.principalis}');
   List<Obstructionum> obs = [];
   for (int i = 0; i < directory.listSync().length; i++) {
     await for (String obstructionum in Utils.fileAmnis(
@@ -79,7 +79,7 @@ Future<Response> transactioIdentitatis(Request req) async {
           null,
           null,
           null);
-      return Response.ok({"data": txInfo.toJson(), "scriptum": tx.toJson()});
+      return Response.ok(json.encode({"data": txInfo.toJson(), "scriptum": tx.toJson()}));
     }
   }
   return Response.badRequest(
@@ -104,7 +104,7 @@ Response transactioStagnumLiber(Request req) {
 
 Response transactioStagnumFixum(Request req) {
   return Response.ok(
-      json.encode(par!.fixumTransactions.map((ft) => ft.toJson())));
+      json.encode(par!.fixumTransactions.map((ft) => ft.toJson()).toList()));
 }
 
 Response transactioStagnumExpressi(Request req) {

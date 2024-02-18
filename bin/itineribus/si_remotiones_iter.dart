@@ -50,12 +50,14 @@ Future<Response> siRemotionessubmittereProof(Request req) async {
   }
   List<Transactio> lte = [];
   lt.interiore.certitudo = Utils.signumIdentitatis(PrivateKey.fromHex(Pera.curve(), ssr.ex), lt.interiore.identitatis);
-  Transactio? et = par!.expressiTransactions.singleWhere((swet) => swet.interiore.inputs.any((ai) => ai.transactioIdentitatis == lt.interiore.identitatis));
-  while (et != null) {
-    lte.add(et);
-    et.interiore.certitudo = Utils.signumIdentitatis(PrivateKey.fromHex(Pera.curve(), ssr.ex), et.interiore.identitatis);
-    et = par!.expressiTransactions.singleWhereOrNull((swonet) => swonet.interiore.inputs.any((ai) => ai.transactioIdentitatis == et!.interiore.identitatis));
-  }
+  if (ssr.interiore.liber) {
+    Transactio? et = par!.expressiTransactions.singleWhere((swet) => swet.interiore.inputs.any((ai) => ai.transactioIdentitatis == lt.interiore.identitatis));
+    while (et != null) {
+      lte.add(et);
+      et.interiore.certitudo = Utils.signumIdentitatis(PrivateKey.fromHex(Pera.curve(), ssr.ex), et.interiore.identitatis);
+      et = par!.expressiTransactions.singleWhereOrNull((swonet) => swonet.interiore.inputs.any((ai) => ai.transactioIdentitatis == et!.interiore.identitatis));
+    }
+  }    
   SiRemotionem reschet = lt.interiore.siRemotionem!;
   lt.interiore.siRemotionem = null;
   ReceivePort rp = ReceivePort();
@@ -63,7 +65,11 @@ Future<Response> siRemotionessubmittereProof(Request req) async {
       await Isolate.spawn(Transactio.quaestum,
           List<dynamic>.from([lt.interiore, rp.sendPort]));
   rp.listen((transactio) {
-    par!.syncLiberTransaction(transactio as Transactio);
+    if (lt.interiore.liber) {
+      par!.syncLiberTransaction(transactio as Transactio);
+    } else {
+      par!.syncFixumTransaction(transactio as Transactio);
+    }
     for (Transactio te in lte) {
       par!.syncExpressiTransaction(te);
     }

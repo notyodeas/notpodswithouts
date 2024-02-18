@@ -1,3 +1,4 @@
+// = == = = == = == =
 import 'dart:io';
 import 'dart:convert';
 import 'dart:isolate';
@@ -20,6 +21,7 @@ import 'itineribus/propter_iter.dart';
 import 'itineribus/si_remotiones_iter.dart';
 import 'itineribus/solucionis_iter.dart';
 import 'itineribus/submittere_transactio_liber_iter.dart';
+import 'itineribus/submittere_transactio_fixum_iter.dart';
 import 'itineribus/transactio_iter.dart';
 import 'itineribus/statera_iter.dart';
 import 'auxiliatores/print.dart';
@@ -43,8 +45,9 @@ final _router = Router()
   ..post('/obstructionum-numerus', obstructionumPerNumerus)
   ..post('/obstructionum-probationem-jugum', obstructionumProbationemJugum)
   ..get('/obstructionum-prior', obstructionumPrior)
-  ..delete('/obstructionum-removere-ultimum', obstructionumRemovereUltimum)
+  ..delete('/obstructionum-removere-ultimum/<ex>', obstructionumRemovereUltimum)
   ..delete('/obstructionum-removere-ad-probationem/<probationem>', obstructionumRemovereAdProbationem)
+  ..get('/obstructionum-probationems', obstructionumProbationems)
   ..post('/fossor-efectus/<furca>/<privatus>', fossorEfectus)
   ..get('/fossor-efectus-threads', efectusThreads)
   ..delete('/prohibere-efectus-fossores', prohibereEfectus)
@@ -58,6 +61,7 @@ final _router = Router()
   ..post('/propter-submittere-multi', propterSubmittereMulti)
   ..get('/propter-status/<publica-clavis>', propterStatus)
   ..get('/propter-novus', propterNovus)
+  ..get('/propter-public/<private-key>', propterPublic)
   ..get('/propter-habet-bid/<publica-clavis>', propterHabetBid)
   ..get('/propter-stagnum', propterStagnum)
   ..delete('/propter-stagnum-remove/<ex>', propterStagnumRemove)
@@ -66,6 +70,7 @@ final _router = Router()
   ..get('/gladiator-arma/<publica-clavis>', gladiatorArma)
   ..get('/gladiator-summa-bid-arma/<probationem>', gladiatorSummaBidArma)
   ..post('/submittere-transactio-liber', submittereTransactioLiber)
+  ..post('/submittere-transactio-fixum', submittereTransactioFixum)
   ..delete('/submittere-transactio-liber-remouens', submittereTransactioLiberRemouens)
   ..get('/transactio-stagnum-liber', transactioStagnumLiber)
   ..get('/transactio-stagnum-fixum', transactioStagnumFixum)
@@ -80,7 +85,7 @@ final _router = Router()
   ..post('/si-remotiones-denuo-proponendam', siRemotionesdenuoProponendam)
   ..get('/si-remotiones-stagnum', siRemotionesStagnum)
   ..delete('/si-remotiones-remove',siRemotionemsRemove)
-  ..get('/profundum-profundis', profundumProfundis)
+  ..get('/profundum-profundis/<publica-clavis>', profundumProfundis)
   ..get('/profundum-debita-habereius/<debita>/<ex>', profundumDebitaHabereIus)
   ..post('/profundum-retribuere', profundumRetribuere)
   // ..get('/profundum-profundums/<publica-clavis>', profundumProfundums)
@@ -163,6 +168,7 @@ void main(List<String> args) async {
   total.addOption('praemium', defaultsTo: '763000000000000000000');
   total.addOption('incipio-ex');
   total.addOption('furca');
+  total.addOption('ahead', defaultsTo: '= == = = == = == =');
   total.addFlag('partum-key-par');
   total.addFlag('novus-catena');
   total.addFlag('novus');
@@ -214,7 +220,7 @@ void main(List<String> args) async {
           .create(recursive: true);
   if (novusCatena && directory.listSync().isEmpty) {
     Print.nota(nuntius: 'clavem privatam tuam nobis dare posses ut cum incipio scandalum creares?', message: 'could you give us your private key to create the incipio block with?');
-    // String ex = stdin.readLineSync()!;
+    String ex = stdin.readLineSync()!;
     Obstructionum obs = Obstructionum.incipio(
         InterioreObstructionum.incipio(ex: eventus['incipio-ex'], producentis: producentis, praemium: BigInt.parse(praemium)));
     await obs.salvareIncipio(directory);

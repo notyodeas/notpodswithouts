@@ -66,7 +66,9 @@ Future<Response> fossorConfussus(Request req) async {
     ltsr.addAll(par!.siRemotiones.where((wsr) => wsr.interiore.siRemotionemInput != null).map((msr) => Transactio.nullam(msr.interiore.siRemotionemInput!.interioreTransactio!)));
     bool inimicusPrimis = await Pera.isPrimis(publica, directorium);
     String gladiatorInimicusIdentitatis = await Pera.accipereGladiatorIdentitatis(publica, directorium);
+    print('gotid $gladiatorInimicusIdentitatis');
     Gladiator? gladiatorInimicus = await Obstructionum.grabGladiator(gladiatorInimicusIdentitatis, lo);
+    print('ffound ${gladiatorInimicus == null}');
     if (gladiatorInimicus == null) {
       return Response.badRequest(
           body: json.encode({

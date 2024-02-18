@@ -15,12 +15,13 @@ class Constantes {
   static String principalis = '/principalis';
   static String caudices = "/caudices_";
 
-  static String vincula = '../vincula';
+  static String vincula = 'vincula';
   static String latus = '/latus';
   static String exitus = '/exitus';
 }
 
 class JSON {
+  static String ahead = 'ahead';
   static String quadrigis = 'quadrigis';
   static String publicaClaves = 'publicaClaves';
   static String publicaClavis = 'publicaClavis';

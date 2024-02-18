@@ -104,7 +104,13 @@ class Pera {
       String probationem, List<Obstructionum> lo) async {
     List<Map<String, BigInt>> maschaps = [];
     List<String> gladiatorIds = [];
-    lo.where((wlo) => wlo.interiore.generare != Generare.incipio).map((mo) => mo.interiore.gladiator.interiore.identitatis).forEach(gladiatorIds.add);
+    lo.where((wlo) => wlo.interiore.generare == Generare.efectus).map((mo) => mo.interiore.gladiator.interiore.identitatis).forEach(gladiatorIds.add);
+    String incipioGladiatorIdentitatis = lo.first.interiore.gladiator.interiore.identitatis;
+    Gladiator? gladiator = await Obstructionum.grabGladiator(incipioGladiatorIdentitatis, lo);
+    if (gladiator != null) {
+      maschaps.add(await arma(true, true, incipioGladiatorIdentitatis, lo));
+      maschaps.add(await arma(false, true, incipioGladiatorIdentitatis, lo));
+    } 
     for (String gid in gladiatorIds) {
       maschaps.add(await arma(true, true, gid, lo));
       maschaps.add(await arma(false, true, gid, lo));
@@ -387,8 +393,7 @@ class Pera {
     PrivateKey privatusClavis = PrivateKey.fromHex(Pera.curve(), ex);
     List<Tuple3<int, String, TransactioOutput>> inOuts =
         await inconsumptusOutputs(liber, privatusClavis.publicKey.toHex(), lo);
-    for (Transactio tx in transactioStagnum
-        .where((t) => t.interiore.liber == liber)) {
+    for (Transactio tx in transactioStagnum) {
       inOuts.removeWhere((element) => tx.interiore.inputs
           .any((ischin) => ischin.transactioIdentitatis == element.item2));
       for (int i = 0; i < tx.interiore.outputs.length; i++) {
@@ -428,6 +433,8 @@ class Pera {
     for (Tuple3<int, String, TransactioOutput> inOut in outs) {
       balance += inOut.item3.pod;
     }
+    print('balance $balance');
+    print('value $value');
     if (twice ? (balance < (value * BigInt.two)) : (balance < value)) {
       throw BadRequest(
           code: 1, nuntius: "Pecuniae parum sunt, sed forte res sunt sine subscriptione recipientis in piscina", message: "Insufficient funds, but maby there are transactions without a signature of the reciever in the pool");

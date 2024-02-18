@@ -213,6 +213,7 @@ class InterioreObstructionum {
   }
 
   Map<String, dynamic> toJson() => {
+        JSON.ahead: '= == = = == = ==',
         JSON.estFurca: estFurca,
         JSON.generare: generare.name.toString(),
         JSON.obstructionumDifficultas: obstructionumDifficultas,
@@ -791,9 +792,10 @@ class Obstructionum {
     //todo else 
   }
   static Future removereExitus(Obstructionum foramen, Directory directorium) async {
-    File f = File('${Constantes.vincula}/${argumentis!.obstructionumDirectorium}${Constantes.principalis}{Constantes.exitus}.txt');
+    File f = File('${Constantes.vincula}/${argumentis!.obstructionumDirectorium}${Constantes.principalis}${Constantes.exitus}.txt');
     List<String> ss = await Utils.fileAmnis(f).toList();
     ss.removeAt(ss.indexOf(json.encode(foramen.toJson()))); 
+    
   }
 
   InFieriObstructionum inFieriObstructionum() {
@@ -998,12 +1000,13 @@ class Obstructionum {
     lo.map((mo) => mo.interiore.liberTransactions).forEach(llt.addAll);
     List<String> llti = [];
     llt.map((mlt) => mlt.interiore.identitatis).forEach(llti.add); 
-    if (!interiore.liberTransactions.every(
-      (elt) => elt.interiore.inputs.every(
-        (ei) => llti.any((alti) => ei.transactioIdentitatis == alti) || 
-        interiore.liberTransactions.any((alt) => alt.interiore.identitatis == ei.transactioIdentitatis)))) {
-      return false;
-    }
+    // if (!interiore.liberTransactions.every(
+    //   (elt) => elt.interiore.inputs.every(
+    //     (ei) => llti.any((alti) => ei.transactioIdentitatis == alti) || 
+    //     interiore.liberTransactions.any((alt) => alt.interiore.identitatis == ei.transactioIdentitatis)))) {
+    //       print('complainedaboveabove');
+    //   return false;
+    // }
     List<Transactio> let = [];
     lo.map((mo) => mo.interiore.expressiTransactions).forEach(let.addAll);
     List<String> leti = [];
@@ -1014,6 +1017,7 @@ class Obstructionum {
         llti.any((alti) =>  ei.transactioIdentitatis == alti) || 
         interiore.liberTransactions.any((alt) => ei.transactioIdentitatis == alt.interiore.identitatis) ||
         interiore.expressiTransactions.any((aet) => ei.transactioIdentitatis == aet.interiore.identitatis)))) {
+          print('complainedabove');
           return false;
     }
     List<Transactio> lft = [];
@@ -1024,6 +1028,7 @@ class Obstructionum {
       (eft) => eft.interiore.inputs.every(
         (ei) => lfti.any((afti) => ei.transactioIdentitatis == afti) ||
         interiore.fixumTransactions.any((aft) => aft.interiore.identitatis == ei.transactioIdentitatis)))) {
+          print('complainedrighthere');
           return false;
         }
     return true;
