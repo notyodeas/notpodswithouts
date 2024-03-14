@@ -75,18 +75,18 @@ Future<Response> profundumRetribuere(Request req) async {
 
 Future<Response> profundumDebitaHabereIus(Request req) async {
   bool debita = bool.parse(req.params['debita']!);
-  String ex = req.params['ex']!;
+  String public = req.params['publica-clavis']!;
   Directory directorium = Directory('${Constantes.vincula}/${argumentis!.obstructionumDirectorium}${Constantes.principalis}');
   List<Obstructionum> lo = await Obstructionum.getBlocks(directorium);
-  Iterable<SiRemotionem> lsr = SiRemotionem.debitaHabereIus(debita, ex, lo);
+  Iterable<SiRemotionem> lsr = SiRemotionem.debitaHabereIus(debita, public, lo);
   return Response.ok(json.encode(lsr.map((mlsr) => mlsr.toJson()).toList()));
 }
 
-Future<Response> profundumProfundis(Request req) async {
-  String publica = req.params['publica-clavis']!;
-  Directory directorium = Directory('${Constantes.vincula}/${argumentis!.obstructionumDirectorium}${Constantes.principalis}');
-  List<Obstructionum> lo = await Obstructionum.getBlocks(directorium);
-  List<InterioreSiRemotionem> lisr = [];
-  lo.map((mlo) => mlo.interiore.siRemotiones.where((wsr) => wsr.interiore.siRemotionemOutput != null && wsr.interiore.siRemotionemOutput!.debetur == publica).map((msr) => msr.interiore)).forEach(lisr.addAll);
-  return Response.ok(json.encode(lisr.map((e) => e.toJson()).toList()));
-}
+// Future<Response> profundumProfundis(Request req) async {
+//   String publica = req.params['publica-clavis']!;
+//   Directory directorium = Directory('${Constantes.vincula}/${argumentis!.obstructionumDirectorium}${Constantes.principalis}');
+//   List<Obstructionum> lo = await Obstructionum.getBlocks(directorium);
+//   List<InterioreSiRemotionem> lisr = [];
+//   lo.map((mlo) => mlo.interiore.siRemotiones.where((wsr) => wsr.interiore.siRemotionemOutput != null && wsr.interiore.siRemotionemOutput!.debetur == publica).map((msr) => msr.interiore)).forEach(lisr.addAll);
+//   return Response.ok(json.encode(lisr.map((e) => e.toJson()).toList()));
+// }

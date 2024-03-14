@@ -75,7 +75,7 @@ Future<Response> obstructionumRemovereUltimum(Request req) async {
 Future<Response> obstructionumRemovereAdProbationem(Request req) async {
   String probationem = req.params['probationem']!;
   Directory directorium =
-      Directory('vincula/${argumentis!.obstructionumDirectorium}${Constantes.principalis}');
+      Directory('${Constantes.vincula}/${argumentis!.obstructionumDirectorium}${Constantes.principalis}');
   await Obstructionum.removereAdProbationemObstructionum(probationem, directorium);
   Obstructionum prior = await Obstructionum.acciperePrior(directorium);
   return Response.ok(json.encode({

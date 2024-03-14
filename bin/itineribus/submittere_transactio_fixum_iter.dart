@@ -19,7 +19,7 @@ Future<Response> submittereTransactioFixum(Request req) async {
   SubmittereTransaction st =
       SubmittereTransaction.fromJson(json.decode(await req.readAsString()));
   Directory directorium =
-      Directory('vincula/${argumentis!.obstructionumDirectorium}${Constantes.principalis}');
+      Directory('${Constantes.vincula}/${argumentis!.obstructionumDirectorium}${Constantes.principalis}');
   try {
     PrivateKey pk = PrivateKey.fromHex(Pera.curve(), st.ex);
     String publica = pk.publicKey.toHex();
@@ -58,7 +58,7 @@ Future<Response> submittereTransactioFixum(Request req) async {
     //           .toJson()));
     // }
     final bool isp = await Pera.isProbationum(st.to, lo);
-    if (SiRemotionem.habetProfundum(true, pk.publicKey.toHex(), lo) && !isp) {
+    if (SiRemotionem.habetProfundum(false, pk.publicKey.toHex(), lo) && !isp) {
       return Response.badRequest(
         body: json.encode(BadRequest(code: 4, nuntius: 'mittens pecuniam penitus', message: 'sender of money is in depth').toJson())
       );

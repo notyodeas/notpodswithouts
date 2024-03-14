@@ -195,7 +195,12 @@ class InterioreSiRemotionem {
   //   lo.map((mlo) => mlo.interiore.siRemotiones).forEach(lsr.addAll);
   //   if (lsr.any((alsr) => alsr.interiore.))
   // }
+
+  bool utPrimum(List<Transactio> lt) {
+    return lt.any((alt) => alt.interiore.identitatis == siRemotionemOutput!.transactioIdentitatis);
+  }
 }
+
 
 class SiRemotionem {
   String probationem;

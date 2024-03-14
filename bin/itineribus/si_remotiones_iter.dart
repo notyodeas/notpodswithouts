@@ -113,6 +113,9 @@ Future<Response> siRemotionesdenuoProponendam(Request req) async {
   if (!sr.siRemotionemOutput!.estTransactionIdentitatisAdhucPraesto(lo, null) || par!.inritaTransactions.any((ait) => ait.interiore.identitatis == sr.siRemotionemOutput!.transactioIdentitatis)) {
     return Response.badRequest(body: json.encode(BadRequest(code: 0, nuntius: 'rem tollitur rei ante susceptor signati dominus rei', message: 'transaction is removed by the owner of the transaction before the receiver signed it')));
   }
+  if (par!.liberTransactions.any((alt) => alt.interiore.identitatis == sr.siRemotionemOutput!.transactioIdentitatis || par!.fixumTransactions.any((aft) => aft.interiore.identitatis == sr.siRemotionemOutput!.transactioIdentitatis))) {
+    return Response.badRequest(body: json.encode(BadRequest(code: 0, nuntius: 'transactionem si remotionem refers to numquam got inclusa in trunco vel adhuc exspectans includi', message: 'the transaction the si remotionem refers to never got included in a block or is still waiting to be included')));
+  }
   List<Transactio> lt = [];
   lo
       .map((mo) => sr.siRemotionemOutput!.liber

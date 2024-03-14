@@ -213,7 +213,7 @@ class InterioreObstructionum {
   }
 
   Map<String, dynamic> toJson() => {
-        JSON.ahead: '= == = = == = ==',
+        JSON.human: '= == =',
         JSON.estFurca: estFurca,
         JSON.generare: generare.name.toString(),
         JSON.obstructionumDifficultas: obstructionumDifficultas,
@@ -243,7 +243,8 @@ class InterioreObstructionum {
         JSON.siRemotiones: siRemotiones.map((e) => e.toJson()).toList(),
         JSON.solucionisPropter: solucionisRationibus.map((e) => e.toJson()).toList(),
         JSON.fissileSolucionisPropter: fissileSolucionisRationibus.map((e) => e.toJson()).toList(),
-        JSON.inritaTransactions: inritaTransactions.map((e) => e.toJson()).toList()
+        JSON.inritaTransactions: inritaTransactions.map((e) => e.toJson()).toList(),
+        JSON.ahead: '= == = =='
       }..removeWhere((key, value) => value == null);
   InterioreObstructionum.fromJson(Map jsoschon)
       : estFurca = bool.parse(jsoschon[JSON.estFurca].toString()),

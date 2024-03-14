@@ -292,5 +292,4 @@ class RemovePropterStagnum {
     JSON.publicaClavis: publicaClavis,
     JSON.signature: signature
   };
-
 }

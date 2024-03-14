@@ -28,7 +28,9 @@ import 'auxiliatores/print.dart';
 import 'itineribus/fossor_expressi_iter.dart';
 import 'itineribus/gladiator_iter.dart';
 import 'itineribus/network_iter.dart';
+import 'itineribus/download_iter.dart';
 import 'package:shelf_cors_headers/shelf_cors_headers.dart';
+import 'package:shelf_plus/shelf_plus.dart';
 
 class PoschosTesches {
   String? vaschal;
@@ -38,7 +40,7 @@ class PoschosTesches {
 }
 
 // Configure routes.
-final _router = Router()
+final _router = Router().plus
   ..get('/', _rootHandler)
   ..post('/poschos', _poschos)
   ..get('/echo/<message>', _echoHandler)
@@ -58,7 +60,7 @@ final _router = Router()
   ..get('/fossor-expressi-threads', expressiThreads)
   ..delete('/prohibere-expressi-fossores', prohibereExpressi)
   ..post('/propter-submittere', propterSubmittere)
-  ..post('/propter-submittere-multi', propterSubmittereMulti)
+  // ..post('/propter-submittere-multi', propterSubmittereMulti)
   ..get('/propter-status/<publica-clavis>', propterStatus)
   ..get('/propter-novus', propterNovus)
   ..get('/propter-public/<private-key>', propterPublic)
@@ -85,8 +87,8 @@ final _router = Router()
   ..post('/si-remotiones-denuo-proponendam', siRemotionesdenuoProponendam)
   ..get('/si-remotiones-stagnum', siRemotionesStagnum)
   ..delete('/si-remotiones-remove',siRemotionemsRemove)
-  ..get('/profundum-profundis/<publica-clavis>', profundumProfundis)
-  ..get('/profundum-debita-habereius/<debita>/<ex>', profundumDebitaHabereIus)
+  // ..get('/profundum-profundis/<publica-clavis>', profundumProfundis)
+  ..get('/profundum-debita-habereius/<debita>/<publica-clavis>', profundumDebitaHabereIus)
   ..post('/profundum-retribuere', profundumRetribuere)
   // ..get('/profundum-profundums/<publica-clavis>', profundumProfundums)
   ..get('/furca-foramen', furcaForamen)
@@ -99,7 +101,8 @@ final _router = Router()
   ..post('/solucionis-submittere-fissile-solocionis-propter', solucionisSubmittereFissileSolocionisPropter)
   ..get('/solucionis-fissile-stagnum', solucionisFissileStagnum)
   ..post('/solucionis-fissile-cash-ex', solucionisFissileCashEx)
-  ..get('/network-nodorum', networkNodorum);
+  ..get('/network-nodorum', networkNodorum)
+  ..get('/download/<i>', downloadchain, use: download());
 
 Response _rootHandler(Request req) {
   return Response.ok('Hello, World!\n');
@@ -157,6 +160,7 @@ void main(List<String> args) async {
   // Use any available host or container IP (usually `0.0.0.0`).
   final ip = InternetAddress.anyIPv4;
   var total = ArgParser();
+  total.addOption('humano', defaultsTo: '= == =');
   total.addOption('obstructionum-directorium');
   total.addOption('max-pervideas', defaultsTo: '51');
   total.addOption('internum-ip', defaultsTo: '127.0.0.1');
@@ -168,13 +172,14 @@ void main(List<String> args) async {
   total.addOption('praemium', defaultsTo: '763000000000000000000');
   total.addOption('incipio-ex');
   total.addOption('furca');
-  total.addOption('ahead', defaultsTo: '= == = = == = == =');
+  total.addOption('ahead', defaultsTo: '= == = = == = ==');
   total.addFlag('partum-key-par');
   total.addFlag('novus-catena');
   total.addFlag('novus');
   total.addFlag('sync-novus');
   total.addFlag('sync-pergo');
   total.addFlag('sync-furca');
+  total.addOption('computatrum', defaultsTo: '= == = ==');
   var eventus = total.parse(args);
   if (eventus['partum-key-par']) {
     final kp = ClavisPar();
@@ -197,7 +202,7 @@ void main(List<String> args) async {
         'When creating or proceeding a blockchain we need both the folder of the blockchain and a public key.');
     exit(0);
   }
-  if (!Directory('vincula').existsSync()) {
+  if (!Directory(Constantes.vincula).existsSync()) {
     print('nuntius: ""');
     print(
         'message: "Launch the blockchain from the root of your project with bin/server.dart"');
@@ -219,8 +224,8 @@ void main(List<String> args) async {
       await Directory('${Constantes.vincula}/$obstructionumDirectorium')
           .create(recursive: true);
   if (novusCatena && directory.listSync().isEmpty) {
-    Print.nota(nuntius: 'clavem privatam tuam nobis dare posses ut cum incipio scandalum creares?', message: 'could you give us your private key to create the incipio block with?');
-    String ex = stdin.readLineSync()!;
+    // Print.nota(nuntius: 'clavem privatam tuam nobis dare posses ut cum incipio scandalum creares?', message: 'could you give us your private key to create the incipio block with?');
+    // String ex = stdin.readLineSync()!;
     Obstructionum obs = Obstructionum.incipio(
         InterioreObstructionum.incipio(ex: eventus['incipio-ex'], producentis: producentis, praemium: BigInt.parse(praemium)));
     await obs.salvareIncipio(directory);

@@ -1931,6 +1931,14 @@ class ParAdRimor {
         Print.obstructionumReprobatus();
         return false;
       }
+      List<Transactio> all = obstructionum.interiore.liberTransactions;
+      all.addAll(obstructionum.interiore.fixumTransactions);
+      all.addAll(liberTransactions);
+      all.addAll(fixumTransactions);
+      if (sr.interiore.utPrimum(all)) {
+        Print.nota(nuntius: 'rem nunquam got inclusa in obstructionum vel adhuc exspectans includi', message: 'the transaction never got included in a block or still waiting to be included');
+        return false;
+      }
     }
     for (SiRemotionem sr in obstructionum.interiore.siRemotiones.where((wsr) => wsr.interiore.siRemotionemInput != null)) {
       if (!sr.interiore.siRemotionemInput!.cognoscere(lo)) {

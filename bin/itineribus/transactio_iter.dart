@@ -66,7 +66,7 @@ Future<Response> transactioIdentitatis(Request req) async {
           null,
           null,
           null);
-      return Response.ok({"data": txInfo.toJson(), "scriptum": tx.toJson()});
+      return Response.ok(json.encode({ "data": txInfo.toJson(), "scriptum": tx.toJson()}));
     }
   }
   for (Transactio tx in par!.fixumTransactions) {

@@ -20,7 +20,7 @@ import '../server.dart';
 Future<Response> propterSubmittere(Request req) async {
   SubmitterePropter sp = SubmitterePropter.fromJson(json.decode(await req.readAsString()));
   Directory directorium =
-      Directory('vincula/${argumentis!.obstructionumDirectorium}${Constantes.principalis}');
+      Directory('${Constantes.vincula}/${argumentis!.obstructionumDirectorium}${Constantes.principalis}');
   List<Obstructionum> lo = await Obstructionum.getBlocks(directorium);
   PrivateKey privatus = PrivateKey.fromHex(Pera.curve(), sp.ex);
   if (await Pera.isPublicaClavisDefended(privatus.publicKey.toHex(), lo)) {
@@ -61,7 +61,7 @@ Future<Response> propterSubmittere(Request req) async {
 Future<Response> propterSubmittereMulti(Request req) async {
   List<String> lsp = List<String>.from(json.decode(await req.readAsString()));
   Directory directorium =
-      Directory('vincula/${argumentis!.obstructionumDirectorium}/${Constantes.principalis}');
+      Directory('${Constantes.vincula}/${argumentis!.obstructionumDirectorium}/${Constantes.principalis}');
   List<Obstructionum> lo = await Obstructionum.getBlocks(directorium);
   for (String sc in lsp) {
     PrivateKey privatus = PrivateKey.fromHex(Pera.curve(), sc);
@@ -88,12 +88,12 @@ Future<Response> propterSubmittereMulti(Request req) async {
 }
 Future<Response> propterPublic(Request req) async {
   PrivateKey pk = PrivateKey.fromHex(Pera.curve(), req.params['private-key']!);
-  return Response.ok(pk.publicKey.toHex());
+  return Response.ok(json.encode(pk.publicKey.toHex()));
 }
 Future<Response> propterStatus(Request req) async {
   String publica = req.params['publica-clavis']!;
   Directory directory =
-      Directory('vincula/${argumentis!.obstructionumDirectorium}${Constantes.principalis}');
+      Directory('${Constantes.vincula}/${argumentis!.obstructionumDirectorium}${Constantes.principalis}');
   List<Obstructionum> obs = [];
   for (int i = 0; i < directory.listSync().length; i++) {
     await for (String obstructionum in Utils.fileAmnis(
@@ -151,7 +151,6 @@ Future<Response> propterNovus(Request req) async {
     "privatusClavis": kp.privatusClavis
   }));
 }
-
 Future<Response> propterStagnum(Request req) async {
   return Response.ok(json.encode(par!.rationibus.map((e) => e.toJson()).toList()));
 }
@@ -159,7 +158,7 @@ Future<Response> propterStagnum(Request req) async {
 Future<Response> propterHabetBid(Request req) async {
   final String publica = req.params['publica-clavis']!;
   Directory directorium =
-      Directory('vincula/${argumentis!.obstructionumDirectorium}${Constantes.principalis}');
+      Directory('${Constantes.vincula}/${argumentis!.obstructionumDirectorium}${Constantes.principalis}');
   List<Obstructionum> lo = await Obstructionum.getBlocks(directorium);
   final BigInt liber = await Pera.habetBid(true, publica, lo);
   final BigInt fixum = await Pera.habetBid(false, publica, lo);

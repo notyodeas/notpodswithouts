@@ -22,7 +22,7 @@ Future<Response> fossorExpressi(Request req) async {
     IncipitPugna ip =
       IncipitPugna.fromJson(json.decode(await req.readAsString()));
     Directory directorium =
-      Directory('vincula/${argumentis!.obstructionumDirectorium}${Constantes.principalis}');
+      Directory('${Constantes.vincula}/${argumentis!.obstructionumDirectorium}${Constantes.principalis}');
     Obstructionum prior = await Obstructionum.acciperePrior(directorium);
     List<Obstructionum> lo = await Obstructionum.getBlocks(directorium);
     if (!File('${directorium.path}/${Constantes.caudices}0.txt').existsSync()) {

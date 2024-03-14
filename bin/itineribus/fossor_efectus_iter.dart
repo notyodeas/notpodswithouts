@@ -17,7 +17,7 @@ import '../server.dart';
 
 Future<Response> fossorEfectus(Request req) async {
   Directory directorium =
-      Directory('vincula/${argumentis!.obstructionumDirectorium}${Constantes.principalis}');
+      Directory('${Constantes.vincula}/${argumentis!.obstructionumDirectorium}${Constantes.principalis}');
   bool estFurca = bool.parse(req.params['furca']!);
   String privatus = req.params['privatus']!;
   if (PrivateKey.fromHex(Pera.curve(), privatus).publicKey.toHex() != argumentis!.publicaClavis) {

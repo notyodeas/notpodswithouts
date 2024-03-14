@@ -21,7 +21,7 @@ Future<Response> submittereTransactioLiber(Request req) async {
   SubmittereTransaction st =
       SubmittereTransaction.fromJson(json.decode(await req.readAsString()));
   Directory directorium =
-      Directory('vincula/${argumentis!.obstructionumDirectorium}${Constantes.principalis}');
+      Directory('${Constantes.vincula}/${argumentis!.obstructionumDirectorium}${Constantes.principalis}');
   try {
     PrivateKey pk = PrivateKey.fromHex(Pera.curve(), st.ex);
     String publica = pk.publicKey.toHex();
@@ -104,9 +104,11 @@ Future<Response> submittereTransactioLiber(Request req) async {
         List<String> ettri = [];
         while (frt != null) {
           print('ilooploop');
-          ConnexaLiberExpressi cle = par!.connexiaLiberExpressis.singleWhere((swc) => swc.interioreConnexaLiberExpressi.identitatis == frt!.interiore.identitatis);
-          await par!.removeConnexaLiberExpressis([cle.interioreConnexaLiberExpressi.identitatis]);
-          cle.interioreConnexaLiberExpressi.identitatum.forEach(ettri.add);
+          ConnexaLiberExpressi? cle = par!.connexiaLiberExpressis.singleWhereOrNull((swc) => swc.interioreConnexaLiberExpressi.identitatis == frt!.interiore.identitatis);
+          if (cle != null) {
+            await par!.removeConnexaLiberExpressis([cle.interioreConnexaLiberExpressi.identitatis]);
+            cle.interioreConnexaLiberExpressi.identitatum.forEach(ettri.add);
+          }
           frt = par!.liberTransactions.singleWhereOrNull((swonlt) => frt!.interiore.inputs.any((ainputs) => ainputs.transactioIdentitatis == swonlt.interiore.identitatis));
         }
         List<Transactio> letti = [];
