@@ -42,6 +42,7 @@ Future<Response> fossorEfectus(Request req) async {
     lit: par!.inritaTransactions,
     lo: lo
   );
+  print(fp.lptbi);
   Obstructionum incipio = await Obstructionum.accipereIncipio(directorium);
   fp.llttbi.insert(0, Transactio.nullam(InterioreTransactio.praemium(argumentis!.publicaClavis, incipio.interiore.praemium!)));
   final obstructionumDifficultas = await Obstructionum.utDifficultas(lo);

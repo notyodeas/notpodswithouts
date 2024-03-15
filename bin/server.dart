@@ -202,12 +202,6 @@ void main(List<String> args) async {
         'When creating or proceeding a blockchain we need both the folder of the blockchain and a public key.');
     exit(0);
   }
-  if (!Directory(Constantes.vincula).existsSync()) {
-    print('nuntius: ""');
-    print(
-        'message: "Launch the blockchain from the root of your project with bin/server.dart"');
-    exit(0);
-  }
   String obstructionumDirectorium = eventus['obstructionum-directorium'];
   String internumIp = eventus['internum-ip'];
   String praemium = eventus['praemium'];
@@ -221,7 +215,7 @@ void main(List<String> args) async {
   bool syncFurca = eventus['sync-furca'];
   int pervideasPort = int.parse(eventus['pervideas-portus']);
   Directory directory =
-      await Directory('${Constantes.vincula}/$obstructionumDirectorium')
+      await Directory('${Constantes.vincula}/$obstructionumDirectorium/${Constantes.principalis}')
           .create(recursive: true);
   if (novusCatena && directory.listSync().isEmpty) {
     // Print.nota(nuntius: 'clavem privatam tuam nobis dare posses ut cum incipio scandalum creares?', message: 'could you give us your private key to create the incipio block with?');
