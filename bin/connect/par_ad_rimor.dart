@@ -76,6 +76,7 @@ class ParAdRimor {
   List<Transactio> liberTransactions = [];
   List<Transactio> fixumTransactions = [];
   List<Transactio> expressiTransactions = [];
+  List<Transactio> basesstealins = [];
   List<InritaTransactio> inritaTransactions = [];
   List<SiRemotionem> siRemotiones = [];
   List<ConnexaLiberExpressi> connexiaLiberExpressis = [];
@@ -299,8 +300,8 @@ class ParAdRimor {
             break;
           }
           case PervideasNuntiusTitulus.liberTransactio: {
-            LiberTransactioPervideasNuntius ltpn =
-              LiberTransactioPervideasNuntius.ex(
+            TransactioPervideasNuntius ltpn =
+              TransactioPervideasNuntius.ex(
                   json.decode(qi.msg) as Map<String, dynamic>);
             List<Obstructionum> lo = await Obstructionum.getBlocks(directorium);
             List<Transactio> ltc = List<Transactio>.from(liberTransactions.map((mlt) => Transactio.fromJson(mlt.toJson())));
@@ -346,6 +347,51 @@ class ParAdRimor {
             break;
           }
           case PervideasNuntiusTitulus.fixumTransactio: {
+            TransactioPervideasNuntius ltpn =
+              TransactioPervideasNuntius.ex(
+                  json.decode(qi.msg) as Map<String, dynamic>);
+            List<Obstructionum> lo = await Obstructionum.getBlocks(directorium);
+            List<Transactio> ltc = List<Transactio>.from(fixumTransactions.map((mlt) => Transactio.fromJson(mlt.toJson())));
+            ltc.add(ltpn.transactio);
+            if (await convalidandumLiber(ltc, lo)) {
+              if (fixumTransactions.any((alt) =>
+                  alt.interiore.identitatis ==
+                  ltpn.transactio.interiore.identitatis)) {
+                Transactio lt = fixumTransactions.singleWhere((swlt) => swlt.interiore.identitatis == ltpn.transactio.interiore.identitatis);
+                int zerosOld = 0;
+                for (int i = 1; i < lt.probationem.length; i++) {
+                  if (lt.probationem.substring(0, i) == ('0' * i)) {
+                    zerosOld += 1;
+                  }
+                }
+                int zerosNew = 0;
+                for (int i = 1; i < ltpn.transactio.probationem.length; i++) {
+                  if (ltpn.transactio.probationem.substring(0, i) == ('0' * i)) {
+                    zerosNew += 1;
+                  }
+                }
+                if (zerosNew <= zerosOld) {
+                  Print.nota(nuntius: 'non habes ius pro hac re in transactione piscinae', message: 'you do not have the right to replace this transaction in the transaction pool');
+                  break;
+                }
+                fixumTransactions.removeWhere((rwlt) =>
+                    rwlt.interiore.identitatis ==
+                    ltpn.transactio.interiore.identitatis);
+              }
+              fixumTransactions.add(ltpn.transactio);
+              // if (!expressiTransactions.any((aet) => aet.interiore.inputs.any((ei) => ei.transactioIdentitatis == ltpn.transactio.interiore.identitatis) && (ltpn.transactio.interiore.transactioSignificatio == TransactioSignificatio.regularis || ltpn.transactio.interiore.transactioSignificatio == TransactioSignificatio.refugium))) {
+              //   print('ithinkiwrote');
+              //   clientis.write(json.encode(PetitioExpressiTransactioPervideasNuntius(PervideasNuntiusTitulus.petitioExpressiTransactio, pn.accepit).indu()));
+              // }
+              if (!pn.accepit.contains(ip)) {
+                pn.accepit.add(ip);
+              }
+              syncThrough(TransactioGenus.liber, ltpn.transactio, pn.accepit);
+            } else {
+              Print.nota(nuntius: 'transactionis relativus inventus non est sic, haec transactio ad tergum queue movebitur et postea convalescit', message: 'the refered transaction was not found so this transaction will move to the back of the queue and will be validated later');
+              epistulae.add(QueueItem(qi.clientis, qi.msg));
+            }
+            break;
             // FixumTransactioPervideasNuntius ftpn =
             //   FixumTransactioPervideasNuntius.ex(
             //       json.decode(eventus) as Map<String, dynamic>);
@@ -368,6 +414,53 @@ class ParAdRimor {
             //   syncThrough(TransactioGenus.fixum, ftpn.transactio, pn.accepit);
             // }
             // break;
+          }
+          case PervideasNuntiusTitulus.syncBasesStealIns: {
+            TransactioPervideasNuntius ltpn =
+              TransactioPervideasNuntius.ex(
+                  json.decode(qi.msg) as Map<String, dynamic>);
+            List<Obstructionum> lo = await Obstructionum.getBlocks(directorium);
+            List<Transactio> ltc = List<Transactio>.from(basesstealins.map((mlt) => Transactio.fromJson(mlt.toJson())));
+            ltc.add(ltpn.transactio);
+            if (await convalidandumLiber(ltc, lo)) {
+              if (basesstealins.any((alt) =>
+                  alt.interiore.identitatis ==
+                  ltpn.transactio.interiore.identitatis)) {
+                Transactio lt = basesstealins.singleWhere((swlt) => swlt.interiore.identitatis == ltpn.transactio.interiore.identitatis);
+                int zerosOld = 0;
+                for (int i = 1; i < lt.probationem.length; i++) {
+                  if (lt.probationem.substring(0, i) == ('0' * i)) {
+                    zerosOld += 1;
+                  }
+                }
+                int zerosNew = 0;
+                for (int i = 1; i < ltpn.transactio.probationem.length; i++) {
+                  if (ltpn.transactio.probationem.substring(0, i) == ('0' * i)) {
+                    zerosNew += 1;
+                  }
+                }
+                if (zerosNew <= zerosOld) {
+                  Print.nota(nuntius: 'non habes ius pro hac re in transactione piscinae', message: 'you do not have the right to replace this transaction in the transaction pool');
+                  break;
+                }
+                basesstealins.removeWhere((rwlt) =>
+                    rwlt.interiore.identitatis ==
+                    ltpn.transactio.interiore.identitatis);
+              }
+              basesstealins.add(ltpn.transactio);
+              // if (!expressiTransactions.any((aet) => aet.interiore.inputs.any((ei) => ei.transactioIdentitatis == ltpn.transactio.interiore.identitatis) && (ltpn.transactio.interiore.transactioSignificatio == TransactioSignificatio.regularis || ltpn.transactio.interiore.transactioSignificatio == TransactioSignificatio.refugium))) {
+              //   print('ithinkiwrote');
+              //   clientis.write(json.encode(PetitioExpressiTransactioPervideasNuntius(PervideasNuntiusTitulus.petitioExpressiTransactio, pn.accepit).indu()));
+              // }
+              if (!pn.accepit.contains(ip)) {
+                pn.accepit.add(ip);
+              }
+              syncThrough(TransactioGenus.liber, ltpn.transactio, pn.accepit);
+            } else {
+              Print.nota(nuntius: 'transactionis relativus inventus non est sic, haec transactio ad tergum queue movebitur et postea convalescit', message: 'the refered transaction was not found so this transaction will move to the back of the queue and will be validated later');
+              epistulae.add(QueueItem(qi.clientis, qi.msg));
+            }
+            break;
           }
           case PervideasNuntiusTitulus.expressiTransactio: {
             ExpressiTransactioPervideasNuntius etpn =
@@ -1396,6 +1489,37 @@ class ParAdRimor {
         continue;
       }
     } 
+  }
+
+  Future syncBasesStealIns(Transactio tx) async {
+    if (basesstealins.any((t) =>
+        t.interiore.identitatis ==
+        tx.interiore.identitatis)) {
+      basesstealins.removeWhere((t) =>
+          t.interiore.identitatis ==
+          tx.interiore.identitatis);
+    }
+    basesstealins.add(tx);
+    await filterOnline();
+    List<String> conatus = [];
+    while (true) {
+      try {
+        List<String> acceptum = bases.where((wbases) => !conatus.contains(wbases)).toList();
+        if (acceptum.isEmpty) {
+          break;
+        }
+        String nervuss = acceptum[random.nextInt(acceptum.length)];
+        conatus.add(nervuss);
+        Socket nervus = await Socket.connect(
+          nervuss.split(':')[0], int.parse(nervuss.split(':')[1]));
+        nervus.write(json.encode(TransactioPervideasNuntius(
+          tx, PervideasNuntiusTitulus.syncBasesStealIns, [ip]).indu()));
+        nervus.destroy();
+        break;
+      } catch (e) {
+        continue;
+      }
+    }
   }
 
   Future syncInritaTransaction(InritaTransactio it) async {

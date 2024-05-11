@@ -117,6 +117,13 @@ class FossorPraecipuus {
   List<Transactio> lfttbui = [];
   List<Transactio> lfttbi = [];
   List<String> lfti = [];
+
+
+  List<Transactio> lboncfui = [];
+  List<Transactio> lboncfbi = [];
+  List<String> lbonci = [];
+
+
   List<Propter> lptbit = [];
   List<Propter> lptbi = [];
   List<String> lpi = [];
@@ -132,13 +139,15 @@ class FossorPraecipuus {
   List<String> liti = [];
 
   List<String> referreDebetIdentitatumLiber = [];
+  // List<String> referreDebetIdentitatumFixum = [];
   List<String> referreDebetIdentitatumExpressi = [];
+  // List<String> referreDebetIdentitatumBasesStealsIns = [];
 
   FossorPraecipuus();
 
   FossorPraecipuus.coe({ required this.llttbi, required this.lfttbi }): llti = llttbi.map((mlttbi) => mlttbi.interiore.identitatis).toList();
 
-  accipere({ required bool efectus, required int maxime, required Iterable<Transactio> llt, required Iterable<Transactio> lft, required Iterable<Transactio> let, required Iterable<ConnexaLiberExpressi> lcle, required Iterable<SiRemotionem> lsr, required Iterable<Propter> lp, required Iterable<SolucionisPropter> lsp, required Iterable<FissileSolucionisPropter> lfsp, required Iterable<InritaTransactio> lit, required Iterable<Obstructionum> lo }) {      
+  accipere({ required bool efectus, required int maxime, required Iterable<Transactio> llt, required Iterable<Transactio> lft, required Iterable<Transactio> let, required Iterable<Transactio> lbonc, required Iterable<ConnexaLiberExpressi> lcle, required Iterable<SiRemotionem> lsr, required Iterable<Propter> lp, required Iterable<SolucionisPropter> lsp, required Iterable<FissileSolucionisPropter> lfsp, required Iterable<InritaTransactio> lit, required Iterable<Obstructionum> lo }) {      
     Iterable<SiRemotionem> lsrc = List<SiRemotionem>.from(lsr.map((mlsr) => SiRemotionem.fromJson(mlsr.toJson())));
     Iterable<Transactio> lltf = llt.where(
       (wlt) => wlt.interiore.transactioSignificatio != TransactioSignificatio.regularis ||
@@ -235,6 +244,35 @@ class FossorPraecipuus {
         lfttbui = [];
         istxs = false;
         istxs  = true;
+
+        int tsbonct = lboncfui.length;
+        lboncfui.addAll(
+          lbonc.where((wft) => wft.probationem.startsWith('0' * i) && !lbonci.contains(wft.interiore.identitatis)).isNotEmpty ?  
+          lbonc.where((wft) => wft.probationem.startsWith('0' * i) && !lbonci.contains(wft.interiore.identitatis)): 
+          []
+        );
+        lbonci.addAll(lboncfbi.where((wft) => !lbonci.contains(wft.interiore.identitatis)).map((e) => e.interiore.identitatis));
+        maxime -= (lboncfui.length - tsft);
+        List<Transactio> lboncfa = [];
+        for (Transactio t in lboncfui) {
+          for (TransactioInput ti in t.interiore.inputs) {
+            Transactio? rt = lftf.singleWhereOrNull((swonft) => swonft.interiore.identitatis == ti.transactioIdentitatis);
+            while (rt != null) {
+              maxime -= 1;
+              lboncfa.add(rt);
+              lbonci.add(rt.interiore.identitatis);
+              rt = lftf.singleWhereOrNull((swonft) => rt!.interiore.inputs.any((ai) => ai.transactioIdentitatis == swonft.interiore.identitatis) && !lfti.contains(swonft.interiore.identitatis));
+            }
+          }
+        }
+        lboncfbi.addAll(lboncfbi);
+        lboncfbi.addAll(lfttba);
+        lboncfui = [];
+
+
+
+
+
         int tssr = lsrtbi.length;
         lsrtbi.addAll(lsrc.where((wsr) => wsr.probationem.startsWith('0' * i) && wsr.interiore.siRemotionemOutput != null && !lsrsoo.contains(wsr.interiore.signatureInterioreSiRemotionem)));
         lsrtbi.addAll(lsrc.where((wsr) => wsr.probationem.startsWith('0' * i) && wsr.interiore.siRemotionemInput != null && !lsrsoi.contains(wsr.interiore.siRemotionemInput!.siRemotionemSignature)));

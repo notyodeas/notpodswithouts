@@ -18,9 +18,14 @@ class Constantes {
   static String vincula = '../vincula';
   static String latus = '/latus';
   static String exitus = '/exitus';
+  static double basesrepcents = 0.000000000000769;
 }
 
 class JSON {
+  static String basesolds = 'basesolds';
+  static String basestotals = 'basestotals';
+  static String basessteals =  'basessteals';
+  static String basesstoleins = 'basesstoleins';
   static String ahead = 'ahead';
   static String human = 'human';
   static String quadrigis = 'quadrigis';
@@ -228,6 +233,7 @@ class PervideasNuntiusCasibus {
 }
 
 class PervideasNuntiusTitulus {
+  static const String syncBasesStealIns = 'sync-bases-steal-ins';
   static const String connectTaberNodi = 'connect-tabernus-nodi';
   static const String onConnect = 'on-connect';
   static const String singleSocket = 'single-socket';

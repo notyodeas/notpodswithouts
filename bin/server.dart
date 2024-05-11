@@ -1,4 +1,3 @@
-// = == = = == = == =
 import 'dart:io';
 import 'dart:convert';
 import 'dart:isolate';
@@ -31,6 +30,7 @@ import 'itineribus/network_iter.dart';
 import 'itineribus/download_iter.dart';
 import 'package:shelf_cors_headers/shelf_cors_headers.dart';
 import 'package:shelf_plus/shelf_plus.dart';
+import 'itineribus/bases_steals_ins_iter.dart';
 
 class PoschosTesches {
   String? vaschal;
@@ -91,6 +91,7 @@ final _router = Router().plus
   ..get('/profundum-debita-habereius/<debita>/<publica-clavis>', profundumDebitaHabereIus)
   ..post('/profundum-retribuere', profundumRetribuere)
   // ..get('/profundum-profundums/<publica-clavis>', profundumProfundums)
+  ..post('/bases-stealsinsseconds/<privatenotkeys>', stealsinsseconds)
   ..get('/furca-foramen', furcaForamen)
   ..get('/furca-tridentes', furcaTridentes)
   ..get('/furca-quaerere', furcaQuaerere)
@@ -147,6 +148,7 @@ class Isolates {
   Map<String, Isolate> liberTxIsolates = Map();
   Map<String, Isolate> fixumTxIsolates = Map();
   Map<String, Isolate> expressiTxIsolates = Map();
+  Map<String, Isolate> basesstolein = Map();
   Map<String, Isolate> connexaLiberExpressiIsolates = Map();
   Map<String, Isolate> siRemotionemIsolates = Map();
   Map<String, Isolate> solocionisRationem = Map();
@@ -160,7 +162,6 @@ void main(List<String> args) async {
   // Use any available host or container IP (usually `0.0.0.0`).
   final ip = InternetAddress.anyIPv4;
   var total = ArgParser();
-  total.addOption('humano', defaultsTo: '= == =');
   total.addOption('obstructionum-directorium');
   total.addOption('max-pervideas', defaultsTo: '51');
   total.addOption('internum-ip', defaultsTo: '127.0.0.1');
@@ -172,14 +173,12 @@ void main(List<String> args) async {
   total.addOption('praemium', defaultsTo: '763000000000000000000');
   total.addOption('incipio-ex');
   total.addOption('furca');
-  total.addOption('ahead', defaultsTo: '= == = = == = ==');
   total.addFlag('partum-key-par');
   total.addFlag('novus-catena');
   total.addFlag('novus');
   total.addFlag('sync-novus');
   total.addFlag('sync-pergo');
   total.addFlag('sync-furca');
-  total.addOption('computatrum', defaultsTo: '= == = ==');
   var eventus = total.parse(args);
   if (eventus['partum-key-par']) {
     final kp = ClavisPar();

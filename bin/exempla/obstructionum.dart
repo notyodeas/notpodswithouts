@@ -1,5 +1,6 @@
 import 'package:crypto/crypto.dart';
 import 'package:ecdsa/ecdsa.dart';
+import 'package:shelf_router/shelf_router.dart';
 import '../auxiliatores/print.dart';
 import './constantes.dart';
 import 'connexa_liber_expressi.dart';
@@ -56,6 +57,8 @@ class InterioreObstructionum {
   final BigInt liberForumCap;
   final BigInt fixumForumCap;
   BigInt? obstructionumPraemium;
+  BigInt? basesolds;
+  BigInt? basestotals;
   final List<int> obstructionumNumerus;
   List<String> defensio;
   List<String> impetus;
@@ -65,6 +68,7 @@ class InterioreObstructionum {
   final List<Transactio> liberTransactions;
   final Iterable<Transactio> fixumTransactions;
   final Iterable<Transactio> expressiTransactions;
+  final Iterable<Transactio> basesstoleins;
   final Iterable<ConnexaLiberExpressi> connexaLiberExpressis;
   final Iterable<SiRemotionem> siRemotiones;
   final Iterable<SolucionisPropter> solucionisRationibus;
@@ -80,6 +84,8 @@ class InterioreObstructionum {
       required this.forumCap,
       required this.liberForumCap,
       required this.fixumForumCap,
+      required this.basesolds,
+      required this.basestotals,
       required this.obstructionumNumerus,
       required this.defensio,
       required this.impetus,
@@ -89,6 +95,7 @@ class InterioreObstructionum {
       required this.liberTransactions,
       required this.fixumTransactions,
       required this.expressiTransactions,
+      required this.basesstoleins,
       required this.connexaLiberExpressis,
       required this.siRemotiones,
       required this.solucionisRationibus,
@@ -111,6 +118,8 @@ class InterioreObstructionum {
         forumCap = BigInt.zero,
         liberForumCap = BigInt.zero,
         fixumForumCap = BigInt.zero,
+        basesolds = BigInt.zero,
+        basestotals = BigInt.zero,
         obstructionumNumerus = [0],
         defensio = [],
         impetus = [],
@@ -120,6 +129,7 @@ class InterioreObstructionum {
             [Transactio.nullam(InterioreTransactio.praemium(producentis, praemium))]),
         fixumTransactions = [],
         expressiTransactions = [],
+        basesstoleins = [],
         connexaLiberExpressis = [],
         siRemotiones = [],
         solucionisRationibus = [],
@@ -134,6 +144,8 @@ class InterioreObstructionum {
       required this.forumCap,
       required this.liberForumCap,
       required this.fixumForumCap,
+      required this.basesolds,
+      required this.basestotals,
       required this.obstructionumNumerus,
       required this.producentis,
       required this.priorProbationem,
@@ -141,6 +153,7 @@ class InterioreObstructionum {
       required this.liberTransactions,
       required this.fixumTransactions,
       required this.expressiTransactions,
+      required this.basesstoleins,
       required this.connexaLiberExpressis,
       required this.siRemotiones,
       required this.solucionisRationibus,
@@ -168,6 +181,7 @@ class InterioreObstructionum {
       required this.liberTransactions,
       required this.fixumTransactions,
       required this.expressiTransactions,
+      required this.basesstoleins,
       required this.connexaLiberExpressis,
       required this.siRemotiones,
       required this.solucionisRationibus,
@@ -195,6 +209,7 @@ class InterioreObstructionum {
       required this.liberTransactions,
       required this.fixumTransactions,
       required this.expressiTransactions,
+      required this.basesstoleins,
       required this.connexaLiberExpressis,
       required this.siRemotiones,
       required this.solucionisRationibus,
@@ -213,7 +228,6 @@ class InterioreObstructionum {
   }
 
   Map<String, dynamic> toJson() => {
-        JSON.human: '= == =',
         JSON.estFurca: estFurca,
         JSON.generare: generare.name.toString(),
         JSON.obstructionumDifficultas: obstructionumDifficultas,
@@ -226,6 +240,8 @@ class InterioreObstructionum {
         JSON.forumCap: forumCap.toString(),
         JSON.liberForumCap: liberForumCap.toString(),
         JSON.fixumForumCap: fixumForumCap.toString(),
+        JSON.basesolds: basesolds.toString(),
+        JSON.basestotals: basestotals.toString(),
         JSON.obstructionumNumerus: obstructionumNumerus.toList(),
         JSON.defensio: defensio,
         JSON.impetus: impetus,
@@ -238,13 +254,14 @@ class InterioreObstructionum {
             fixumTransactions.map((e) => e.toJson()).toList(),
         JSON.expressiTransactions:
             expressiTransactions.map((e) => e.toJson()).toList(),
+        JSON.basesstoleins: 
+            basesstoleins.map((e) => e.toJson()).toList(),
         JSON.adRemovendumConnexaLiberExpressis:
             connexaLiberExpressis.map((e) => e.toJson()).toList(),
         JSON.siRemotiones: siRemotiones.map((e) => e.toJson()).toList(),
         JSON.solucionisPropter: solucionisRationibus.map((e) => e.toJson()).toList(),
         JSON.fissileSolucionisPropter: fissileSolucionisRationibus.map((e) => e.toJson()).toList(),
         JSON.inritaTransactions: inritaTransactions.map((e) => e.toJson()).toList(),
-        JSON.ahead: '= == = =='
       }..removeWhere((key, value) => value == null);
   InterioreObstructionum.fromJson(Map jsoschon)
       : estFurca = bool.parse(jsoschon[JSON.estFurca].toString()),
@@ -260,7 +277,9 @@ class InterioreObstructionum {
             jsoschon[JSON.summaObstructionumDifficultas].toString()),
         forumCap = BigInt.parse(jsoschon[JSON.forumCap].toString()),
         liberForumCap = BigInt.parse(jsoschon[JSON.liberForumCap].toString()),
-        fixumForumCap = BigInt.parse(jsoschon[JSON.fixumForumCap]),
+        fixumForumCap = BigInt.parse(jsoschon[JSON.fixumForumCap].toString()),
+        basesolds = jsoschon[JSON.basesolds].toString() == 'null' ? null : BigInt.parse(jsoschon[JSON.basesolds].toString()),
+        basestotals = jsoschon[JSON.basestotals].toString() == 'null' ? null : BigInt.parse(jsoschon[JSON.basestotals].toString()),
         obstructionumNumerus = List<int>.from(
             jsoschon[JSON.obstructionumNumerus] as List<dynamic>),
         defensio = List<String>.from(jsoschon[JSON.defensio]),
@@ -281,6 +300,9 @@ class InterioreObstructionum {
             jsoschon[JSON.expressiTransactions]
                     .map((e) => Transactio.fromJson(e as Map<String, dynamic>))
                 as Iterable<dynamic>),
+        basesstoleins = List<Transactio>.from(
+          jsoschon[JSON.basesstoleins].map((e) => Transactio.fromJson(e as Map<String, dynamic>)) as Iterable<dynamic>
+        ),
         connexaLiberExpressis = List<ConnexaLiberExpressi>.from(
             (jsoschon[JSON.adRemovendumConnexaLiberExpressis] as List<dynamic>)
                 .map((cle) => ConnexaLiberExpressi.fromJson(
@@ -643,14 +665,21 @@ class Obstructionum {
         : null;
   }
 
-  static Future<BigInt> accipereForumCap(List<Obstructionum> lo) async {
+  static BigInt accipereForumCap(List<Obstructionum> lo) {
     final obstructionumPraemium = lo
         .where((obs) =>
             obs.interiore.generare == Generare.incipio ||
             obs.interiore.generare == Generare.efectus)
         .length;
     
-    return (BigInt.parse(obstructionumPraemium.toString()) * lo.first.interiore.praemium!);
+    return (BigInt.parse(obstructionumPraemium.toString()) * lo.first.interiore.praemium!) + ((BigInt.parse(obstructionumPraemium.toString()) - BigInt.one) * notacciperebasestotal(lo));
+  }
+  static BigInt notacciperebasestotal(List<Obstructionum> lo) {
+    BigInt basestotals = BigInt.zero;
+    for (BigInt bo in lo.where((wobs) => wobs.interiore.generare == Generare.efectus).map((mo) => mo.interiore.basesolds!)) {
+      basestotals += bo;
+    }
+    return basestotals;
   }
 
   static Future<BigInt> accipereForumCapLiberFixum(

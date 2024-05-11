@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 import 'package:elliptic/elliptic.dart';
+import 'package:tuple/tuple.dart';
 import 'dart:isolate';
 import '../auxiliatores/fossor_praecipuus.dart';
 import '../exempla/constantes.dart';
@@ -34,6 +35,7 @@ Future<Response> fossorEfectus(Request req) async {
     llt: par!.liberTransactions, 
     lft: par!.fixumTransactions, 
     let: par!.expressiTransactions, 
+    lbonc: par!.basesstealins,
     lcle: par!.connexiaLiberExpressis, 
     lsr: par!.siRemotiones, 
     lp: par!.rationibus, 
@@ -53,14 +55,27 @@ Future<Response> fossorEfectus(Request req) async {
   for (SiRemotionem sr in fp.lsrtbi.where((wlsr) => wlsr.interiore.siRemotionemInput != null)) {
     sr.interiore.siRemotionemInput!.interioreTransactio = null;
   }
+  List<Tuple3<String, GladiatorOutput, bool>> notgladiator =
+      await Obstructionum.invictosGladiatores(directorium);
+  List<GladiatorOutput> notgladiatoroutput = notgladiator.map((mng) => mng.item2).toList();
+  List<String> privatenotkey = [];
+  notgladiatoroutput.map((e) => e.rationibus.map((e) => e.interiore.publicaClavis)).forEach(privatenotkey.addAll);
+  BigInt basesolds = BigInt.zero;
+  for (String privatenotkeys in privatenotkey) {
+    print('isesdowns');
+    print(privatenotkeys);
+    basesolds += BigInt.parse(((double.parse(Pera.habetBid(false, privatenotkeys, lo).toString()) * Constantes.basesrepcents).floor().toString()));
+  }
   ReceivePort rp = ReceivePort();
   InterioreObstructionum interiore = InterioreObstructionum.efectus(
     estFurca: estFurca,
     obstructionumDifficultas: obstructionumDifficultas.length,
     divisa: numerus / await Obstructionum.utSummaDifficultas(lo),
-    forumCap: await Obstructionum.accipereForumCap(lo),
+    forumCap: Obstructionum.accipereForumCap(lo),
     liberForumCap: await Obstructionum.accipereForumCapLiberFixum(true, lo),
     fixumForumCap: await Obstructionum.accipereForumCapLiberFixum(false, lo),
+    basesolds: basesolds,
+    basestotals: Obstructionum.notacciperebasestotal(lo),
     summaObstructionumDifficultas: await Obstructionum.utSummaDifficultas(lo),
     obstructionumNumerus: on,
     producentis: argumentis!.publicaClavis,
@@ -70,6 +85,7 @@ Future<Response> fossorEfectus(Request req) async {
     liberTransactions: fp.llttbi,
     fixumTransactions: fp.lfttbi,
     expressiTransactions: fp.lettbi,
+    basesstoleins: fp.lboncfbi,
     connexaLiberExpressis: fp.lcletbi,
     siRemotiones: fp.lsrtbi,
     solucionisRationibus: fp.lsptbi,
